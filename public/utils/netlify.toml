@@ -1,0 +1,19 @@
+# netlify.toml
+[build]
+  publish = "public"      # Diretório onde seu index.html e outros arquivos estáticos estão
+  functions = "netlify/functions" # Diretório onde suas Netlify Functions estão
+
+[functions]
+  node_bundler = "esbuild" # Para builds mais rápidas de funções Node.js
+
+# Redirecionamentos opcionais para URLs mais amigáveis (ex: /api/get-motivation)
+# Se você usar isso, lembre-se de atualizar o fetch() no seu frontend!
+[[redirects]]
+  from = "/api/get-motivation"
+  to = "/.netlify/functions/get-motivation"
+  status = 200
+
+[[redirects]]
+  from = "/api/get-training-tips"
+  to = "/.netlify/functions/get-training-tips"
+  status = 200
