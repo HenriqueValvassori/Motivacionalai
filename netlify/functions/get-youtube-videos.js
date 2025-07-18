@@ -4,8 +4,9 @@ const fetch = require('node-fetch'); // Ou axios, se preferir
 
 exports.handler = async (event, context) => {
     const YOUTUBE_API_KEY = process.env.API_YOUTUBE; // Sua chave da API do YouTube do Netlify
-    const CHANNEL_ID = 'UCM8vmU13i3wdC6qosu-Dmdw'; // <-- Mude para o ID do seu canal do YouTube
-    const MAX_RESULTS = 15; // Aumentado para garantir mais vídeos longos, se necessário
+    const CHANNEL_ID = 'UCM8vmU13i3wdC6qosu-Dmdw'; // <-- Seu ID do canal do YouTube
+
+    const MAX_RESULTS = 15; // Quantos vídeos você quer buscar
 
     if (!YOUTUBE_API_KEY) {
         return {
@@ -13,8 +14,14 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Chave da API do YouTube não configurada.' })
         };
     }
-    if (!CHANNEL_ID || CHANNEL_ID === 'UCM8vmU13i3wdC6qosu-Dmdw') {
-        return {
+    // AQUI ESTÁ A CORREÇÃO: Remova a verificação contra o seu CHANNEL_ID real.
+    // A verificação deve ser apenas contra o placeholder original, se ele ainda existisse.
+    // Como você já definiu o CHANNEL_ID, esta verificação pode ser simplificada ou removida
+    // se você tiver certeza que o ID sempre estará presente e correto no código após o deploy.
+    // Se você quiser manter uma verificação de segurança robusta, ela deveria verificar
+    // se o CHANNEL_ID é vazio ou null, mas não contra o valor que ele DEVERIA ter.
+    if (!CHANNEL_ID) { // Apenas verifica se a variável CHANNEL_ID está vazia/null/undefined
+         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'ID do Canal do YouTube não configurado na função get-youtube-videos.' })
         };
@@ -25,7 +32,11 @@ exports.handler = async (event, context) => {
         const searchUrl = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&type=video&maxResults=${MAX_RESULTS}`;
         const searchResponse = await fetch(searchUrl);
         if (!searchResponse.ok) {
-            throw new Error(`Erro na busca de vídeos do YouTube: ${searchResponse.statusText}`);
+            // Log do erro mais detalhado para Netlify Functions logs
+            console.error(`Youtube API Error: ${searchResponse.status} - ${searchResponse.statusText}`);
+            const errorBody = await searchResponse.text(); // Tenta ler o corpo do erro da API do YouTube
+            console.error('Youtube API Error Body:', errorBody);
+            throw new Error(`Erro na busca de vídeos do YouTube: ${searchResponse.statusText}. Detalhes: ${errorBody}`);
         }
         const searchData = await searchResponse.json();
 
@@ -36,7 +47,7 @@ exports.handler = async (event, context) => {
         if (videoIds.length === 0) {
             return {
                 statusCode: 200,
-                body: JSON.stringify({ videos: [] }),
+                body: JSON.stringify({ regularVideos: [] }), // Retorna array vazio para regularVideos
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
             };
         }
@@ -45,7 +56,11 @@ exports.handler = async (event, context) => {
         const videosUrl = `https://www.googleapis.com/youtube/v3/videos?key=${YOUTUBE_API_KEY}&id=${videoIds.join(',')}&part=contentDetails,snippet`;
         const videosResponse = await fetch(videosUrl);
         if (!videosResponse.ok) {
-            throw new Error(`Erro ao buscar detalhes dos vídeos do YouTube: ${videosResponse.statusText}`);
+            // Log do erro mais detalhado
+            console.error(`YouTube Videos API Error: ${videosResponse.status} - ${videosResponse.statusText}`);
+            const errorBody = await videosResponse.text();
+            console.error('YouTube Videos API Error Body:', errorBody);
+            throw new Error(`Erro ao buscar detalhes dos vídeos do YouTube: ${videosResponse.statusText}. Detalhes: ${errorBody}`);
         }
         const videosData = await videosResponse.json();
 
