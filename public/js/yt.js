@@ -27,7 +27,7 @@
             }
     
             // Faz a chamada à API do YouTube para obter detalhes do vídeo
-            fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${YOUTUBE_API_KEY}&part=contentDetails,snippet`)
+            fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${API_YOUTUBE}&part=contentDetails,snippet`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`Erro na API do YouTube: ${response.statusText}`);

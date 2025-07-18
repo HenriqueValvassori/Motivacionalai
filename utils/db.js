@@ -4,7 +4,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Configuração do Banco de Dados PostgreSQL
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.NETLIFY_DATABASE_URL,
     ssl: {
         rejectUnauthorized: false // Necessário para conexão com alguns provedores de DB como o Cyclic/Neon
     }
