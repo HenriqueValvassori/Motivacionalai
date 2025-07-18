@@ -4,7 +4,7 @@ const fetch = require('node-fetch'); // Ou axios, se preferir
 
 exports.handler = async (event, context) => {
     const YOUTUBE_API_KEY = process.env.API_YOUTUBE; // Sua chave da API do YouTube do Netlify
-    const CHANNEL_ID = 'SEU_CANAL_ID_AQUI'; // <-- Mude para o ID do seu canal do YouTube
+    const CHANNEL_ID = 'UCM8vmU13i3wdC6qosu-Dmdw'; // <-- Mude para o ID do seu canal do YouTube
     const MAX_RESULTS = 15; // Aumentado para garantir mais vídeos longos, se necessário
 
     if (!YOUTUBE_API_KEY) {
