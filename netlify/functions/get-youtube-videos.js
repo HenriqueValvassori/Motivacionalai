@@ -4,11 +4,8 @@ const fetch = require('node-fetch'); // Ou axios, se preferir
 
 exports.handler = async (event, context) => {
     const YOUTUBE_API_KEY = process.env.API_YOUTUBE; // Sua chave da API do YouTube do Netlify
-    // Substitua pelo ID do seu canal ou de uma playlist específica
-    // Você pode encontrar o ID do canal na URL do canal ou usando ferramentas de busca de ID.
-    // Exemplo de ID de canal: UCrY9m0x-E9z3eG7e9J9d9Q
     const CHANNEL_ID = 'SEU_CANAL_ID_AQUI'; // <-- Mude para o ID do seu canal do YouTube
-    const MAX_RESULTS = 9; // Quantos vídeos você quer buscar (ex: 3 Shorts, 6 Vídeos)
+    const MAX_RESULTS = 15; // Aumentado para garantir mais vídeos longos, se necessário
 
     if (!YOUTUBE_API_KEY) {
         return {
@@ -39,7 +36,7 @@ exports.handler = async (event, context) => {
         if (videoIds.length === 0) {
             return {
                 statusCode: 200,
-                body: JSON.stringify({ videos: [] }), // Retorna um array vazio se não houver vídeos
+                body: JSON.stringify({ videos: [] }),
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
             };
         }
@@ -52,8 +49,7 @@ exports.handler = async (event, context) => {
         }
         const videosData = await videosResponse.json();
 
-        const videos = videosData.items.map(video => {
-            // Lógica para determinar se é um Short baseada na duração
+        const allVideos = videosData.items.map(video => {
             const duration = video.contentDetails.duration; // Ex: PT1M30S
             const durationMatch = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
             let totalSeconds = 0;
@@ -66,19 +62,18 @@ exports.handler = async (event, context) => {
             return {
                 id: video.id,
                 title: video.snippet.title,
-                thumbnail: video.snippet.thumbnails.medium.url, // ou high.url
+                thumbnail: video.snippet.thumbnails.medium.url,
                 duration: totalSeconds,
                 isShort: isShort
             };
         });
 
-        // Opcional: Separar Shorts de vídeos normais, se quiser manter galerias separadas
-        const shorts = videos.filter(v => v.isShort);
-        const regularVideos = videos.filter(v => !v.isShort);
+        // Filtrar apenas os vídeos que NÃO são Shorts
+        const regularVideos = allVideos.filter(v => !v.isShort);
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ shorts, regularVideos }), // Retorna dois arrays
+            body: JSON.stringify({ regularVideos }), // Retorna apenas os vídeos regulares
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'

@@ -54,10 +54,7 @@
             padding-bottom: 56.25%; /* (altura / largura) * 100 = (9 / 16) * 100 */
         }
         
-        /* Proporção para Shorts (9:16) */
-        .aspect-ratio-9x16 {
-            padding-bottom: 177.78%; /* (altura / largura) * 100 = (16 / 9) * 100 */
-        }
+        /* Removido o estilo para 9x16, pois não teremos Shorts */
 
         h1 {
             color: #00ff6a;
@@ -83,17 +80,15 @@
             color: #dc3545;
             margin-top: 15px;
         }
-        .video-gallery {
+        /* Estilo para a galeria de vídeos longos (ajustado para centralizar) */
+        .video-gallery { /* Renomeado de video-gallery2 para video-gallery */
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Ajustado para melhor responsividade em colunas */
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
             padding: 20px;
-        }
-        .video-gallery2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Ajustado para melhor responsividade em colunas */
-            gap: 20px;
-            padding: 20px;
+            justify-items: center; /* Centraliza os itens dentro de cada célula da grid */
+            max-width: 1200px; /* Limita a largura máxima da galeria */
+            margin: 0 auto; /* Centraliza a galeria na página */
         }
         .colorh2 {
             color: #00ff6a;
@@ -163,15 +158,9 @@
         </div>
     </section>
     <br><br>
-    <center> <h1 class="colorh2">Shorts</h1></center>
-
-    <main id="shortsGallery" class="video-gallery">
-        <p class="loading-videos">Carregando Shorts...</p>
-    </main>
-
-    <br>
-    <center><h1 class="colorh2">Videos</h1></center>
-    <main id="videosGallery" class="video-gallery2">
+    
+    <center><h1 class="colorh2">Nossos Vídeos</h1></center>
+    <main id="videosGallery" class="video-gallery">
         <p class="loading-videos">Carregando Vídeos...</p>
     </main>
     
