@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Chave da API do YouTube não configurada.' })
         };
     }
-    if (!CHANNEL_ID || CHANNEL_ID === 'SEU_CANAL_ID_AQUI') {
+    if (!CHANNEL_ID || CHANNEL_ID === 'UCM8vmU13i3wdC6qosu-Dmdw') {
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'ID do Canal do YouTube não configurado na função get-youtube-videos.' })
