@@ -37,6 +37,7 @@
             position: relative;
             width: 100%; /* O container ocupa a largura total do elemento pai */
             overflow: hidden; /* Garante que o iframe não vaze do container */
+            margin-bottom: 20px; /* Adicionado para espaçamento entre os vídeos */
         }
         
         /* Estilo para o iframe */
@@ -84,19 +85,18 @@
         }
         .video-gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Ajustado para melhor responsividade em colunas */
             gap: 20px;
             padding: 20px;
         }
         .video-gallery2 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Ajustado para vídeos normais */
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Ajustado para melhor responsividade em colunas */
             gap: 20px;
             padding: 20px;
         }
-        /* Garantir que .colorh2 use a cor desejada */
         .colorh2 {
-            color: #00ff6a; /* ou a cor específica que você deseja */
+            color: #00ff6a;
         }
     </style>
 </head>
@@ -165,78 +165,14 @@
     <br><br>
     <center> <h1 class="colorh2">Shorts</h1></center>
 
-    <main class="video-gallery">
-        <div class="video-container aspect-ratio-9x16">
-            <iframe width="560" height="315"
-            src="https://www.youtube.com/embed/anc5cw0DxohpFAKv"
-            title="Título do vídeo do YouTube"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-            </iframe>
-        </div>
-        
-        <div class="video-container aspect-ratio-9x16">
-            <iframe width="560" height="315"
-            src="https://www.youtube.com/embed/d4IMlKZ2E3iLi7kg"
-            title="Título do vídeo do YouTube"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-            </iframe>
-        </div>
-        
-        <div class="video-container aspect-ratio-9x16">
-            <iframe width="560" height="315"
-            src="https://www.youtube.com/embed/4BNA-oc9SSSDfcnU"
-            title="Título do vídeo do YouTube"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-            </iframe>
-        </div>
+    <main id="shortsGallery" class="video-gallery">
+        <p class="loading-videos">Carregando Shorts...</p>
     </main>
 
     <br>
     <center><h1 class="colorh2">Videos</h1></center>
-    <main class="video-gallery2">
-        <br><br><br>
-        <center></center><div class="video-container aspect-ratio-16x9">
-            <iframe width="560" height="315"
-            src="https://www.youtube.com/embed/3s868kogkPNMGgxM"
-            title="Título do vídeo do YouTube"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-            </iframe></center>
-        </div>
-        <br><br><br>
-        <center><div class="video-container aspect-ratio-16x9">
-            <iframe width="560" height="315"
-            src="https://www.youtube.com/embed/Sbk__3OPkEBwbg_Q"
-            title="Título do vídeo do YouTube"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-            </iframe></center>
-        </div>
-        <br><br><br><br>
-        <center><div class="video-container aspect-ratio-16x9">
-            <iframe width="560" height="315"
-            src="https://www.youtube.com/embed/4-CDzRQFHhMX310Z"
-            title="Título do vídeo do YouTube"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-            </iframe></center>
-        </div>
-        <br><br><br>
+    <main id="videosGallery" class="video-gallery2">
+        <p class="loading-videos">Carregando Vídeos...</p>
     </main>
     
     <br><br>
@@ -271,7 +207,7 @@
                         <ul>
                             <li class="active"><a target="_blank" href="https://www.tiktok.com/@motivacionalai2"><img class="qw" src="img/tiktok.png" alt=""></a></li>
                             <li class="active"><a target="_blank" href="https://k.kwai.com/u/@motivacionalAI/7CXdhQp3"><img class="qw"  src="img/kwai.png" alt=""></a></li>
-                            <li class="active"><a target="_blank" href="https://www.youtube.com/channel/UC-YOUR-CHANNEL-ID-HERE"><img class="qw"  src="img/youtube.png" alt=""></a></li>
+                            <li class="active"><a target="_blank" href="https://www.google.com/search?q=https://www.youtube.com/embed/SEU_VIDEO_ID_AQUI"><img class="qw"  src="img/youtube.png" alt=""></a></li>
                             <li class="active"><a  href="./index.html"><img class="qw"  src="img/Logo_SiteProtegido_CompraSegura_SSL.webp" height="40" width="40" alt=""></a></li>
                             <li class="active"><a  href="./index.html"><img class="qw"  src="img/images.png" alt="" height="40" width="40"></a></li>
                         </ul>
@@ -320,5 +256,7 @@
     <script src="jsult/google-map.js"></script>
     <script src="jsult/main.js"></script>
 
-    <script src="js/yt.js"></script> <script src="js/motivation-app.js"></script> </body>
+    <script src="js/motivation-app.js"></script>
+
+</body>
 </html>
