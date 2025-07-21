@@ -23,16 +23,17 @@ exports.handler = async (event, context) => {
         await pgClient.connect();
         console.log('Conectado ao banco de dados.'); // Adicionei este log
 
-        const queryText = 'SELECT titulo, conteudo, data_geracao FROM noticias ORDER BY data_geracao DESC LIMIT 1;';
+        const queryText = 'SELECT titulo, conteudo, data_geracao FROM noticias ORDER BY data_geracao DESC;';
         const res = await pgClient.query(queryText);
 
         if (res.rows.length > 0) {
-            const news = res.rows[0];
-            console.log('Notícia encontrada:', news); // Adicionei este log
+            const allNews = res.rows; // Pega todas as notícias
+            console.log('Notícias encontradas:', allNews.length);
             return {
                 statusCode: 200,
-                body: JSON.stringify(news)
+                body: JSON.stringify(allNews) // Retorna um array de notícias
             };
+        
         } else {
             console.log('Nenhuma notícia encontrada no banco de dados.'); // Adicionei este log
             return {

@@ -23,15 +23,15 @@ exports.handler = async (event, context) => {
         await pgClient.connect();
         console.log('Conectado ao banco de dados para dicas de treino.');
 
-        const queryText = 'SELECT titulo, conteudo, data_geracao FROM dicas_treino ORDER BY data_geracao DESC LIMIT 1;';
+        const queryText = 'SELECT titulo, conteudo, data_geracao FROM dicas_treino ORDER BY data_geracao DESC;';
         const res = await pgClient.query(queryText);
 
         if (res.rows.length > 0) {
-            const tip = res.rows[0];
-            console.log('Dica de treino encontrada:', tip);
+            const allTips = res.rows; // Pega todas as dicas
+            console.log('Dicas de treino encontradas:', allTips.length);
             return {
                 statusCode: 200,
-                body: JSON.stringify(tip)
+                body: JSON.stringify(allTips) // Retorna um array de dicas
             };
         } else {
             console.log('Nenhuma dica de treino encontrada no banco de dados.');
