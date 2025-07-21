@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
             const now = new Date();
             const hoursSinceLastGeneration = (now.getTime() - lastGenerationTime.getTime()) / (1000 * 60 * 60);
 
-            if (hoursSinceLastGeneration < 24) {
+           /* if (hoursSinceLastGeneration < 24) {
                 canGenerate = false;
                 console.log(`Dica de treino já gerada há ${hoursSinceLastGeneration.toFixed(2)} horas. Próxima geração em ${(24 - hoursSinceLastGeneration).toFixed(2)} horas.`);
                 return {
@@ -42,7 +42,7 @@ exports.handler = async (event, context) => {
                     body: JSON.stringify({ message: 'Dica de treino não gerada. Intervalo de 24h não atingido.', lastGenerated: lastGenerationTime.toISOString() })
                 };
             }
-        }
+        }*/
 
         if (canGenerate) {
             // 2. Gerar a dica de treino com Gemini Flash
