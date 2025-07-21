@@ -8,80 +8,25 @@
     <link rel="icon" href="img/favicon.png" type="image/png"> </head>
 <body>
     <header>
-        <h1>Notícias Geradas por IA</h1>
+        <h1>Dicas</h1>
     </header>
 
     <main>
-        <section id="news-section">
-            <h2 id="news-title">Carregando notícia...</h2>
-            <div id="news-content">
-                <p>Por favor, aguarde enquanto a notícia é carregada.</p>
+        <center>
+            <div class="container tips-section">
+                <h1 class="colorh2">Dicas de Treino para Iniciantes</h1><br><br><br>
+                <div id="trainingTipsContent" class="p">Carregando dicas de treino...</div>
+                <p id="trainingTipsErrorMessage" class="error" style="display:none;"></p>
             </div>
-            <p id="news-date">Última atualização: --/--/----</p>
-            <p id="error-message" class="error" style="display:none;"></p>
-        </section>
+        </center>
     </main>
 
     <footer>
         <p>&copy; <span id="current-year"></span> Seu Site. Todos os direitos reservados.</p>
     </footer>
 
-    <script src="js/main-news.js"></script>
-    <script>// netlify/functions/get-news.js
-        const { Client } = require('pg');
-        
-        exports.handler = async (event, context) => {
-            const DATABASE_URL = process.env.NETLIFY_DATABASE_URL;
-        
-            if (!DATABASE_URL) {
-                return {
-                    statusCode: 500,
-                    body: JSON.stringify({ error: 'Variável de ambiente DATABASE_URL não configurada.' })
-                };
-            }
-        
-            const pgClient = new Client({
-                connectionString: DATABASE_URL,
-                ssl: {
-                    rejectUnauthorized: false // Use para Supabase/Neon, ajuste se seu provedor exigir certificado
-                }
-            });
-        
-            try {
-                await pgClient.connect();
-        
-                const queryLastNews = `
-                    SELECT titulo, conteudo, data_geracao
-                    FROM noticias
-                    ORDER BY data_geracao DESC
-                    LIMIT 1;
-                `;
-                const res = await pgClient.query(queryLastNews);
-        
-                if (res.rows.length === 0) {
-                    return {
-                        statusCode: 404,
-                        body: JSON.stringify({ error: 'Nenhuma notícia encontrada no banco de dados.' })
-                    };
-                }
-        
-                return {
-                    statusCode: 200,
-                    body: JSON.stringify(res.rows[0]),
-                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-                };
-        
-            } catch (error) {
-                console.error('Erro na função get-news:', error);
-                return {
-                    statusCode: 500,
-                    body: JSON.stringify({ error: `Erro ao buscar notícia: ${error.message}` }),
-                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-                };
-            } finally {
-                await pgClient.end();
-            }
-        };
-    </script>
+    <script src="js/training-tips-app.js"></script>
+
+   
 </body>
 </html>
