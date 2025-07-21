@@ -24,13 +24,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const newsData = await response.json();
 
-            newsTitleElement.textContent = newsData.titulo;
-            // O replace(/\n/g, '<br>') garante que as quebras de linha da IA sejam renderizadas no HTML
-            newsContentElement.innerHTML = newsData.conteudo.replace(/\n/g, '<br>');
-
-            const date = new Date(newsData.data_geracao);
-            newsDateElement.textContent = `Última atualização: ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR')}`;
-
+            // Adiciona uma verificação para garantir que newsData e newsData.conteudo existem
+            if (newsData && newsData.titulo && newsData.conteudo) {
+                newsTitleElement.textContent = newsData.titulo;
+                newsContentElement.innerHTML = newsData.conteudo.replace(/\n/g, '<br>');
+            
+                const date = new Date(newsData.data_geracao);
+                newsDateElement.textContent = `Última atualização: ${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR')}`;
+            } else {
+                // Caso a notícia venha incompleta ou vazia
+                newsTitleElement.textContent = 'Nenhuma notícia disponível no momento.';
+                newsContentElement.innerHTML = '<p>Por favor, volte mais tarde.</p>';
+                newsDateElement.textContent = ''; // Limpa a data de atualização
+                errorMessageElement.textContent = 'Dados da notícia incompletos ou inexistentes.';
+                errorMessageElement.style.display = 'block';
+            }
         } catch (error) {
             console.error('Erro ao buscar notícia:', error);
             newsTitleElement.textContent = 'Erro ao carregar notícia.';
