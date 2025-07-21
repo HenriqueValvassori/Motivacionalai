@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
     }
 
     const pgClient = new Client({
-        connectionString: NETLIFY_DATABASE_URL,
+        connectionString: DATABASE_URL,
         ssl: {
             rejectUnauthorized: false // Use para Supabase/Neon, ajuste se seu provedor exigir certificado
         }
