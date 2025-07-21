@@ -29,12 +29,12 @@ exports.handler = async (event, context) => {
         const resLastTip = await pgClient.query(queryLastTip);
 
         let canGenerate = true;
-        /*if (resLastTip.rows.length > 0) {
+       /* if (resLastTip.rows.length > 0) {
             const lastGenerationTime = new Date(resLastTip.rows[0].data_geracao);
             const now = new Date();
             const hoursSinceLastGeneration = (now.getTime() - lastGenerationTime.getTime()) / (1000 * 60 * 60);
 
-            if (hoursSinceLastGeneration < 24) {
+           if (hoursSinceLastGeneration < 24) {
                 canGenerate = false;
                 console.log(`Dica de treino já gerada há ${hoursSinceLastGeneration.toFixed(2)} horas. Próxima geração em ${(24 - hoursSinceLastGeneration).toFixed(2)} horas.`);
                 return {
@@ -46,7 +46,7 @@ exports.handler = async (event, context) => {
 
         if (canGenerate) {
             // 2. Gerar a dica de treino com Gemini Flash
-            const prompt = `Crie uma dica de treino para iniciantes, com um título cativante e um conteúdo de cerca de 5-7 parágrafos. A dica deve ser prática e motivadora. Exemplo de tema: "Como começar a correr: um guia para iniciantes".`;
+            const prompt = `Crie uma dica de treino para iniciantes,sempre original e diferente do anterior, com novos temas de exercicos, com um título cativante e um conteúdo de cerca de 5-7 parágrafos. A dica deve ser prática e motivadora.`;
 
             const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GOOGLE_API_KEY}`, {
                 method: 'POST',

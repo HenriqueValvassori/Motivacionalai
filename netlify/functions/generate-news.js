@@ -30,7 +30,7 @@ exports.handler = async (event, context) => {
         const resLastNews = await pgClient.query(queryLastNews);
 
         let canGenerate = true;
-       /* if (resLastNews.rows.length > 0) {
+       /*if (resLastNews.rows.length > 0) {
             const lastGenerationTime = new Date(resLastNews.rows[0].data_geracao);
             const now = new Date();
             const hoursSinceLastGeneration = (now.getTime() - lastGenerationTime.getTime()) / (1000 * 60 * 60);
@@ -47,7 +47,7 @@ exports.handler = async (event, context) => {
 
         if (canGenerate) {
             // 2. Gerar a notícia com Gemini Flash
-            const prompt = `Crie uma notícia fictícia e interessante com cerca de 30 linhas sobre um evento inesperado e positivo. Dê um título cativante. Exemplo de tema: "Descoberta surpreendente em projeto de conservação marinha".`;
+            const prompt = `Crie uma notícia fictícia e interessante com cerca de 30 linhas sobre um evento inesperado e positivo.sempre original e diferente do anterior, com novos temas de noticias, Dê um título cativante.`;
 
             // MUDANÇAS AQUI: Endpoint, Headers e Body da requisição para Gemini
             const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GOOGLE_API_KEY}`, {
