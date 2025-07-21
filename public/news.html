@@ -31,7 +31,7 @@
         const { Client } = require('pg');
         
         exports.handler = async (event, context) => {
-            const DATABASE_URL = process.env.DATABASE_URL;
+            const DATABASE_URL = process.env.NETLIFY_DATABASE_URL;
         
             if (!DATABASE_URL) {
                 return {

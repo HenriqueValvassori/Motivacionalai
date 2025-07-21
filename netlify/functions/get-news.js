@@ -3,11 +3,12 @@ const fetch = require('node-fetch');
 const { Client } = require('pg');
 
 exports.handler = async (event, context) => {
-    const MISTRAL_API_KEY = process.env.GEMINI_API_KEY;
+    // A chave API agora é para o Google AI Studio (Gemini)
+    const GOOGLE_API_KEY = process.env.GEMINI_API_KEY; // MUDANÇA AQUI: Nome da variável
     const DATABASE_URL = process.env.NETLIFY_DATABASE_URL;
 
-    if (!MISTRAL_API_KEY || !DATABASE_URL) {
-        console.error("Erro: Variáveis de ambiente MISTRAL_API_KEY ou DATABASE_URL não configuradas.");
+    if (!GOOGLE_API_KEY || !DATABASE_URL) { // MUDANÇA AQUI: Verificando GOOGLE_API_KEY
+        console.error("Erro: Variáveis de ambiente GOOGLE_API_KEY ou DATABASE_URL não configuradas.");
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Variáveis de ambiente ausentes.' })
@@ -24,7 +25,7 @@ exports.handler = async (event, context) => {
     try {
         await pgClient.connect();
 
-        // 1. Verificar a última geração
+        // 1. Verificar a última geração (lógica permanece a mesma)
         const queryLastNews = 'SELECT data_geracao FROM noticias ORDER BY data_geracao DESC LIMIT 1;';
         const resLastNews = await pgClient.query(queryLastNews);
 
@@ -45,39 +46,44 @@ exports.handler = async (event, context) => {
         }
 
         if (canGenerate) {
-            // 2. Gerar a notícia com Mistral AI
+            // 2. Gerar a notícia com Gemini Flash
             const prompt = `Crie uma notícia fictícia e interessante com cerca de 30 linhas sobre um evento inesperado e positivo. Dê um título cativante. Exemplo de tema: "Descoberta surpreendente em projeto de conservação marinha".`;
 
-            const mistralResponse = await fetch('https://api.mistral.ai/v1/chat/completions', {
+            // MUDANÇAS AQUI: Endpoint, Headers e Body da requisição para Gemini
+            const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GOOGLE_API_KEY}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${MISTRAL_API_KEY}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'mistral-tiny', // Você pode experimentar com 'mistral-small' ou 'mistral-medium'
-                    messages: [{ role: 'user', content: prompt }],
-                    temperature: 0.7,
-                    max_tokens: 500 // Ajuste para 30 linhas, pode ser mais ou menos tokens
+                    contents: [{
+                        parts: [
+                            {text: prompt}
+                        ]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 500 // Ajuste para 30 linhas, pode ser mais ou menos tokens
+                    }
                 })
             });
 
-            if (!mistralResponse.ok) {
-                const errorBody = await mistralResponse.json();
-                console.error('Erro ao chamar Mistral AI:', errorBody);
-                throw new Error(`Erro da API Mistral: ${mistralResponse.status} - ${errorBody.message || JSON.stringify(errorBody)}`);
+            if (!geminiResponse.ok) {
+                const errorBody = await geminiResponse.json();
+                console.error('Erro ao chamar Gemini AI:', errorBody);
+                throw new Error(`Erro da API Gemini: ${geminiResponse.status} - ${errorBody.error.message || JSON.stringify(errorBody)}`);
             }
 
-            const data = await mistralResponse.json();
-            const generatedContent = data.choices[0].message.content.trim();
+            const data = await geminiResponse.json();
+            // MUDANÇA AQUI: Como acessar o conteúdo gerado
+            const generatedContent = data.candidates[0].content.parts[0].text.trim();
 
             // Extrair título (assumindo que o primeiro parágrafo ou linha é o título)
             const lines = generatedContent.split('\n');
             const title = lines[0].trim();
             const contentBody = lines.slice(1).join('\n').trim();
 
-            // 3. Salvar no Banco de Dados
+            // 3. Salvar no Banco de Dados (lógica permanece a mesma)
             const queryInsertNews = `
                 INSERT INTO noticias (titulo, conteudo)
                 VALUES ($1, $2)
@@ -107,4 +113,3 @@ exports.handler = async (event, context) => {
         await pgClient.end(); // Fechar a conexão com o banco
     }
 };
-
