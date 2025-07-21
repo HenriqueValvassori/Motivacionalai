@@ -3,38 +3,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const trainingTipsContentElement = document.getElementById('trainingTipsContent');
     const trainingTipsErrorMessageElement = document.getElementById('trainingTipsErrorMessage');
 
-    // Função para buscar e exibir a(s) dica(s) de treino
-    // Renomeada para deixar claro que agora busca TODAS
-    async function fetchAndDisplayAllTrainingTips() {
+    async function fetchAndDisplayAllTrainingTips() { // Nome da função reflete que busca TUDO
         trainingTipsContentElement.innerHTML = '<p>Carregando dicas de treino...</p>';
         if (trainingTipsErrorMessageElement) {
             trainingTipsErrorMessageElement.style.display = 'none';
         }
 
         try {
-            // CORREÇÃO 1: Nome da função Netlify (um 's' apenas)
-            const response = await fetch('/.netlify/functions/get-training-tipss');
+            // *** CORREÇÃO 1: REMOVER O 'S' EXTRA AQUI! ***
+            const response = await fetch('/.netlify/functions/get-training-tipss'); 
 
             if (!response.ok) {
                 const errorData = await response.json();
-                // A função get-training-tips.js retorna 404 se não houver dicas
                 if (response.status === 404) {
                     throw new Error("Nenhuma dica de treino encontrada no banco de dados.");
                 }
                 throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
             }
 
-            // CORREÇÃO 2: Esperamos um ARRAY de objetos aqui
+            // *** CORREÇÃO 2: ESPERAR UM ARRAY DE OBJETOS E ITERAR SOBRE ELES ***
             const allTips = await response.json(); 
 
-            // Verifica se é um array e se tem itens
             if (allTips && Array.isArray(allTips) && allTips.length > 0) {
-                trainingTipsContentElement.innerHTML = ''; // Limpa o "Carregando dicas de treino..."
+                trainingTipsContentElement.innerHTML = ''; // Limpa a mensagem de carregamento
                 
-                // Itera sobre CADA dica no array
-                allTips.forEach(tip => {
+                allTips.forEach(tip => { // Itera sobre CADA dica no array
                     const tipItem = document.createElement('div');
-                    tipItem.className = 'tip-item'; // Para estilização via CSS, se quiser
+                    tipItem.className = 'tip-item'; // Para estilização CSS
                     tipItem.innerHTML = `
                         <h2>${tip.titulo}</h2>
                         <p>${tip.conteudo.replace(/\n/g, '<br>')}</p>
@@ -43,7 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     trainingTipsContentElement.appendChild(tipItem);
                 });
             } else {
-                // Se o array estiver vazio ou não for um array válido
                 trainingTipsContentElement.innerHTML = '<p>Nenhuma dica de treino disponível no momento.</p><p>Por favor, volte mais tarde.</p>';
                 if (trainingTipsErrorMessageElement) {
                     trainingTipsErrorMessageElement.textContent = 'Dados da dica de treino incompletos ou inexistentes.';
@@ -60,6 +54,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Chama a nova função ao carregar a página
-    fetchAndDisplayAllTrainingTips();
+    fetchAndDisplayAllTrainingTips(); // Chama a função ao carregar a página
 });
