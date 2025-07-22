@@ -1,5 +1,5 @@
 // public/js/pdfConverter.js
-// ***** Caminho corrigido aqui! *****
+
 // public/js/pdfConverter.js
 import { getDocument } from './lib/pdfjs/build/pdf.mjs'; 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/lib/pdfjs/build/pdf.worker.mjs'; 

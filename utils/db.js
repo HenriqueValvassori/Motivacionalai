@@ -106,6 +106,5 @@ async function getContent(type, prompt, tableName, contentKey) {
 
 module.exports = {
     getContent
-    // Se precisar inicializar o DB uma única vez na cold start da função,
-    // a chamada a initializeDatabase() dentro de getContent() ou em cada handler é mais robusta.
+  
 };
