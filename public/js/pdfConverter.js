@@ -1,8 +1,12 @@
 // pdfConverter.js
-// Certifique-se de que o caminho para pdf.mjs está correto.
-// Se você está usando CommonJS (require), precisaria de uma configuração diferente ou de um bundler.
-// Para este exemplo, estamos assumindo o uso de módulos ES6 no navegador.
-import { getDocument } from './lib/pdfjs/build/pdf.mjs'; // Ajuste o caminho conforme onde você colocou pdf.mjs
+import { getDocument } from './lib/pdfjs/build/pdf.mjs'; // Caminho confirmado
+
+// ******** ADICIONE ESTA LINHA AQUI! ********
+// Define o caminho para o Web Worker. ISSO É CRUCIAL!
+// pdfjsLib é exposto globalmente quando pdf.mjs é carregado.
+// Ajuste o caminho './lib/pdfjs/build/pdf.worker.mjs' se for diferente no seu projeto.
+pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfjs/build/pdf.worker.mjs';
+// ********************************************
 
 document.addEventListener('DOMContentLoaded', () => {
     const pdfInput = document.getElementById('pdfInput');
@@ -30,36 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pdf = await getDocument({ data: typedarray }).promise;
                 pdfViewer.innerHTML = ''; // Limpa a mensagem de carregamento
 
-                // Extrai a primeira página como imagem
-                const page = await pdf.getPage(1);
-                const viewport = page.getViewport({ scale: 1.5 }); // Aumenta a escala para melhor qualidade
-
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-                extractedImage.src = canvas.toDataURL('image/png');
-                extractedImage.style.display = 'block';
-
-                downloadPdfImageLink.href = extractedImage.src;
-                downloadPdfImageLink.download = 'pagina_1_do_pdf.png';
-                downloadPdfImageLink.textContent = 'Baixar 1ª Página como PNG';
-                downloadPdfImageLink.style.display = 'inline-block';
-
-                // Opcional: Renderizar todas as páginas para visualização (pode ser lento para PDFs grandes)
-                // for (let i = 1; i <= pdf.numPages; i++) {
-                //     const page = await pdf.getPage(i);
-                //     const viewport = page.getViewport({ scale: 1.0 });
-                //     const canvas = document.createElement('canvas');
-                //     const context = canvas.getContext('2d');
-                //     canvas.height = viewport.height;
-                //     canvas.width = viewport.width;
-                //     await page.render({ canvasContext: context, viewport: viewport }).promise;
-                //     pdfViewer.appendChild(canvas);
-                // }
+                // ... (restante do seu código) ...
 
             } catch (error) {
                 console.error('Erro ao processar PDF:', error);
