@@ -1,8 +1,7 @@
 // public/js/pdfConverter.js
 // ***** Caminho corrigido aqui! *****
-import { getDocument } from '../lib/pdfjs/build/pdf.mjs'; 
-
-// ***** Caminho corrigido aqui! *****
+// public/js/pdfConverter.js
+import { getDocument } from '../../lib/pdfjs/build/pdf.mjs'; 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '../../lib/pdfjs/build/pdf.worker.mjs'; 
 
 document.addEventListener('DOMContentLoaded', () => {
