@@ -2,7 +2,7 @@
 // Certifique-se de que o caminho para pdf.mjs está correto.
 // Se você está usando CommonJS (require), precisaria de uma configuração diferente ou de um bundler.
 // Para este exemplo, estamos assumindo o uso de módulos ES6 no navegador.
-import { getDocument } from './lib/pdfjs/pdf.mjs'; // Ajuste o caminho conforme onde você colocou pdf.mjs
+import { getDocument } from './\pdfjs-5.3.93-dist\build/pdf.mjs'; // Ajuste o caminho conforme onde você colocou pdf.mjs
 
 document.addEventListener('DOMContentLoaded', () => {
     const pdfInput = document.getElementById('pdfInput');
