@@ -1,6 +1,3 @@
-// advancedConverter.js (APENAS UM EXEMPLO, NUNCA EXPOR API KEYS NO FRONTEND!)
-// Este código DEVE ser executado em um ambiente de servidor (Netlify Function, Node.js, etc.)
-// para proteger sua chave de API.
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,23 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Exemplo de chamada CloudConvert (Isto DEVERIA SER FEITO DE UM BACKEND!)
-        // Para um ambiente de navegador, você precisaria de uma Netlify Function para intermediar.
-        // const API_KEY = 'SUA_CHAVE_CLOUDCONVERT'; // NUNCA FAÇA ISSO EM CÓDIGO CLIENTE!
-
+        
         advancedOutput.innerHTML = '<p>Enviando para conversão...</p>';
 
         try {
-            // Em um ambiente real, você enviaria o arquivo para sua Netlify Function
-            // que, por sua vez, chamaria a API externa com sua chave.
+            
             const response = await fetch('/.netlify/functions/convertFile', { // Exemplo de sua própria Netlify Function
                 method: 'POST',
                 body: JSON.stringify({
                     fileName: file.name,
                     fileType: file.type,
                     targetFormat: advancedFormatSelect.value,
-                    // Você precisaria enviar o arquivo de alguma forma, talvez como Data URL
-                    // Para arquivos grandes, seria melhor usar upload para S3/Cloud Storage e passar o URL
+                  
                     fileContent: await new Promise(resolve => {
                         const reader = new FileReader();
                         reader.onload = () => resolve(reader.result.split(',')[1]); // Base64 content
