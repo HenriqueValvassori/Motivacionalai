@@ -1,47 +1,26 @@
 // netlify/functions/generate-vertex-image.js
 
-// Carrega variáveis de ambiente (para teste local, no Netlify elas já estarão lá)
-require('dotenv').config();
+require('dotenv').config(); // Para testes locais (carrega .env)
 
-// --- BLOCo CRÍTICO DE AUTENTICAÇÃO VIA CONTA DE SERVIÇO ---
-// Este código tenta configurar as credenciais da Service Account a partir de uma variável de ambiente.
-// Ela espera que GOOGLE_APPLICATION_CREDENTIALS_JSON contenha o CONTEÚDO INTEIRO do JSON da sua chave de SA.
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-    try {
-        const fs = require('fs');
-        const path = require('path');
-        const tempDir = '/tmp'; // Diretório temporário acessível em Netlify Functions
-        const credentialsPath = path.join(tempDir, 'gcp-credentials.json');
-        
-        // Garante que o diretório temporário existe
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir);
-        }
-
-        // Escreve o conteúdo JSON da variável de ambiente para um arquivo temporário
-        fs.writeFileSync(credentialsPath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-        
-        // Aponta a variável de ambiente GOOGLE_APPLICATION_CREDENTIALS para este arquivo
-        process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
-        console.log("Credenciais da Service Account configuradas a partir da variável de ambiente.");
-    } catch (e) {
-        console.error("Erro ao configurar credenciais da Service Account:", e.message);
-        // Não retornar erro fatal aqui, deixar que o PredictionServiceClient falhe se a config estiver errada
-    }
-}
-// --- FIM DO BLOCO DE AUTENTICAÇÃO ---
-
-// Importa o cliente do Vertex AI (PredictionServiceClient)
-const { PredictionServiceClient } = require('@google-cloud/aiplatform');
+// --- Importações Necessárias ---
+const B2 = require('b2-sdk-js'); // Para acessar o Backblaze B2
+const { PredictionServiceClient } = require('@google-cloud/aiplatform'); // Para a API Vertex AI
+const fs = require('fs');
+const path = require('path');
 
 // --- Configurações do Vertex AI ---
-// IMPORTANTES: Configure estas variáveis de ambiente no Netlify!
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID;
-const GCP_LOCATION = process.env.GCP_LOCATION || 'us-central1'; // Ex: us-central1, europe-west4, etc.
+const GCP_LOCATION = process.env.GCP_LOCATION || 'us-central1';
 const VERTEX_AI_ENDPOINT = `${GCP_LOCATION}-aiplatform.googleapis.com`;
+const IMAGEN_MODEL_ID = 'imagegeneration@latest';
 
-// ID do Modelo Imagen que você quer usar
-const IMAGEN_MODEL_ID = 'imagegeneration@latest'; // Este é o nome correto para o modelo Imagen no Vertex AI
+// --- Variáveis para o Backblaze B2 ---
+// Estes são os valores que você configurou no Netlify
+const B2_ACCOUNT_ID = process.env.B2_ACCOUNT_ID;
+const B2_APPLICATION_KEY = process.env.B2_APPLICATION_KEY;
+const B2_BUCKET_NAME = process.env.B2_BUCKET_NAME;
+const B2_FILE_NAME = process.env.B2_FILE_NAME;
+const TEMP_CREDENTIALS_PATH = '/tmp/gcp-credentials.json'; // Caminho temporário para a chave
 
 // O manipulador principal da sua Netlify Function
 exports.handler = async (event, context) => {
@@ -55,31 +34,91 @@ exports.handler = async (event, context) => {
         return { statusCode: 204, headers: headers, body: '' };
     }
 
-    // Validação de variáveis de ambiente essenciais (GCP_PROJECT_ID, GCP_LOCATION)
+    // Validação das variáveis de ambiente essenciais para o GCP
     if (!GCP_PROJECT_ID || !GCP_LOCATION) {
         console.error("Erro: GCP_PROJECT_ID ou GCP_LOCATION não configurados nas variáveis de ambiente do Netlify.");
         return {
             statusCode: 500,
             headers: headers,
-            body: JSON.stringify({ error: 'Configurações do Google Cloud (GCP_PROJECT_ID, GCP_LOCATION) ausentes. Verifique suas variáveis de ambiente Netlify.' })
+            body: JSON.stringify({ error: 'Configurações do Google Cloud (GCP_PROJECT_ID, GCP_LOCATION) ausentes.' })
         };
     }
-    
-    // Validação da variável de autenticação da Service Account
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-        console.error("Erro: Credenciais da Service Account Google Cloud não configuradas.");
+
+    // Validação das variáveis de ambiente Backblaze B2
+    if (!B2_ACCOUNT_ID || !B2_APPLICATION_KEY || !B2_BUCKET_NAME || !B2_FILE_NAME) {
+        console.error("Erro: Variáveis de ambiente do Backblaze B2 ausentes.");
         return {
             statusCode: 500,
             headers: headers,
-            body: JSON.stringify({ error: 'Credenciais da Service Account do Google Cloud ausentes. Configure GOOGLE_APPLICATION_CREDENTIALS_JSON.' })
+            body: JSON.stringify({ error: 'Configuração do Backblaze B2 ausente. Verifique B2_ACCOUNT_ID, B2_APPLICATION_KEY, B2_BUCKET_NAME e B2_FILE_NAME.' })
         };
     }
+    
+    // --- INÍCIO do Bloco de Autenticação com Backblaze B2 ---
+    try {
+        // Verifica se a chave já foi baixada em invocações quentes (para reuso e evitar downloads repetidos)
+        if (!fs.existsSync(TEMP_CREDENTIALS_PATH)) {
+            console.log("Baixando credenciais da Service Account do Google Cloud do Backblaze B2...");
+
+            const b2 = new B2({
+                accountId: B2_ACCOUNT_ID,
+                applicationKey: B2_APPLICATION_KEY
+            });
+
+            // Autenticar no B2
+            await b2.authorize();
+
+            // Obter informações do bucket
+            const { buckets } = await b2.listBuckets();
+            const targetBucket = buckets.find(b => b.bucketName === B2_BUCKET_NAME);
+
+            if (!targetBucket) {
+                throw new Error(`Bucket '${B2_BUCKET_NAME}' não encontrado ou não acessível.`);
+            }
+
+            // Obter informações do arquivo
+            const { files } = await b2.listFileNames({
+                bucketId: targetBucket.bucketId,
+                startFileName: B2_FILE_NAME,
+                maxFileCount: 1
+            });
+
+            const targetFile = files.find(f => f.fileName === B2_FILE_NAME);
+
+            if (!targetFile) {
+                throw new Error(`Arquivo '${B2_FILE_NAME}' não encontrado no bucket '${B2_BUCKET_NAME}'.`);
+            }
+
+            // Baixar o arquivo
+            const { data } = await b2.downloadFileById({
+                fileId: targetFile.fileId,
+                responseType: 'arraybuffer' // Baixa como ArrayBuffer
+            });
+
+            // Converter ArrayBuffer para Buffer e salvar
+            const fileContent = Buffer.from(data);
+            fs.writeFileSync(TEMP_CREDENTIALS_PATH, fileContent);
+            
+            // Define a variável de ambiente GOOGLE_APPLICATION_CREDENTIALS para a biblioteca Vertex AI
+            process.env.GOOGLE_APPLICATION_CREDENTIALS = TEMP_CREDENTIALS_PATH;
+            console.log("Credenciais da Service Account Google Cloud baixadas e configuradas.");
+        } else {
+            console.log("Credenciais da Service Account Google Cloud já existentes em /tmp.");
+        }
+    } catch (e) {
+        console.error("Erro ao baixar ou configurar credenciais da Service Account do Backblaze B2:", e.message);
+        return {
+            statusCode: 500,
+            headers: headers,
+            body: JSON.stringify({ error: `Falha ao configurar autenticação Vertex AI via B2: ${e.message}. Verifique suas chaves B2, permissões do bucket ou o nome do arquivo.` })
+        };
+    }
+    // --- FIM do Bloco de Autenticação com Backblaze B2 ---
 
     // Inicializa o cliente Vertex AI
     const client = new PredictionServiceClient({
         apiEndpoint: VERTEX_AI_ENDPOINT,
-        // Authentication will try to use GOOGLE_APPLICATION_CREDENTIALS env var,
-        // which is set by the block above if GOOGLE_APPLICATION_CREDENTIALS_JSON exists.
+        // O cliente agora usará GOOGLE_APPLICATION_CREDENTIALS definido acima.
     });
 
     let requestBody;
@@ -109,15 +148,12 @@ exports.handler = async (event, context) => {
         const instances = [
             {
                 prompt: prompt,
-                // O Imagen aceita strings de proporção como '1:1', '16:9', '4:3', '3:4', '9:16'
                 aspectRatio: aspectRatio || '1:1', 
             },
         ];
 
         const parameters = {
-            sampleCount: 1, // Gera 1 imagem
-            // Adicione outros parâmetros do modelo Imagen aqui se desejar (ex: seed, negative_prompt, etc.)
-            // Veja a documentação da API Imagen para mais opções.
+            sampleCount: 1, 
         };
 
         const request = {
@@ -134,11 +170,9 @@ exports.handler = async (event, context) => {
         let imageUrl = null;
         if (response && response.predictions && response.predictions.length > 0) {
             const imagePrediction = response.predictions[0];
-            // O Imagen geralmente retorna imagem base64 codificada em `bytesBase64Encoded`
             if (imagePrediction.bytesBase64Encoded) {
                 imageUrl = `data:image/jpeg;base64,${imagePrediction.bytesBase64Encoded}`;
             } else if (imagePrediction.uri) {
-                // Se o modelo for configurado para retornar URI GCS, seria tratado aqui
                 imageUrl = imagePrediction.uri; 
             }
         }
@@ -163,8 +197,8 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error('[Netlify Function - Vertex AI] Erro ao chamar o modelo Imagen:', error);
         let errorMessage = error.details || error.message;
-        if (error.code === 7 || error.code === 16) { // PERMISSION_DENIED (7), UNAUTHENTICATED (16)
-             errorMessage = 'Erro de autenticação/permissão com Vertex AI. Verifique suas credenciais e roles da Service Account.';
+        if (error.code === 7 || error.code === 16) {
+             errorMessage = 'Erro de autenticação/permissão com Vertex AI. Verifique suas credenciais e roles da Service Account (incluindo acesso ao Backblaze B2).';
         } else if (error.message && error.message.includes('A billing account is not enabled')) {
             errorMessage = 'Conta de faturamento não habilitada no seu projeto Google Cloud. O Vertex AI requer uma conta de faturamento ativa.';
         }
@@ -172,6 +206,6 @@ exports.handler = async (event, context) => {
             statusCode: 500,
             headers: headers,
             body: JSON.stringify({ error: `Erro interno ao gerar imagem com Vertex AI: ${errorMessage}` })
-        };
-    }
-};
+            };
+        }
+    };

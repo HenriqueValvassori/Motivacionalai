@@ -8,6 +8,7 @@
     "openai": "^5.10.1",
     "pg": "^8.16.3",
     "replicate": "^1.0.1",
-    "@google-cloud/aiplatform": "^3.x.x"
-  }
+    "@google-cloud/aiplatform": "^3.x.x",
+    "@google-cloud/generativelanguage": "^2.x.x",
+    "b2-sdk-js": "^1.x.x"}
 }
