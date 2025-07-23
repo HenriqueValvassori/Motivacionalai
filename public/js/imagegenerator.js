@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (generateButton && promptInput) {
         generateButton.addEventListener('click', () => {
-            generarImagemComIA(promptInput.value);
+            gerarImagemComIA(promptInput.value);
         });
     }
 });
