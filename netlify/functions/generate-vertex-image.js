@@ -3,52 +3,50 @@
 // Carrega variáveis de ambiente (para teste local, no Netlify elas já estarão lá)
 require('dotenv').config();
 
+// --- BLOCo CRÍTICO DE AUTENTICAÇÃO VIA CONTA DE SERVIÇO ---
+// Este código tenta configurar as credenciais da Service Account a partir de uma variável de ambiente.
+// Ela espera que GOOGLE_APPLICATION_CREDENTIALS_JSON contenha o CONTEÚDO INTEIRO do JSON da sua chave de SA.
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const tempDir = '/tmp'; // Diretório temporário acessível em Netlify Functions
+        const credentialsPath = path.join(tempDir, 'gcp-credentials.json');
+        
+        // Garante que o diretório temporário existe
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir);
+        }
+
+        // Escreve o conteúdo JSON da variável de ambiente para um arquivo temporário
+        fs.writeFileSync(credentialsPath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+        
+        // Aponta a variável de ambiente GOOGLE_APPLICATION_CREDENTIALS para este arquivo
+        process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
+        console.log("Credenciais da Service Account configuradas a partir da variável de ambiente.");
+    } catch (e) {
+        console.error("Erro ao configurar credenciais da Service Account:", e.message);
+        // Não retornar erro fatal aqui, deixar que o PredictionServiceClient falhe se a config estiver errada
+    }
+}
+// --- FIM DO BLOCO DE AUTENTICAÇÃO ---
+
 // Importa o cliente do Vertex AI (PredictionServiceClient)
 const { PredictionServiceClient } = require('@google-cloud/aiplatform');
-// Importa GoogleAuth para lidar com autenticação, se necessário customizar
-const { GoogleAuth } = require('google-auth-library');
 
 // --- Configurações do Vertex AI ---
 // IMPORTANTES: Configure estas variáveis de ambiente no Netlify!
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID;
-const GCP_LOCATION = process.env.GCP_LOCATION || 'us-central1'; // Ex: us-central1, asia-east1, etc.
+const GCP_LOCATION = process.env.GCP_LOCATION || 'us-central1'; // Ex: us-central1, europe-west4, etc.
 const VERTEX_AI_ENDPOINT = `${GCP_LOCATION}-aiplatform.googleapis.com`;
 
-// Modelo Imagen que você quer usar (ex: imagegeneration@latest, imagen-005, etc.)
-// "imagen-3.0-fast-generate-001" NÃO É UM MODELO DO GOOGLE DIRETAMENTE PARA VERTEX AI via aiplatform,
-// ele é um modelo Replicate. Para o Vertex AI, o modelo padrão é 'imagegeneration@latest' ou versões específicas.
+// ID do Modelo Imagen que você quer usar
 const IMAGEN_MODEL_ID = 'imagegeneration@latest'; // Este é o nome correto para o modelo Imagen no Vertex AI
-
-// --- Autenticação (A PARTE MAIS COMPLEXA) ---
-// Para Netlify Functions, a forma mais robusta é usar as credenciais de uma Service Account.
-// A biblioteca `@google-cloud/aiplatform` tenta usar Application Default Credentials.
-// Isso significa que você PRECISA garantir que as credenciais da sua Service Account
-// estejam disponíveis para o ambiente da Netlify Function.
-// A forma mais comum (mas complexa e requer cuidado com segurança):
-// 1. Crie uma Service Account com o papel 'Vertex AI User' no GCP.
-// 2. Gere uma chave JSON para essa Service Account.
-// 3. Copie o CONTEÚDO INTEIRO do JSON para uma variável de ambiente SECURA no Netlify
-//    (ex: `GOOGLE_APPLICATION_CREDENTIALS_JSON`).
-// 4. No início desta função (ou fora dela), você precisaria escrever esse JSON
-//    para um arquivo temporário e apontar a variável de ambiente `GOOGLE_APPLICATION_CREDENTIALS`
-//    para esse arquivo. Isso é MUITO COMPLEXO para um exemplo simples.
-//
-// Como alternativa, você PODE tentar inicializar o cliente com uma API Key diretamente,
-// mas isso é MENOS COMUM e pode não funcionar para todos os recursos do Vertex AI,
-// já que ele prefere autenticação via IAM.
-// const auth = new GoogleAuth({
-//     credentials: {
-//         client_email: process.env.GCP_CLIENT_EMAIL, // Da sua chave JSON da SA
-//         private_key: process.env.GCP_PRIVATE_KEY.replace(/\\n/g, '\n'), // Da sua chave JSON da SA
-//     },
-//     scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-// });
-// let client; // O cliente será inicializado no handler
 
 // O manipulador principal da sua Netlify Function
 exports.handler = async (event, context) => {
     const headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': '*', // Ajuste para domínios específicos em produção!
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
     };
@@ -57,22 +55,31 @@ exports.handler = async (event, context) => {
         return { statusCode: 204, headers: headers, body: '' };
     }
 
-    // Validação de variáveis de ambiente essenciais
+    // Validação de variáveis de ambiente essenciais (GCP_PROJECT_ID, GCP_LOCATION)
     if (!GCP_PROJECT_ID || !GCP_LOCATION) {
-        console.error("Erro: GCP_PROJECT_ID ou GCP_LOCATION não configurados.");
+        console.error("Erro: GCP_PROJECT_ID ou GCP_LOCATION não configurados nas variáveis de ambiente do Netlify.");
         return {
             statusCode: 500,
             headers: headers,
-            body: JSON.stringify({ error: 'Configurações do Google Cloud (GCP_PROJECT_ID, GCP_LOCATION) ausentes.' })
+            body: JSON.stringify({ error: 'Configurações do Google Cloud (GCP_PROJECT_ID, GCP_LOCATION) ausentes. Verifique suas variáveis de ambiente Netlify.' })
+        };
+    }
+    
+    // Validação da variável de autenticação da Service Account
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        console.error("Erro: Credenciais da Service Account Google Cloud não configuradas.");
+        return {
+            statusCode: 500,
+            headers: headers,
+            body: JSON.stringify({ error: 'Credenciais da Service Account do Google Cloud ausentes. Configure GOOGLE_APPLICATION_CREDENTIALS_JSON.' })
         };
     }
 
-    // Inicializa o cliente Vertex AI *dentro* do handler para garantir o contexto
-    // e o reuso de conexão em cold starts (embora aqui seja a cada invocação).
+    // Inicializa o cliente Vertex AI
     const client = new PredictionServiceClient({
         apiEndpoint: VERTEX_AI_ENDPOINT,
-        // Authentication will try to use GOOGLE_APPLICATION_CREDENTIALS env var
-        // or other default methods. This is the part that needs careful setup.
+        // Authentication will try to use GOOGLE_APPLICATION_CREDENTIALS env var,
+        // which is set by the block above if GOOGLE_APPLICATION_CREDENTIALS_JSON exists.
     });
 
     let requestBody;
@@ -86,7 +93,7 @@ exports.handler = async (event, context) => {
         };
     }
 
-    const { prompt, aspectRatio } = requestBody; // 'aspectRatio' do frontend
+    const { prompt, aspectRatio } = requestBody; 
 
     if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
         return {
@@ -97,54 +104,41 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        console.log(`[Netlify Function - Vertex AI] Solicitando imagem com prompt: "${prompt}"`);
+        console.log(`[Netlify Function - Vertex AI] Solicitando imagem com prompt: "${prompt}" e proporção "${aspectRatio}"`);
 
-        // A estrutura do 'instances' e 'parameters' para Imagen
         const instances = [
             {
                 prompt: prompt,
-                // Adicione outros parâmetros se o modelo Imagen os aceitar e você quiser controlá-los
-                // Por exemplo, 'sampleCount' (número de imagens), 'seed', 'aspectRatio'
-                // O aspectRatio deve ser um string como "1:1", "16:9", "4:3", etc.
-                // O Imagen aceita valores como 1.0 (1:1), 1.77 (16:9), 0.75 (3:4), etc.
-                // Você precisaria mapear 'aspectRatio' do frontend para o valor numérico ou string que o Imagen espera.
-                // Exemplo de mapeamento para Imagen:
-                // aspectRatio: aspectRatio === '16:9' ? '1.77' : (aspectRatio === '4:3' ? '1.33' : '1.0'), // ou string '1:1' etc.
-                aspectRatio: aspectRatio || '1:1', // Para Imagen, o '1:1' é comum. Veja docs para outros valores.
-                // Para Imagen, geralmente você especifica 'imageSize' ou 'aspectRatio'
-                // imageSize: '1024x1024', // ou '512x512', etc.
+                // O Imagen aceita strings de proporção como '1:1', '16:9', '4:3', '3:4', '9:16'
+                aspectRatio: aspectRatio || '1:1', 
             },
         ];
 
-        // Parâmetros de modelo (podem incluir filtros de segurança, etc.)
         const parameters = {
-            sampleCount: 1, // Número de imagens a gerar
-            // safetySettings: {}, // Opcional, para controle de conteúdo
+            sampleCount: 1, // Gera 1 imagem
+            // Adicione outros parâmetros do modelo Imagen aqui se desejar (ex: seed, negative_prompt, etc.)
+            // Veja a documentação da API Imagen para mais opções.
         };
 
         const request = {
             endpoint: VERTEX_AI_ENDPOINT,
             model: IMAGEN_MODEL_ID,
-            instances: client.helpers.toStruct(instances), // Converte para o formato Proto Struct
-            parameters: client.helpers.toStruct(parameters), // Converte para o formato Proto Struct
+            instances: client.helpers.toStruct(instances),
+            parameters: client.helpers.toStruct(parameters),
             project: GCP_PROJECT_ID,
             location: GCP_LOCATION,
         };
         
-        // Faz a chamada à API do Vertex AI
-        // Este é um método assíncrono que retorna uma Promise
         const [response] = await client.predict(request);
 
         let imageUrl = null;
         if (response && response.predictions && response.predictions.length > 0) {
-            // A saída do Imagen é geralmente uma imagem base64 codificada ou um URI GCS
             const imagePrediction = response.predictions[0];
-            // Se o modelo retorna base64, ele estará em `bytesBase64Encoded` ou similar
+            // O Imagen geralmente retorna imagem base64 codificada em `bytesBase64Encoded`
             if (imagePrediction.bytesBase64Encoded) {
-                // Para exibir em <img> tag, você precisa do prefixo data URI
                 imageUrl = `data:image/jpeg;base64,${imagePrediction.bytesBase64Encoded}`;
             } else if (imagePrediction.uri) {
-                // Se retornar um URI (GCS), pode ser necessário pré-autenticar ou ter acesso público
+                // Se o modelo for configurado para retornar URI GCS, seria tratado aqui
                 imageUrl = imagePrediction.uri; 
             }
         }
@@ -158,21 +152,21 @@ exports.handler = async (event, context) => {
             };
         }
 
-        console.log("[Netlify Function - Vertex AI] Imagem gerada com sucesso. URL/Base64:", imageUrl.substring(0, 100) + '...'); // Log parcial para não poluir
+        console.log("[Netlify Function - Vertex AI] Imagem gerada com sucesso. URL/Base64:", imageUrl.substring(0, 100) + '...'); 
         
-        // --- Retorna a URL da IMAGEM ou o Data URI (base64) ---
         return {
             statusCode: 200,
             headers: headers,
-            body: JSON.stringify({ imageUrl: imageUrl }) // Retorna a URL da imagem (ou data URI)
+            body: JSON.stringify({ imageUrl: imageUrl })
         };
 
     } catch (error) {
         console.error('[Netlify Function - Vertex AI] Erro ao chamar o modelo Imagen:', error);
-        // Erros comuns aqui serão de autenticação, permissões, ou formato de input/output.
         let errorMessage = error.details || error.message;
         if (error.code === 7 || error.code === 16) { // PERMISSION_DENIED (7), UNAUTHENTICATED (16)
              errorMessage = 'Erro de autenticação/permissão com Vertex AI. Verifique suas credenciais e roles da Service Account.';
+        } else if (error.message && error.message.includes('A billing account is not enabled')) {
+            errorMessage = 'Conta de faturamento não habilitada no seu projeto Google Cloud. O Vertex AI requer uma conta de faturamento ativa.';
         }
         return {
             statusCode: 500,

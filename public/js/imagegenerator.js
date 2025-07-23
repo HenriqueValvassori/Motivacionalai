@@ -1,81 +1,65 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const promptInput = document.getElementById('promptInput');
-    // const aspectRatioSelect = document.getElementById('aspectRatioSelect'); // Não necessário para esta função Gemini
-    const generateBtn = document.getElementById('generateBtn');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const errorMessage = document.getElementById('errorMessage');
-    // const generatedImage = document.getElementById('generatedImage'); // Não é uma imagem direta
-    // const imagePlaceholder = document.getElementById('imagePlaceholder'); // Não é uma imagem direta
+// public/js/imagegenerator.js
 
-    // Novo elemento para exibir o prompt gerado pelo Gemini
-    const generatedPromptOutput = document.createElement('p');
-    generatedPromptOutput.id = 'generatedPromptOutput';
-    generatedPromptOutput.style.whiteSpace = 'pre-wrap'; // Preserva quebras de linha
-    generatedPromptOutput.style.textAlign = 'left';
-    generatedPromptOutput.style.backgroundColor = '#f0f0f0';
-    generatedPromptOutput.style.padding = '15px';
-    generatedPromptOutput.style.borderRadius = '5px';
-    generatedPromptOutput.style.marginTop = '20px';
-    generatedPromptOutput.style.display = 'none'; // Esconde por padrão
-    
-    // Adicione o novo elemento ao DOM, por exemplo, após o botão
-    generateBtn.parentNode.insertBefore(generatedPromptOutput, generateBtn.nextSibling);
+// URL da sua Netlify Function. Certifique-se de que o nome do arquivo corresponde ao da função.
+const FUNCTION_URL = '/.netlify/functions/generate-vertex-image'; 
 
-    // Adapte a URL da sua Netlify Function para o novo nome do arquivo
-    const FUNCTION_URL = '/.netlify/functions/generate-vertex-image'; 
+const promptInput = document.getElementById('promptInput');
+const aspectRatioSelect = document.getElementById('aspectRatioSelect');
+const generateBtn = document.getElementById('generateBtn');
+const loadingSpinner = document.getElementById('loadingSpinner');
+const errorMessage = document.getElementById('errorMessage');
+const imagePlaceholder = document.getElementById('imagePlaceholder');
+const generatedImage = document.getElementById('generatedImage');
 
-    generateBtn.addEventListener('click', async () => {
-        const basePrompt = promptInput.value.trim();
-        // const aspectRatio = aspectRatioSelect.value; // Não necessário para esta função Gemini
+generateBtn.addEventListener('click', async () => {
+    const prompt = promptInput.value.trim();
+    const aspectRatio = aspectRatioSelect.value; // Obtém o valor selecionado da proporção
 
-        // Limpa mensagens de erro e resultados anteriores
-        errorMessage.textContent = '';
-        generatedPromptOutput.textContent = '';
-        generatedPromptOutput.style.display = 'none';
+    if (!prompt) {
+        errorMessage.textContent = 'Por favor, digite uma descrição para a imagem.';
+        return;
+    }
 
-        if (!basePrompt) {
-            errorMessage.textContent = 'Por favor, insira uma ideia base para gerar o prompt.';
-            return;
+    // Limpa mensagens anteriores
+    errorMessage.textContent = '';
+    generatedImage.style.display = 'none';
+    generatedImage.src = '';
+    imagePlaceholder.style.display = 'block';
+    imagePlaceholder.textContent = 'Gerando imagem, por favor aguarde...';
+    generateBtn.disabled = true;
+    loadingSpinner.style.display = 'block';
+
+    try {
+        const response = await fetch(FUNCTION_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt, aspectRatio }), // Envia o prompt e a proporção
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Erro desconhecido na geração da imagem.');
         }
 
-        // Desabilita o botão e mostra o spinner
-        generateBtn.disabled = true;
-        loadingSpinner.style.display = 'block';
-        // Atualiza o placeholder ou mensagem de status
-        // Se você removeu os elementos de imagem, pode exibir uma mensagem aqui
-        // Ex: imagePlaceholder.textContent = 'Gerando prompt detalhado com Gemini...';
+        const data = await response.json();
 
-
-        try {
-            const response = await fetch(FUNCTION_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ basePrompt }), // Envia o prompt base
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido.' }));
-                throw new Error(errorData.error || `Falha ao conectar com a função Netlify. Status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data.detailedImagePrompt) {
-                generatedPromptOutput.textContent = `Prompt Detalhado Gerado pelo Gemini:\n\n${data.detailedImagePrompt}`;
-                generatedPromptOutput.style.display = 'block'; // Mostra o prompt
-            } else {
-                errorMessage.textContent = 'Nenhum prompt detalhado foi retornado pelo Gemini.';
-            }
-
-        } catch (error) {
-            console.error('Erro ao chamar a função Netlify:', error);
-            errorMessage.textContent = `Erro: ${error.message}. Por favor, tente novamente.`;
-        } finally {
-            // Reabilita o botão e esconde o spinner
-            generateBtn.disabled = false;
-            loadingSpinner.style.display = 'none';
+        if (data.imageUrl) {
+            generatedImage.src = data.imageUrl;
+            generatedImage.style.display = 'block';
+            imagePlaceholder.style.display = 'none';
+        } else {
+            errorMessage.textContent = 'Nenhuma URL de imagem foi retornada.';
         }
-    });
+
+    } catch (error) {
+        console.error('Erro ao gerar imagem:', error);
+        errorMessage.textContent = `Erro: ${error.message}`;
+        imagePlaceholder.textContent = 'A imagem gerada aparecerá aqui.';
+        imagePlaceholder.style.display = 'block';
+    } finally {
+        generateBtn.disabled = false;
+        loadingSpinner.style.display = 'none';
+    }
 });
