@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Define a URL da sua Netlify Function.
     // Lembre-se que o nome da função no backend deve ser o mesmo do caminho aqui.
     // Ex: Se sua função é 'generate-replicate-image.js', a URL será '/.netlify/functions/generate-replicate-image'
-    const FUNCTION_URL = '/.netlify/functions/generate-replicate-image'; 
+    const FUNCTION_URL = '/.netlify/functions/generate-free-image'; 
 
     generateBtn.addEventListener('click', async () => {
         const prompt = promptInput.value.trim();
