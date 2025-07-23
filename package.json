@@ -7,7 +7,7 @@
     "faunadb": "^4.x.x",
     "openai": "^5.10.1",
     "pg": "^8.16.3",
-    "replicate": "^1.0.1"
-    
+    "replicate": "^1.0.1",
+    "@google-cloud/aiplatform" : "5.0.0"
   }
 }

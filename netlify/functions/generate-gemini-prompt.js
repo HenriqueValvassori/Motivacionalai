@@ -6,7 +6,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // --- Configurações da API Gemini ---
 // Sua Chave da API Gemini.
 // No Netlify, configure isso em "Site settings" > "Build & deploy" > "Environment variables".
-const API_KEY = process.env.GEMINI_API_KEY; 
+const API_KEY = process.env.VERCEL_API_KEY; 
 
 // Inicializa o cliente Gemini
 let genAI;
