@@ -80,7 +80,7 @@ exports.handler = async (event, context) => { // <-- MUDANÇA AQUI: exporta como
 
     try {
         // --- Usa o modelo Gemini Pro para gerar texto ---
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // "gemini-pro" é para geração de texto
+      const model = genAI.getGenerativeModel({ model: "imagen-3.0-fast-generate-001" }); // "gemini-pro" é para geração de texto
 
         // Cria uma instrução para o Gemini gerar um prompt de imagem detalhado.
         const fullPrompt = `Gere um prompt altamente detalhado e criativo (no máximo 150 palavras) para uma IA de geração de imagens, baseado na seguinte ideia: "${basePrompt}". Inclua especificações de estilo artístico (ex: fotorrealista, cyberpunk, aquarela), cores predominantes, tipo de iluminação, composição da cena, e a descrição dos elementos principais.`;
