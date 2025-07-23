@@ -6,6 +6,7 @@
     "express": "^5.1.0",
     "openai": "^5.10.1",
     "pg": "^8.16.3",
-    "faunadb": "^4.x.x"    
+    "faunadb": "^4.x.x",
+    "replicate": "^x.y.z"     
   }
 }
