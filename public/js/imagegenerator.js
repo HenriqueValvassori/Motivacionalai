@@ -1,36 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
     const promptInput = document.getElementById('promptInput');
-    const aspectRatioSelect = document.getElementById('aspectRatioSelect');
+    // const aspectRatioSelect = document.getElementById('aspectRatioSelect'); // Não necessário para esta função Gemini
     const generateBtn = document.getElementById('generateBtn');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const errorMessage = document.getElementById('errorMessage');
-    const generatedImage = document.getElementById('generatedImage');
-    const imagePlaceholder = document.getElementById('imagePlaceholder');
+    // const generatedImage = document.getElementById('generatedImage'); // Não é uma imagem direta
+    // const imagePlaceholder = document.getElementById('imagePlaceholder'); // Não é uma imagem direta
 
-    // Define a URL da sua Netlify Function.
-    // Lembre-se que o nome da função no backend deve ser o mesmo do caminho aqui.
-    // Ex: Se sua função é 'generate-replicate-image.js', a URL será '/.netlify/functions/generate-replicate-image'
-    const FUNCTION_URL = '/.netlify/functions/generate-free-image'; 
+    // Novo elemento para exibir o prompt gerado pelo Gemini
+    const generatedPromptOutput = document.createElement('p');
+    generatedPromptOutput.id = 'generatedPromptOutput';
+    generatedPromptOutput.style.whiteSpace = 'pre-wrap'; // Preserva quebras de linha
+    generatedPromptOutput.style.textAlign = 'left';
+    generatedPromptOutput.style.backgroundColor = '#f0f0f0';
+    generatedPromptOutput.style.padding = '15px';
+    generatedPromptOutput.style.borderRadius = '5px';
+    generatedPromptOutput.style.marginTop = '20px';
+    generatedPromptOutput.style.display = 'none'; // Esconde por padrão
+    
+    // Adicione o novo elemento ao DOM, por exemplo, após o botão
+    generateBtn.parentNode.insertBefore(generatedPromptOutput, generateBtn.nextSibling);
+
+    // Adapte a URL da sua Netlify Function para o novo nome do arquivo
+    const FUNCTION_URL = '/.netlify/functions/generate-gemini-prompt'; 
 
     generateBtn.addEventListener('click', async () => {
-        const prompt = promptInput.value.trim();
-        const aspectRatio = aspectRatioSelect.value;
+        const basePrompt = promptInput.value.trim();
+        // const aspectRatio = aspectRatioSelect.value; // Não necessário para esta função Gemini
 
-        // Limpa mensagens de erro e esconde a imagem anterior
+        // Limpa mensagens de erro e resultados anteriores
         errorMessage.textContent = '';
-        generatedImage.style.display = 'none';
-        imagePlaceholder.style.display = 'block'; // Mostra o placeholder novamente
-        generatedImage.src = ''; // Limpa o src da imagem anterior
+        generatedPromptOutput.textContent = '';
+        generatedPromptOutput.style.display = 'none';
 
-        if (!prompt) {
-            errorMessage.textContent = 'Por favor, insira um prompt para gerar a imagem.';
+        if (!basePrompt) {
+            errorMessage.textContent = 'Por favor, insira uma ideia base para gerar o prompt.';
             return;
         }
 
         // Desabilita o botão e mostra o spinner
         generateBtn.disabled = true;
         loadingSpinner.style.display = 'block';
-        imagePlaceholder.textContent = 'Gerando sua imagem... Por favor, aguarde.';
+        // Atualiza o placeholder ou mensagem de status
+        // Se você removeu os elementos de imagem, pode exibir uma mensagem aqui
+        // Ex: imagePlaceholder.textContent = 'Gerando prompt detalhado com Gemini...';
+
 
         try {
             const response = await fetch(FUNCTION_URL, {
@@ -38,30 +52,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ prompt, aspect_ratio: aspectRatio }), // Envia o prompt e o aspect_ratio
+                body: JSON.stringify({ basePrompt }), // Envia o prompt base
             });
 
             if (!response.ok) {
-                // Se a resposta não for OK (status 4xx ou 5xx)
                 const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido.' }));
-                throw new Error(errorData.error || 'Falha ao conectar com a função Netlify.');
+                throw new Error(errorData.error || `Falha ao conectar com a função Netlify. Status: ${response.status}`);
             }
 
             const data = await response.json();
 
-            if (data.imageUrl) {
-                generatedImage.src = data.imageUrl;
-                generatedImage.style.display = 'block'; // Mostra a imagem
-                imagePlaceholder.style.display = 'none'; // Esconde o placeholder
+            if (data.detailedImagePrompt) {
+                generatedPromptOutput.textContent = `Prompt Detalhado Gerado pelo Gemini:\n\n${data.detailedImagePrompt}`;
+                generatedPromptOutput.style.display = 'block'; // Mostra o prompt
             } else {
-                errorMessage.textContent = 'Nenhuma URL de imagem foi retornada.';
+                errorMessage.textContent = 'Nenhum prompt detalhado foi retornado pelo Gemini.';
             }
 
         } catch (error) {
             console.error('Erro ao chamar a função Netlify:', error);
             errorMessage.textContent = `Erro: ${error.message}. Por favor, tente novamente.`;
-            imagePlaceholder.style.display = 'block'; // Mostra o placeholder se houver erro
-            imagePlaceholder.textContent = 'Ocorreu um erro ao gerar a imagem.';
         } finally {
             // Reabilita o botão e esconde o spinner
             generateBtn.disabled = false;
