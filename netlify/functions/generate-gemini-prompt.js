@@ -1,12 +1,11 @@
-// index.js (para Google Cloud Function - Usando Google Gemini Pro para gerar prompts de imagem)
+// netlify/functions/generate-gemini-prompt.js
 
 // Importa a biblioteca do Google Generative AI
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// --- Configurações do Google Cloud e Gemini API ---
+// --- Configurações da API Gemini ---
 // Sua Chave da API Gemini.
-// Para uso em Google Cloud Functions, é recomendável configurar isso como uma variável de ambiente.
-// Você pode obter uma chave de API no Google AI Studio (ai.google.dev) ou no Google Cloud Console.
+// No Netlify, configure isso em "Site settings" > "Build & deploy" > "Environment variables".
 const API_KEY = process.env.GEMINI_API_KEY; 
 
 // Inicializa o cliente Gemini
@@ -16,46 +15,67 @@ try {
 } catch (e) {
     console.error("Erro ao inicializar GoogleGenerativeAI:", e.message);
     // Este erro geralmente acontece se a API_KEY estiver faltando ou for inválida.
-    // Em ambientes GCF, se você estiver usando credenciais de conta de serviço padrão,
-    // a API_KEY pode não ser necessária diretamente se a conta de serviço tiver as permissões adequadas
-    // para a API Gemini (Generative Language API). No entanto, para uso direto da API Key, ela é crucial.
 }
 
-// O nome da sua função no Google Cloud Functions.
-// Ex: ao implantar, você nomearia a função como 'generateCreativeImagePrompt'.
-exports.generateCreativeImagePrompt = async (req, res) => {
+// O manipulador principal da sua Netlify Function
+// É ESSENCIAL que seja 'exports.handler' e que receba 'event' e 'context'
+exports.handler = async (event, context) => { // <-- MUDANÇA AQUI: exporta como 'handler' e usa 'event', 'context'
     // --- Configuração de CORS (Essencial para chamadas de frontend) ---
-    res.set('Access-Control-Allow-Origin', '*'); // Ajuste para domínios específicos em produção!
+    // Netlify Functions geralmente cuidam de CORS para o mesmo domínio, mas é bom ter.
+    // Para chamadas de outros domínios, você precisaria configurar os cabeçalhos.
+    const headers = {
+        'Access-Control-Allow-Origin': '*', // Ajuste para domínios específicos em produção!
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    };
 
     // Lida com requisições OPTIONS (preflight CORS)
-    if (req.method === 'OPTIONS') {
-        res.set('Access-Control-Allow-Methods', 'POST');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
-        res.set('Access-Control-Max-Age', '3600'); 
-        return res.status(204).send(''); 
+    if (event.httpMethod === 'OPTIONS') { // <-- MUDANÇA AQUI: usa event.httpMethod
+        return {
+            statusCode: 204,
+            headers: headers,
+            body: ''
+        };
     }
 
     // --- Validação Inicial da API Key e Cliente ---
     if (!API_KEY) {
-        console.error("Erro: GEMINI_API_KEY não configurado nas variáveis de ambiente da GCF.");
-        return res.status(500).json({ error: 'Chave da API Gemini não configurada. Por favor, adicione-a como variável de ambiente.' });
+        console.error("Erro: GEMINI_API_KEY não configurado nas variáveis de ambiente do Netlify.");
+        return {
+            statusCode: 500,
+            headers: headers,
+            body: JSON.stringify({ error: 'Chave da API Gemini não configurada. Por favor, adicione-a como variável de ambiente.' })
+        };
     }
     if (!genAI) {
-        return res.status(500).json({ error: 'Falha na inicialização do cliente da API Gemini. Verifique a chave da API.' });
+        return {
+            statusCode: 500,
+            headers: headers,
+            body: JSON.stringify({ error: 'Falha na inicialização do cliente da API Gemini. Verifique a chave da API.' })
+        };
     }
 
     let requestBody;
     try {
-        requestBody = req.body; 
+        // Para Netlify Functions, o corpo da requisição POST vem como uma string no event.body e precisa ser parseado.
+        requestBody = JSON.parse(event.body); // <-- MUDANÇA AQUI: usa event.body
     } catch (error) {
-        return res.status(400).json({ error: 'Corpo da requisição inválido. Esperado JSON.' });
+        return {
+            statusCode: 400,
+            headers: headers,
+            body: JSON.stringify({ error: 'Corpo da requisição inválido. Esperado JSON.' })
+        };
     }
 
     // O prompt base que o usuário fornece (ex: "um gato espacial fofo")
     const { basePrompt } = requestBody; 
 
     if (!basePrompt || typeof basePrompt !== 'string' || basePrompt.trim() === '') {
-        return res.status(400).json({ error: 'O "basePrompt" é obrigatório e deve ser uma string não vazia.' });
+        return {
+            statusCode: 400,
+            headers: headers,
+            body: JSON.stringify({ error: 'O "basePrompt" é obrigatório e deve ser uma string não vazia.' })
+        };
     }
 
     try {
@@ -63,10 +83,9 @@ exports.generateCreativeImagePrompt = async (req, res) => {
         const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // "gemini-pro" é para geração de texto
 
         // Cria uma instrução para o Gemini gerar um prompt de imagem detalhado.
-        // Você pode ajustar esta instrução (system prompt) para o estilo que desejar.
         const fullPrompt = `Gere um prompt altamente detalhado e criativo (no máximo 150 palavras) para uma IA de geração de imagens, baseado na seguinte ideia: "${basePrompt}". Inclua especificações de estilo artístico (ex: fotorrealista, cyberpunk, aquarela), cores predominantes, tipo de iluminação, composição da cena, e a descrição dos elementos principais.`;
 
-        console.log(`[GCF - Gemini] Solicitando ao Gemini para expandir o prompt: "${basePrompt}"`);
+        console.log(`[Netlify Function - Gemini] Solicitando ao Gemini para expandir o prompt: "${basePrompt}"`);
         
         // Faz a chamada à API Gemini
         const result = await model.generateContent(fullPrompt);
@@ -74,20 +93,29 @@ exports.generateCreativeImagePrompt = async (req, res) => {
         const generatedImagePrompt = response.text(); // A saída do Gemini é texto!
 
         if (!generatedImagePrompt || generatedImagePrompt.trim() === '') {
-            console.error("[GCF - Gemini] Nenhuma descrição de imagem gerada pelo Gemini.");
-            return res.status(500).json({ error: "O Gemini não conseguiu gerar uma descrição detalhada de imagem para o seu prompt." });
+            console.error("[Netlify Function - Gemini] Nenhuma descrição de imagem gerada pelo Gemini.");
+            return {
+                statusCode: 500,
+                headers: headers,
+                body: JSON.stringify({ error: "O Gemini não conseguiu gerar uma descrição detalhada de imagem para o seu prompt." })
+            };
         }
 
-        console.log("[GCF - Gemini] Descrição de imagem gerada com sucesso pelo Gemini.");
+        console.log("[Netlify Function - Gemini] Descrição de imagem gerada com sucesso pelo Gemini.");
         
         // --- Retorna a DESCRIÇÃO DE TEXTO gerada pelo Gemini ---
-        // Esta descrição textual precisaria ser enviada para outra API (como o Vertex AI Imagen, Replicate, DALL-E)
-        // para, então, gerar a imagem real.
-        return res.status(200).json({ detailedImagePrompt: generatedImagePrompt }); 
+        return {
+            statusCode: 200,
+            headers: headers,
+            body: JSON.stringify({ detailedImagePrompt: generatedImagePrompt })
+        };
 
     } catch (error) {
-        console.error('[GCF - Gemini] Erro ao chamar o modelo Gemini Pro:', error);
-        // Erros da API Gemini podem ser detalhados (ex: cota excedida, chave inválida)
-        return res.status(500).json({ error: `Erro interno ao gerar prompt com Gemini: ${error.message}` });
+        console.error('[Netlify Function - Gemini] Erro ao chamar o modelo Gemini Pro:', error);
+        return {
+            statusCode: 500,
+            headers: headers,
+            body: JSON.stringify({ error: `Erro interno ao gerar prompt com Gemini: ${error.message}` })
+        };
     }
 };
