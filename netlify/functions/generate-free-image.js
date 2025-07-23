@@ -1,27 +1,39 @@
 // netlify/functions/generate-free-image.js
-require('dotenv').config(); // Carrega variáveis de ambiente para teste local
+// netlify/functions/generate-replicate-image.js
 
-const fetch = require('node-fetch'); // Usaremos 'node-fetch' para fazer a requisição HTTP
+// Carrega variáveis de ambiente para teste local (útil com netlify-cli)
+require('dotenv').config(); 
+
+// Importa o módulo Replicate
+// IMPORTANTE: Para usar 'import' em uma Netlify Function (Node.js),
+// pode ser necessário adicionar "type": "module" ao seu package.json,
+// ou garantir que seu ambiente Node.js no Netlify suporte ES Modules.
+// Se tiver problemas de 'import' não definido, tente:
+// const Replicate = require('replicate');
+import Replicate from "replicate"; 
 
 exports.handler = async (event, context) => {
-    // 1. Obtenha a chave da API da variável de ambiente do Netlify.
-    //    Substitua 'SUA_API_DE_IMAGEM_KEY' pelo nome da variável que você configurou no Netlify.
-    const API_KEY = process.env.API_DE_IMAGEM_KEY; 
+    // 1. Obtenha o token da API Replicate da variável de ambiente do Netlify.
+    const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN; 
+    
+    // Inicializa o cliente Replicate com o token
+    // Movemos a inicialização do 'replicate' para cá, após obter o token.
+    if (!REPLICATE_API_TOKEN) {
+        console.error("Erro: REPLICATE_API_TOKEN não configurado nas variáveis de ambiente.");
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Token da API Replicate não configurado. Por favor, adicione-o nas variáveis de ambiente do Netlify.' })
+        };
+    }
+    const replicate = new Replicate({
+        auth: REPLICATE_API_TOKEN,
+    });
 
     // 2. Verifique se o método da requisição é POST.
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
             body: JSON.stringify({ message: 'Método não permitido. Use POST.' }),
-            headers: { 'Content-Type': 'application/json' }
-        };
-    }
-
-    // 3. Verifique se a chave da API está configurada.
-    if (!API_KEY) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Chave da API de Geração de Imagem não configurada.' }),
             headers: { 'Content-Type': 'application/json' }
         };
     }
@@ -37,9 +49,10 @@ exports.handler = async (event, context) => {
         };
     }
 
-    const { prompt } = requestBody;
+    // Extrai o prompt e o aspect_ratio do corpo da requisição
+    const { prompt, aspect_ratio } = requestBody;
 
-    // 4. Valide o prompt.
+    // 3. Valide o prompt.
     if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
         return {
             statusCode: 400,
@@ -48,69 +61,60 @@ exports.handler = async (event, context) => {
         };
     }
 
-    // --- EXEMPLO DE CONFIGURAÇÃO PARA A API DE INFERÊNCIA DA HUGGING FACE (Stable Diffusion) ---
-    // Você PRECISARÁ adaptar esta URL e o corpo da requisição para a API específica que for usar.
-    // Visite o Hugging Face Hub, encontre um modelo Stable Diffusion (ex: stabilityai/stable-diffusion-2-1)
-    // e clique em "Deploy" -> "Inference API" para ver a URL e o exemplo de código.
-    const EXTERNAL_API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1'; 
-    const HEADERS = {
-        'Authorization': `Bearer ${API_KEY}`, // Para Hugging Face, é 'Bearer Token'
-        'Content-Type': 'application/json'
+    // --- CONFIGURAÇÃO E CHAMADA PARA A API REPLICATE (google/imagen-4-fast) ---
+    const input = {
+        prompt: prompt,
+        // O 'aspect_ratio' é opcional no frontend. Se não for fornecido, usa "1:1" como padrão.
+        aspect_ratio: aspect_ratio || "1:1" 
+        // Adicione outros parâmetros para o modelo 'google/imagen-4-fast' aqui, se necessário.
+        // Consulte a página do modelo na Replicate para ver todas as opções de input.
     };
-    const BODY = JSON.stringify({
-        inputs: prompt,
-        options: {
-            wait_for_model: true // Espera se o modelo estiver carregando
-        }
-    });
 
     try {
-        console.log(`Enviando prompt para a API de IA: "${prompt}"`);
+        console.log(`Enviando prompt para Replicate (google/imagen-4-fast): "${prompt}"`);
 
-        const response = await fetch(EXTERNAL_API_URL, {
-            method: 'POST',
-            headers: HEADERS,
-            body: BODY
-        });
+        // A biblioteca 'replicate' cuida da chamada, autenticação e polling automaticamente.
+        const output = await replicate.run(
+            "google/imagen-4-fast", // ID do modelo na Replicate
+            { input } // Objeto de input para o modelo
+        );
 
-        if (!response.ok) {
-            const errorBody = await response.json().catch(() => response.text()); // Tenta ler JSON, senão texto
-            console.error('Erro da API externa:', errorBody);
+        // O 'output' retornado pela biblioteca 'replicate' para modelos de imagem geralmente é uma URL.
+        // Se for um array de URLs, pegamos a primeira. Se for uma string direta, usamos.
+        let imageUrl = null;
+        if (Array.isArray(output) && output.length > 0) {
+            imageUrl = output[0]; // Pega a primeira URL se for um array
+        } else if (typeof output === 'string') {
+            imageUrl = output; // Se já for a URL como string
+        } else {
+            console.error("Formato de saída inesperado da Replicate:", output);
             return {
-                statusCode: response.status,
-                body: JSON.stringify({ 
-                    error: `Erro ao gerar imagem: ${typeof errorBody === 'object' && errorBody.error ? errorBody.error : response.statusText}. Verifique sua cota ou limite de taxa.` 
-                }),
-                headers: { 'Content-Type': 'application/json' }
+                statusCode: 500,
+                body: JSON.stringify({ error: "Formato de saída do modelo Replicate inesperado. Não foi possível obter a URL da imagem." })
             };
         }
 
-        // Para Hugging Face Inference API, a resposta é uma imagem em blob/arraybuffer, não uma URL.
-        // Você precisará converter isso para uma base64 ou salvar em algum lugar e retornar a URL.
-        // Para simplificar, vou assumir que a API retorna um JSON com a URL da imagem.
-        // Se a API retornar um blob, você precisaria de um serviço de upload de imagens (como Cloudinary, S3).
-        // EXEMPLO: se a API retornasse uma URL:
-        // const data = await response.json();
-        // const imageUrl = data.data[0].url; 
+        if (!imageUrl) {
+             return {
+                statusCode: 500,
+                body: JSON.stringify({ error: "Nenhuma URL de imagem válida foi gerada pela Replicate." })
+            };
+        }
 
-        // EXEMPLO ALTERNATIVO: Retornando a imagem como Base64 (se a API retornar um blob)
-        // Isso aumenta o tamanho da resposta, mas evita a necessidade de um serviço de upload.
-        const imageBlob = await response.buffer(); // response.arrayBuffer() no navegador, .buffer() no node-fetch
-        const imageBase64 = `data:${response.headers.get('content-type')};base64,${imageBlob.toString('base64')}`;
+        console.log("Imagem gerada com sucesso pela Replicate. URL:", imageUrl);
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ imageUrl: imageBase64 }), // Retorna a imagem em Base64
-            // OU se a API te der uma URL: body: JSON.stringify({ imageUrl: imageUrl }),
+            body: JSON.stringify({ imageUrl: imageUrl }), // Retorna a URL da imagem
             headers: { 'Content-Type': 'application/json' }
         };
 
     } catch (error) {
-        console.error('Erro na função Netlify generate-free-image:', error);
+        console.error('Erro na função Netlify generate-replicate-image:', error);
+        // A biblioteca 'replicate' geralmente fornece mensagens de erro claras.
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Erro interno ao gerar imagem.' }),
-            headers: { 'Content-Type': 'application/json' }
+            body: JSON.stringify({ error: `Erro interno ao gerar imagem com Replicate: ${error.message}` })
         };
     }
 };
