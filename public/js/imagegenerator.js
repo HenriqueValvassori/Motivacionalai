@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateBtn.parentNode.insertBefore(generatedPromptOutput, generateBtn.nextSibling);
 
     // Adapte a URL da sua Netlify Function para o novo nome do arquivo
-    const FUNCTION_URL = '/.netlify/functions/generate-gemini-prompt'; 
+    const FUNCTION_URL = '/.netlify/functions/generate-vertex-image'; 
 
     generateBtn.addEventListener('click', async () => {
         const basePrompt = promptInput.value.trim();
