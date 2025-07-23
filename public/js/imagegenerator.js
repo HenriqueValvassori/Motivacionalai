@@ -1,57 +1,71 @@
-// public/js/main.js
+document.addEventListener('DOMContentLoaded', () => {
+    const promptInput = document.getElementById('promptInput');
+    const aspectRatioSelect = document.getElementById('aspectRatioSelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const errorMessage = document.getElementById('errorMessage');
+    const generatedImage = document.getElementById('generatedImage');
+    const imagePlaceholder = document.getElementById('imagePlaceholder');
 
-async function gerarImagemComIA(promptDoUsuario) {
-    const loadingMessage = document.getElementById('loadingMessage');
-    const imageDisplay = document.getElementById('imageDisplay');
-    
-    if (!promptDoUsuario) {
-        alert('Por favor, insira um prompt para gerar a imagem.');
-        return;
-    }
+    // Define a URL da sua Netlify Function.
+    // Lembre-se que o nome da função no backend deve ser o mesmo do caminho aqui.
+    // Ex: Se sua função é 'generate-replicate-image.js', a URL será '/.netlify/functions/generate-replicate-image'
+    const FUNCTION_URL = '/.netlify/functions/generate-replicate-image'; 
 
-    loadingMessage.textContent = 'Gerando imagem com IA... Isso pode levar um tempo.';
-    imageDisplay.innerHTML = ''; // Limpa qualquer imagem anterior
+    generateBtn.addEventListener('click', async () => {
+        const prompt = promptInput.value.trim();
+        const aspectRatio = aspectRatioSelect.value;
 
-    try {
-        const response = await fetch('/.netlify/functions/generate-free-image', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt: promptDoUsuario })
-        });
+        // Limpa mensagens de erro e esconde a imagem anterior
+        errorMessage.textContent = '';
+        generatedImage.style.display = 'none';
+        imagePlaceholder.style.display = 'block'; // Mostra o placeholder novamente
+        generatedImage.src = ''; // Limpa o src da imagem anterior
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Falha ao gerar imagem.');
+        if (!prompt) {
+            errorMessage.textContent = 'Por favor, insira um prompt para gerar a imagem.';
+            return;
         }
 
-        const result = await response.json();
-        const imageUrlOrBase64 = result.imageUrl; // Pode ser URL ou Base64
+        // Desabilita o botão e mostra o spinner
+        generateBtn.disabled = true;
+        loadingSpinner.style.display = 'block';
+        imagePlaceholder.textContent = 'Gerando sua imagem... Por favor, aguarde.';
 
-        loadingMessage.textContent = ''; // Limpa a mensagem de carregamento
-        imageDisplay.innerHTML = `<img src="${imageUrlOrBase64}" alt="${promptDoUsuario}" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">`;
+        try {
+            const response = await fetch(FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt, aspect_ratio: aspectRatio }), // Envia o prompt e o aspect_ratio
+            });
 
-    } catch (error) {
-        console.error('Erro ao chamar a API de geração de imagem:', error);
-        loadingMessage.textContent = '';
-        imageDisplay.innerHTML = `<p style="color: red;">Ocorreu um erro ao gerar a imagem: ${error.message}</p>`;
-    }
-}
+            if (!response.ok) {
+                // Se a resposta não for OK (status 4xx ou 5xx)
+                const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido.' }));
+                throw new Error(errorData.error || 'Falha ao conectar com a função Netlify.');
+            }
 
-// Exemplo de como você pode integrar isso com um input e um botão no seu HTML:
-// <input type="text" id="promptInput" placeholder="Descreva a imagem..." style="width: 80%; padding: 10px;">
-// <button id="generateButton" style="padding: 10px 20px; margin-top: 10px;">Gerar Imagem</button>
-// <div id="loadingMessage" style="margin-top: 20px; color: blue;"></div>
-// <div id="imageDisplay" style="margin-top: 20px;"></div>
+            const data = await response.json();
 
-document.addEventListener('DOMContentLoaded', () => {
-    const generateButton = document.getElementById('generateButton');
-    const promptInput = document.getElementById('promptInput');
+            if (data.imageUrl) {
+                generatedImage.src = data.imageUrl;
+                generatedImage.style.display = 'block'; // Mostra a imagem
+                imagePlaceholder.style.display = 'none'; // Esconde o placeholder
+            } else {
+                errorMessage.textContent = 'Nenhuma URL de imagem foi retornada.';
+            }
 
-    if (generateButton && promptInput) {
-        generateButton.addEventListener('click', () => {
-            gerarImagemComIA(promptInput.value);
-        });
-    }
+        } catch (error) {
+            console.error('Erro ao chamar a função Netlify:', error);
+            errorMessage.textContent = `Erro: ${error.message}. Por favor, tente novamente.`;
+            imagePlaceholder.style.display = 'block'; // Mostra o placeholder se houver erro
+            imagePlaceholder.textContent = 'Ocorreu um erro ao gerar a imagem.';
+        } finally {
+            // Reabilita o botão e esconde o spinner
+            generateBtn.disabled = false;
+            loadingSpinner.style.display = 'none';
+        }
+    });
 });
