@@ -2,12 +2,12 @@
 [build]
   publish = "public"      
   functions = "netlify/functions" 
-  command = "npm install" 
+  command = "npm install" # Garante que as dependências sejam instaladas
 
 [functions]
   node_bundler = "esbuild" 
-  external_node_modules = ["@google-cloud/aiplatform"] 
-
+  # external_node_modules = ["@google-cloud/aiplatform"] # <-- REMOVA ESTA LINHA
+  
 # Redirecionamentos opcionais
 [[redirects]]
   from = "/api/get-motivation"
