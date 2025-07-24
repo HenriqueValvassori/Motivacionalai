@@ -3,17 +3,13 @@
     "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "openai": "^5.10.1",
+    "express": "^4.18.2",
+    "openai": "^4.0.0",
     "pg": "^8.16.3",
     "replicate": "^1.0.1",
-    "@google-cloud/aiplatform": "^3.x.x",
-    "@supabase/supabase-js": "^2.x.x", 
-    "node-fetch": "^2.x.x",
-    "backblaze" : "^1.x.x",
-    "axios" : "^1.x.x"
-    
-  
-  
+    "@google-cloud/aiplatform": "^3.5.0",
+    "@supabase/supabase-js": "^2.43.5",
+    "node-fetch": "^2.6.7",
+    "axios": "^1.7.2"
   }
 }
