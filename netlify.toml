@@ -1,15 +1,14 @@
 # netlify.toml
 [build]
-  publish = "public"      # Diretório onde seu index.html e outros arquivos estáticos estão
-  functions = "netlify/functions" # Diretório onde suas Netlify Functions estão
-  command = "npm install" # Garante que as dependências sejam instaladas
+  publish = "public"      
+  functions = "netlify/functions" 
+  command = "npm install" 
 
 [functions]
-  node_bundler = "esbuild" # Para builds mais rápidas de funções Node.js
-  # ADICIONE A LINHA ABAIXO PARA EXTERNALIZAR A BIBLIOTECA
+  node_bundler = "esbuild" 
   external_node_modules = ["@google-cloud/aiplatform"] 
 
-# Redirecionamentos opcionais para URLs mais amigáveis (ex: /api/get-motivation)
+# Redirecionamentos opcionais
 [[redirects]]
   from = "/api/get-motivation"
   to = "/.netlify/functions/get-motivation"
