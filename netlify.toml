@@ -17,3 +17,11 @@
   from = "/api/get-training-tips"
   to = "/.netlify/functions/get-training-tips"
   status = 200
+
+  [build]
+  functions = "netlify/functions"
+  command = "npm install" # Ou "yarn install" se você usa Yarn
+
+[functions]
+  node_bundler = "esbuild" # Netlify usa esbuild por padrão, é bom explicitar
+  node_version = "18"      # Ou "20" se preferir Node.js 20
