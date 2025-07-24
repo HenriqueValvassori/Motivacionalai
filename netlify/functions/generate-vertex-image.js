@@ -3,7 +3,7 @@
 require('dotenv').config(); // Carrega variáveis de ambiente (útil para testar localmente com netlify-cli)
 const path = require('path');
 const fs = require('fs');
-const axios = require('axios'); // <<-- Importe o axios
+const axios = require('axios'); // Importa o axios
 const { VertexAI } = require('@google-cloud/aiplatform');
 
 // --- Configurações do Backblaze B2 ---
@@ -55,7 +55,7 @@ async function downloadVertexAIKeyFromB2() {
 
         const apiUrl = authResponse.data.apiUrl;
         const authorizationToken = authResponse.data.authorizationToken;
-        // const authorizedAccountId = authResponse.data.accountId; // Guardamos para depuração, mas usaremos B2_ACCOUNT_ID do env para consistência
+        // const authorizedAccountId = authResponse.data.accountId; // Mantido para depuração, mas usamos B2_ACCOUNT_ID do env para consistência
 
         console.log('DEBUG: Autorização B2 bem-sucedida. apiUrl:', apiUrl);
         console.log('DEBUG: Token de autorização B2 obtido (parcial):', authorizationToken ? authorizationToken.substring(0, 10) + '...' : 'N/A');
@@ -76,16 +76,21 @@ async function downloadVertexAIKeyFromB2() {
         });
         console.log('DEBUG: b2_list_buckets bem-sucedido. Buckets:', JSON.stringify(listBucketsResponse.data.buckets, null, 2));
 
-        // PASSO 3: Baixar o arquivo (se os passos anteriores funcionarem)
-        const downloadUrl = `${apiUrl}/b2api/v2/b2_download_file_by_name`;
+        // PASSO 3: Baixar o arquivo (USANDO GET, CONFORME A API DO B2 EXIGE)
+        // A URL para download de arquivo por nome é um endpoint específico do API URL
+        // e os parâmetros bucketName e fileName vão como query parameters na URL, não no corpo de um POST.
+        const downloadFileUrl = `${apiUrl}/b2api/v2/b2_download_file_by_name`;
+        
         console.log(`DEBUG: Tentando baixar arquivo: ${B2_FILE_NAME} do bucket: ${B2_BUCKET_NAME}`);
-        const downloadFileResponse = await axios.post(downloadUrl, {
-            bucketName: B2_BUCKET_NAME,
-            fileName: B2_FILE_NAME
-        }, {
+        console.log(`DEBUG: URL de download construída: ${downloadFileUrl}?bucketName=${B2_BUCKET_NAME}&fileName=${B2_FILE_NAME}`);
+
+        const downloadFileResponse = await axios.get(downloadFileUrl, { // <<-- MUDANÇA AQUI: axios.get
+            params: { // <<-- MUDANÇA AQUI: Parâmetros vão em 'params' para requisições GET
+                bucketName: B2_BUCKET_NAME,
+                fileName: B2_FILE_NAME
+            },
             headers: {
-                'Authorization': authorizationToken,
-                'Content-Type': 'application/json'
+                'Authorization': authorizationToken, // Usando o token obtido
             },
             responseType: 'arraybuffer' // Para arquivos JSON, arraybuffer ou string são adequados
         });
