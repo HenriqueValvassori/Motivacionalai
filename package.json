@@ -7,7 +7,7 @@
     "openai": "^4.0.0",
     "pg": "^8.16.3",
     "replicate": "^1.0.1",
-    "@google-cloud/aiplatform": "^3.5.0",
+    "@google-cloud/aiplatform": "^3.7.0",
     "@supabase/supabase-js": "^2.43.5",
     "node-fetch": "^2.6.7",
     "axios": "^1.7.2"

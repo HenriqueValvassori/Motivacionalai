@@ -2,15 +2,14 @@
 [build]
   publish = "public"      # Diretório onde seu index.html e outros arquivos estáticos estão
   functions = "netlify/functions" # Diretório onde suas Netlify Functions estão
-  command = "npm install" # Ou "yarn install" se você usar Yarn
+  command = "npm install" # Garante que as dependências sejam instaladas
 
 [functions]
   node_bundler = "esbuild" # Para builds mais rápidas de funções Node.js
-  # REMOVA A LINHA ABAIXO se você a adicionou anteriormente
-  # node_version = "18" # <-- ESTA LINHA DEVE SER REMOVIDA
+  # ADICIONE A LINHA ABAIXO PARA EXTERNALIZAR A BIBLIOTECA
+  external_node_modules = ["@google-cloud/aiplatform"] 
 
 # Redirecionamentos opcionais para URLs mais amigáveis (ex: /api/get-motivation)
-# Se você usar isso, lembre-se de atualizar o fetch() no seu frontend!
 [[redirects]]
   from = "/api/get-motivation"
   to = "/.netlify/functions/get-motivation"
@@ -18,5 +17,5 @@
 
 [[redirects]]
   from = "/api/get-training-tips"
-  to = "/.netlify/functions/get-training_tips"
+  to = "/.netlify/functions/get-training-tips"
   status = 200

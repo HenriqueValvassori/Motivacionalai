@@ -4,7 +4,7 @@ require('dotenv').config(); // Carrega variáveis de ambiente (útil para testar
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios'); // Importa o axios
-
+const { VertexAI } = require('@google-cloud/aiplatform');
 // --- MUDANÇA CRÍTICA AQUI ---
 // Importa o pacote @google-cloud/aiplatform inteiro
 const aiplatformModule = require('@google-cloud/aiplatform');
@@ -125,6 +125,8 @@ async function downloadVertexAIKeyFromB2() {
 // --- Handler da Função Netlify ---
 exports.handler = async (event, context) => {
     // Configurações do Google Cloud
+    const aiplatform = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION }); 
+const generativeModel = aiplatform.getGenerativeModel({ model: 'gemini-pro-vision' });
     const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID;
     const GCP_LOCATION = process.env.GCP_LOCATION;
 
