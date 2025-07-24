@@ -9,7 +9,8 @@
     "replicate": "^1.0.1",
     "@google-cloud/aiplatform": "^3.x.x",
     "@supabase/supabase-js": "^2.x.x", 
-    "node-fetch": "^2.x.x"
+    "node-fetch": "^2.x.x",
+    "backblaze" : "^1.x.x"
   
   
   }
