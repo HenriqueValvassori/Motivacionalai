@@ -55,10 +55,13 @@ async function downloadVertexAIKeyFromB2() {
 
         const apiUrl = authResponse.data.apiUrl;
         const authorizationToken = authResponse.data.authorizationToken;
-        // const authorizedAccountId = authResponse.data.accountId; // Mantido para depuração, mas usamos B2_ACCOUNT_ID do env para consistência
+        const downloadBaseUrl = authResponse.data.downloadUrl; // <<-- PEGA O downloadUrl AQUI!
+        // const authorizedAccountId = authResponse.data.accountId; // Mantido para depuração
 
         console.log('DEBUG: Autorização B2 bem-sucedida. apiUrl:', apiUrl);
         console.log('DEBUG: Token de autorização B2 obtido (parcial):', authorizationToken ? authorizationToken.substring(0, 10) + '...' : 'N/A');
+        console.log('DEBUG: Base URL para download de arquivos (downloadUrl):', downloadBaseUrl);
+
 
         // PASSO 2: Listar buckets para verificar (usaremos B2_ACCOUNT_ID da variável de ambiente, que deve estar correto agora)
         const listBucketsUrl = `${apiUrl}/b2api/v2/b2_list_buckets`;
@@ -76,19 +79,21 @@ async function downloadVertexAIKeyFromB2() {
         });
         console.log('DEBUG: b2_list_buckets bem-sucedido. Buckets:', JSON.stringify(listBucketsResponse.data.buckets, null, 2));
 
-        // PASSO 3: Baixar o arquivo (USANDO GET, CONFORME A API DO B2 EXIGE)
-        // A URL para download de arquivo por nome é um endpoint específico do API URL
-        // e os parâmetros bucketName e fileName vão como query parameters na URL, não no corpo de um POST.
-        const downloadFileUrl = `${apiUrl}/b2api/v2/b2_download_file_by_name`;
+        // PASSO 3: Baixar o arquivo (USANDO GET E A URL DE DOWNLOAD DIRETA CORRETA)
+        // A URL correta para baixar um arquivo por nome é construída usando o 'downloadUrl'
+        // retornado pela autorização, seguido por '/file/<bucketName>/<fileName>'.
         
-        console.log(`DEBUG: Tentando baixar arquivo: ${B2_FILE_NAME} do bucket: ${B2_BUCKET_NAME}`);
-        console.log(`DEBUG: URL de download construída: ${downloadFileUrl}?bucketName=${B2_BUCKET_NAME}&fileName=${B2_FILE_NAME}`);
+        // É importante codificar os componentes da URL para garantir que caracteres especiais funcionem.
+        const encodedBucketName = encodeURIComponent(B2_BUCKET_NAME);
+        const encodedFileName = encodeURIComponent(B2_FILE_NAME);
+        
+        // Construindo a URL de download final
+        const downloadFileUrl = `${downloadBaseUrl}/file/${encodedBucketName}/${encodedFileName}`; 
 
-        const downloadFileResponse = await axios.get(downloadFileUrl, { // <<-- MUDANÇA AQUI: axios.get
-            params: { // <<-- MUDANÇA AQUI: Parâmetros vão em 'params' para requisições GET
-                bucketName: B2_BUCKET_NAME,
-                fileName: B2_FILE_NAME
-            },
+        console.log(`DEBUG: Tentando baixar arquivo: ${B2_FILE_NAME} do bucket: ${B2_BUCKET_NAME}`);
+        console.log(`DEBUG: URL de download construída (FINAL): ${downloadFileUrl}`);
+
+        const downloadFileResponse = await axios.get(downloadFileUrl, { 
             headers: {
                 'Authorization': authorizationToken, // Usando o token obtido
             },
