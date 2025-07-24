@@ -6,8 +6,8 @@ const fs = require('fs');
 const axios = require('axios'); // Importa o axios
 
 // --- MUDANÇA CRÍTICA AQUI ---
-// Importa GenerativeModel diretamente de @google-cloud/aiplatform
-const { GenerativeModel } = require('@google-cloud/aiplatform');
+// Importa VertexAI diretamente da biblioteca principal
+const { VertexAI } = require('@google-cloud/aiplatform');
 // --- FIM DA MUDANÇA CRÍTICA ---
 
 // --- Configurações do Backblaze B2 ---
@@ -175,13 +175,10 @@ exports.handler = async (event, context) => {
 
         // 3. Inicializar o cliente do Vertex AI
         // --- MUDANÇA CRÍTICA AQUI ---
-        // Inicializa GenerativeModel diretamente.
-        // Ele lida automaticamente com project e location se GOOGLE_APPLICATION_CREDENTIALS estiver configurado
-        const generativeModel = new GenerativeModel({ 
-            project: GCP_PROJECT_ID, 
-            location: GCP_LOCATION, 
-            model: 'gemini-pro-vision' 
-        });
+        // Instancia VertexAI e depois obtém o GenerativeModel a partir dela.
+        // Isso é o padrão mais robusto.
+        const aiplatform = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION }); 
+        const generativeModel = aiplatform.getGenerativeModel({ model: 'gemini-pro-vision' });
         // --- FIM DA MUDANÇA CRÍTICA ---
 
         let modelResponse;
