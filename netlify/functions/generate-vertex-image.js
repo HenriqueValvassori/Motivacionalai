@@ -40,15 +40,25 @@ async function downloadVertexAIKeyFromB2(bucketName, fileName) {
 
         // PASSO 2: Listar buckets (isso é o que estava falhando antes)
         // Usaremos o authorizationToken obtido do passo de autorização
-        const listBucketsUrl = `${apiUrl}/b2api/v2/b2_list_buckets`;
-        const listBucketsResponse = await axios.post(listBucketsUrl, {}, {
-            headers: {
-                'Authorization': authorizationToken, // Usando o token obtido
-                'Content-Type': 'application/json'
-            }
-        });
-        console.log('DEBUG: b2_list_buckets bem-sucedido. Buckets:', listBucketsResponse.data.buckets);
+        // ... (dentro da sua função downloadVertexAIKeyFromB2) ...
 
+    // PASSO 2: Listar buckets (ADICIONANDO accountId AO CORPO DA REQUISIÇÃO)
+    const listBucketsUrl = `${apiUrl}/b2api/v2/b2_list_buckets`;
+
+    // >>>>> NOVO LOG AQUI <<<<<
+    console.log(`DEBUG: B2_ACCOUNT_ID no momento da criação do payload: "${process.env.B2_ACCOUNT_ID}" (Tipo: ${typeof process.env.B2_ACCOUNT_ID})`);
+
+    const listBucketsPayload = { accountId: process.env.B2_ACCOUNT_ID };
+    console.log('DEBUG: Tentando listar buckets com URL:', listBucketsUrl);
+    console.log('DEBUG: Payload para b2_list_buckets (JSON.stringify de nossa variável):', JSON.stringify(listBucketsPayload)); // Isso mostra o que *esperamos* enviar
+
+    const listBucketsResponse = await axios.post(listBucketsUrl, listBucketsPayload, {
+        headers: {
+            'Authorization': authorizationToken,
+            'Content-Type': 'application/json'
+        }
+    });
+// ... (o resto do seu código) ...
 
         // PASSO 3: Baixar o arquivo (se os passos anteriores funcionarem)
         const downloadUrl = `${apiUrl}/b2api/v2/b2_download_file_by_name`; // ou b2_get_download_url
