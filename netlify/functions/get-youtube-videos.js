@@ -95,7 +95,7 @@ async function setCachedVideos(dataToCache) {
 
 exports.handler = async (event, context) => {
     const YOUTUBE_API_KEY = process.env.API_YOUTUBE; 
-    const CHANNEL_ID = 'UCM8vmU13i3wdC6qosu-Dmdw'; 
+    const CHANNEL_ID = process.env.CHANNEL_ID; 
 
     const MAX_RESULTS = 15; 
 
