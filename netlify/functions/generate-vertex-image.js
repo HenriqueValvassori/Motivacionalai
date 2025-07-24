@@ -4,9 +4,7 @@ require('dotenv').config(); // Carrega variáveis de ambiente (útil para testar
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios'); // Importa o axios
-// Importação do VertexAI - A forma de desestruturar pode variar um pouco,
-// mas esta é a mais comum para obter a classe principal.
-const { VertexAI } = require('@google-cloud/aiplatform');
+const { VertexAI } = require('@google-cloud/aiplatform'); // Importação da classe VertexAI
 
 // --- Configurações do Backblaze B2 ---
 const B2_ACCOUNT_ID = process.env.B2_ACCOUNT_ID;
