@@ -4,7 +4,11 @@ require('dotenv').config(); // Carrega variáveis de ambiente (útil para testar
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios'); // Importa o axios
-const { VertexAI } = require('@google-cloud/aiplatform'); // Importação da classe VertexAI
+
+// --- MUDANÇA CRÍTICA AQUI ---
+// Importa GenerativeModel diretamente de @google-cloud/aiplatform
+const { GenerativeModel } = require('@google-cloud/aiplatform');
+// --- FIM DA MUDANÇA CRÍTICA ---
 
 // --- Configurações do Backblaze B2 ---
 const B2_ACCOUNT_ID = process.env.B2_ACCOUNT_ID;
@@ -55,8 +59,7 @@ async function downloadVertexAIKeyFromB2() {
 
         const apiUrl = authResponse.data.apiUrl;
         const authorizationToken = authResponse.data.authorizationToken;
-        const downloadBaseUrl = authResponse.data.downloadUrl; // PEGA O downloadUrl AQUI!
-        // const authorizedAccountId = authResponse.data.accountId; // Mantido para depuração
+        const downloadBaseUrl = authResponse.data.downloadUrl; // Pega o downloadUrl aqui!
 
         console.log('DEBUG: Autorização B2 bem-sucedida. apiUrl:', apiUrl);
         console.log('DEBUG: Token de autorização B2 obtido (parcial):', authorizationToken ? authorizationToken.substring(0, 10) + '...' : 'N/A');
@@ -65,7 +68,7 @@ async function downloadVertexAIKeyFromB2() {
 
         // PASSO 2: Listar buckets para verificar (usaremos B2_ACCOUNT_ID da variável de ambiente, que deve estar correto agora)
         const listBucketsUrl = `${apiUrl}/b2api/v2/b2_list_buckets`;
-        const listBucketsPayload = { accountId: B2_ACCOUNT_ID }; // Usando o Account ID da variável de ambiente
+        const listBucketsPayload = { accountId: B2_ACCOUNT_ID }; 
         
         console.log('DEBUG: B2_ACCOUNT_ID no momento da criação do payload (ORIGEM: process.env.B2_ACCOUNT_ID):', B2_ACCOUNT_ID); 
         console.log('DEBUG: Tentando listar buckets com URL:', listBucketsUrl);
@@ -171,11 +174,15 @@ exports.handler = async (event, context) => {
 
 
         // 3. Inicializar o cliente do Vertex AI
-        // CORREÇÃO FINAL AQUI: Acessar a classe 'VertexAI' e instanciar corretamente.
-        // O `model` pode ser obtido diretamente do `aiplatform` ou via um construtor de `GenerativeModel`.
-        // Esta abordagem é a mais comum:
-        const aiplatform = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION });
-        const generativeModel = aiplatform.getGenerativeModel({ model: 'gemini-pro-vision' });
+        // --- MUDANÇA CRÍTICA AQUI ---
+        // Inicializa GenerativeModel diretamente.
+        // Ele lida automaticamente com project e location se GOOGLE_APPLICATION_CREDENTIALS estiver configurado
+        const generativeModel = new GenerativeModel({ 
+            project: GCP_PROJECT_ID, 
+            location: GCP_LOCATION, 
+            model: 'gemini-pro-vision' 
+        });
+        // --- FIM DA MUDANÇA CRÍTICA ---
 
         let modelResponse;
 
@@ -210,7 +217,6 @@ exports.handler = async (event, context) => {
             const parts = [imagePart];
             modelResponse = await generativeModel.generateContent({ contents: [{ role: 'user', parts }] });
         }
-
 
         const responseText = modelResponse.response.candidates[0].content.parts[0].text;
         console.log('DEBUG: Resposta do Vertex AI:', responseText);
