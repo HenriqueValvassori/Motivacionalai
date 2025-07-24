@@ -171,8 +171,10 @@ exports.handler = async (event, context) => {
 
 
         // 3. Inicializar o cliente do Vertex AI
-        // CORREÇÃO AQUI: Instanciar VertexAI e então obter o modelo generativo
-        const aiplatform = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION }); 
+        // CORREÇÃO FINAL AQUI: Acessar a classe 'VertexAI' e instanciar corretamente.
+        // O `model` pode ser obtido diretamente do `aiplatform` ou via um construtor de `GenerativeModel`.
+        // Esta abordagem é a mais comum:
+        const aiplatform = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION });
         const generativeModel = aiplatform.getGenerativeModel({ model: 'gemini-pro-vision' });
 
         let modelResponse;
