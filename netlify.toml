@@ -2,9 +2,11 @@
 [build]
   publish = "public"      # Diretório onde seu index.html e outros arquivos estáticos estão
   functions = "netlify/functions" # Diretório onde suas Netlify Functions estão
+  command = "npm install" # <<-- ADICIONE ESTA LINHA (ou "yarn install" se usar Yarn)
 
 [functions]
   node_bundler = "esbuild" # Para builds mais rápidas de funções Node.js
+  node_version = "18"      # <<-- ADICIONE ESTA LINHA (ou "20" se preferir Node.js 20)
 
 # Redirecionamentos opcionais para URLs mais amigáveis (ex: /api/get-motivation)
 # Se você usar isso, lembre-se de atualizar o fetch() no seu frontend!
@@ -17,11 +19,3 @@
   from = "/api/get-training-tips"
   to = "/.netlify/functions/get-training-tips"
   status = 200
-
-  [build]
-  functions = "netlify/functions"
-  command = "npm install" # Ou "yarn install" se você usa Yarn
-
-[functions]
-  node_bundler = "esbuild" # Netlify usa esbuild por padrão, é bom explicitar
-  node_version = "18"      # Ou "20" se preferir Node.js 20
