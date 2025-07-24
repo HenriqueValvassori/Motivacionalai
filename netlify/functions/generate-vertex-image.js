@@ -4,6 +4,8 @@ require('dotenv').config(); // Carrega variáveis de ambiente (útil para testar
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios'); // Importa o axios
+// Importação do VertexAI - A forma de desestruturar pode variar um pouco,
+// mas esta é a mais comum para obter a classe principal.
 const { VertexAI } = require('@google-cloud/aiplatform');
 
 // --- Configurações do Backblaze B2 ---
@@ -55,7 +57,7 @@ async function downloadVertexAIKeyFromB2() {
 
         const apiUrl = authResponse.data.apiUrl;
         const authorizationToken = authResponse.data.authorizationToken;
-        const downloadBaseUrl = authResponse.data.downloadUrl; // <<-- PEGA O downloadUrl AQUI!
+        const downloadBaseUrl = authResponse.data.downloadUrl; // PEGA O downloadUrl AQUI!
         // const authorizedAccountId = authResponse.data.accountId; // Mantido para depuração
 
         console.log('DEBUG: Autorização B2 bem-sucedida. apiUrl:', apiUrl);
@@ -171,8 +173,9 @@ exports.handler = async (event, context) => {
 
 
         // 3. Inicializar o cliente do Vertex AI
-        const vertexAI = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION });
-        const generativeModel = vertexAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+        // CORREÇÃO AQUI: Instanciar VertexAI e então obter o modelo generativo
+        const aiplatform = new VertexAI({ project: GCP_PROJECT_ID, location: GCP_LOCATION }); 
+        const generativeModel = aiplatform.getGenerativeModel({ model: 'gemini-pro-vision' });
 
         let modelResponse;
 
