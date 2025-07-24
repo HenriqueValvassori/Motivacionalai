@@ -2,61 +2,95 @@
 require('dotenv').config(); // Carrega variáveis de ambiente (para testar localmente com netlify-cli)
 const fetch = require('node-fetch');
 
-// --- ADICIONE ESTAS LINHAS PARA O CACHE COM FAUNADB ---
-const faunadb = require('faunadb');
-const q = faunadb.query;
+// --- SUBSTITUA AS LINHAS DO FAUNADB PELAS DO SUPABASE ---
+const { createClient } = require('@supabase/supabase-js');
 
-const client = new faunadb.Client({ secret: process.env.FAUNADB_SECRET });
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-const CACHE_COLLECTION_NAME = 'youtube_cache';
-const CACHE_DOC_ID = 'main_youtube_videos'; // ID fixo para o documento de cache
+let supabase; // Declarar fora para reuso em cold starts
+
+try {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error('Variáveis de ambiente SUPABASE_URL ou SUPABASE_ANON_KEY não configuradas.');
+    }
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Cliente Supabase inicializado com sucesso.');
+} catch (error) {
+    console.error('Erro ao inicializar cliente Supabase:', error.message);
+    // Em produção, você pode querer retornar um erro 500 aqui se o Supabase for crítico.
+    // Por enquanto, apenas logamos o erro.
+}
+
+
+const CACHE_TABLE_NAME = 'youtube_cache'; // Nome da tabela que você criou no Supabase
+const CACHE_DOC_ID = 'main_youtube_videos'; // ID fixo para o registro de cache
 const CACHE_DURATION_MS = 2 * 24 * 60 * 60 * 1000; // 2 dias em milissegundos
 
-// Funções auxiliares para cache
+// Funções auxiliares para cache com Supabase
 async function getCachedVideos() {
+    if (!supabase) {
+        console.error('Supabase client não está disponível. Pulando cache de leitura.');
+        return null; // Não pode usar o cache se o cliente não inicializou
+    }
     try {
-        const doc = await client.query(
-            q.Get(q.Ref(q.Collection(CACHE_COLLECTION_NAME), CACHE_DOC_ID))
-        );
-        const { data, timestamp } = doc.data; // Desestrutura para obter os dados e o timestamp
+        const { data, error } = await supabase
+            .from(CACHE_TABLE_NAME)
+            .select('data, timestamp')
+            .eq('id', CACHE_DOC_ID)
+            .single(); // Espera um único registro
 
-        if (Date.now() - timestamp < CACHE_DURATION_MS) {
-            console.log('Servindo vídeos do cache do FaunaDB.');
-            return data;
+        if (error && error.code === 'PGRST116') { // PGRST116 = No rows found (nenhum registro encontrado)
+            console.log('Documento de cache não encontrado no Supabase.');
+            return null;
         }
-        console.log('Cache do FaunaDB expirado.');
-        return null; // Cache expirado
+        if (error) {
+            console.error('Erro ao ler cache do Supabase:', error.message);
+            return null;
+        }
+
+        if (data && data.timestamp) {
+            if (Date.now() - data.timestamp < CACHE_DURATION_MS) {
+                console.log('Servindo vídeos do cache do Supabase.');
+                return data.data; // Retorna apenas os dados do vídeo
+            }
+            console.log('Cache do Supabase expirado.');
+            return null; // Cache expirado
+        }
+        console.log('Dados de cache inválidos no Supabase (sem timestamp ou data).');
+        return null;
     } catch (error) {
-        if (error.name === 'NotFound') {
-            console.log('Documento de cache não encontrado no FaunaDB.');
-            return null; // Documento de cache não existe
-        }
-        console.error('Erro ao ler cache do FaunaDB:', error);
+        console.error('Erro inesperado ao acessar cache do Supabase:', error);
         return null;
     }
 }
 
-async function setCachedVideos(dataToCache) { // Renomeado para dataToCache para evitar conflito
+async function setCachedVideos(dataToCache) {
+    if (!supabase) {
+        console.error('Supabase client não está disponível. Pulando cache de escrita.');
+        return;
+    }
     try {
-        await client.query(
-            q.If(
-                q.Exists(q.Ref(q.Collection(CACHE_COLLECTION_NAME), CACHE_DOC_ID)),
-                q.Replace(
-                    q.Ref(q.Collection(CACHE_COLLECTION_NAME), CACHE_DOC_ID),
-                    { data: { data: dataToCache, timestamp: Date.now() } } // Armazena os dados e o timestamp atual
-                ),
-                q.Create(
-                    q.Ref(q.Collection(CACHE_COLLECTION_NAME), CACHE_DOC_ID),
-                    { data: { data: dataToCache, timestamp: Date.now() } }
-                )
-            )
-        );
-        console.log('Vídeos atualizados e salvos no cache do FaunaDB.');
+        const { error } = await supabase
+            .from(CACHE_TABLE_NAME)
+            .upsert({ 
+                id: CACHE_DOC_ID, 
+                data: dataToCache, 
+                timestamp: Date.now() 
+            }, { 
+                onConflict: 'id' // Atualiza se 'id' já existe, insere se não
+            });
+
+        if (error) {
+            console.error('Erro ao escrever cache no Supabase:', error.message);
+        } else {
+            console.log('Vídeos atualizados e salvos no cache do Supabase.');
+        }
     } catch (error) {
-        console.error('Erro ao escrever cache no FaunaDB:', error);
+        console.error('Erro inesperado ao escrever cache no Supabase:', error);
     }
 }
-// --- FIM DAS LINHAS DE CACHE ---
+// --- FIM DAS LINHAS DE CACHE COM SUPABASE ---
 
 
 exports.handler = async (event, context) => {
@@ -71,12 +105,19 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Chave da API do YouTube não configurada.' })
         };
     }
-    if (!CHANNEL_ID) { // Esta verificação agora está boa
+    if (!CHANNEL_ID) {
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'ID do Canal do YouTube não configurado na função get-youtube-videos.' })
         };
     }
+
+    // Configuração de CORS (importante para chamadas de frontend)
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Permite qualquer origem. Ajuste para domínios específicos em produção!
+        'Cache-Control': `public, max-age=${CACHE_DURATION_MS / 1000}` // Cache no navegador/CDN por 2 dias
+    };
 
     try {
         // 1. Tentar obter dados do cache antes de chamar a API
@@ -85,11 +126,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 200,
                 body: JSON.stringify({ regularVideos: cachedVideos }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Cache-Control': `public, max-age=${CACHE_DURATION_MS / 1000}` // Cache no navegador/CDN por 2 dias
-                }
+                headers: headers // Usa os headers definidos acima
             };
         }
 
@@ -117,7 +154,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 200,
                 body: JSON.stringify({ regularVideos: [] }),
-                headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+                headers: headers // Usa os headers definidos acima
             };
         }
 
@@ -159,11 +196,7 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 200,
             body: JSON.stringify({ regularVideos }),
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Cache-Control': `public, max-age=${CACHE_DURATION_MS / 1000}` // Cache no navegador/CDN
-            }
+            headers: headers // Usa os headers definidos acima
         };
 
     } catch (error) {

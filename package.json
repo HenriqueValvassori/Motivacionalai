@@ -4,11 +4,13 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
-    "faunadb": "^4.x.x",
     "openai": "^5.10.1",
     "pg": "^8.16.3",
     "replicate": "^1.0.1",
     "@google-cloud/aiplatform": "^3.x.x",
-    "@google-cloud/generativelanguage": "^2.x.x",
-    "b2-sdk-js": "^1.x.x"}
+    "@supabase/supabase-js": "^2.x.x", 
+    "node-fetch": "^2.x.x"
+  
+  
+  }
 }
