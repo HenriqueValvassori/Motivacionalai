@@ -7,7 +7,7 @@ const axios = require('axios'); // Importa o axios
 const { VertexAI } = require('@google-cloud/aiplatform');
 // --- MUDANÇA CRÍTICA AQUI ---
 // Importa o pacote @google-cloud/aiplatform inteiro
-const aiplatformModule = require('@google-cloud/aiplatform');
+;
 // Acessa a classe VertexAI do módulo importado
 const VertexAI = aiplatformModule.VertexAI;
 // --- FIM DA MUDANÇA CRÍTICA ---
