@@ -1,4 +1,3 @@
-// netlify/functions/generate-vertex-image.js
 const axios = require('axios');
 require('dotenv').config(); // Carrega variáveis de ambiente (para testar localmente com netlify-cli)
 const path = require('path');
@@ -250,54 +249,4 @@ console.log('Valor de B2_APPLICATION_KEY (lido na função):', process.env.B2_AP
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
         };
     }
-};*/// netlify/functions/generate-vertex-image.js
-
-// 1. Adicione esta linha no TOPO do seu arquivo, junto com outras importações/requires
-const axios = require('axios');
-
-// ====================================================================================
-// SCRIPT DE TESTE COM AXIOS - Função auxiliar
-// ====================================================================================
-async function downloadVertexAIKeyFromB2(bucketName, fileName) {
-    try {
-        console.log(`DEBUG: Valor de B2_ACCOUNT_ID lido na função: ${process.env.B2_ACCOUNT_ID}`);
-        console.log(`DEBUG: Valor de B2_APPLICATION_KEY lido na função: ${process.env.B2_APPLICATION_KEY}`);
-        console.log(`DEBUG: Tentando autorizar no B2 com Account ID: ${process.env.B2_ACCOUNT_ID} e Application Key (primeiros 10 caracteres): ${process.env.B2_APPLICATION_KEY.substring(0, 10)}...`);
-
-        // PASSO 1: Autorizar a conta B2 para obter um token de autorização e o apiUrl
-        const basicAuth = Buffer.from(`${process.env.B2_ACCOUNT_ID}:${process.env.B2_APPLICATION_KEY}`).toString('base64');
-        console.log('DEBUG: String Basic Auth gerada para b2_authorize_account (primeiros 10 caracteres):', basicAuth.substring(0, 10) + '...');
-
-        const authResponse = await axios.get('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', {
-            headers: {
-                'Authorization': `Basic ${basicAuth}`
-            }
-        });
-
-        console.log('DEBUG: Status da resposta de autorização:', authResponse.status);
-        console.log('DEBUG: Dados completos da resposta de autorização (authResponse.data):', JSON.stringify(authResponse.data, null, 2));
-
-        const apiUrl = authResponse.data.apiUrl;
-        const authorizationToken = authResponse.data.authorizationToken;
-
-        console.log('DEBUG: Autorização B2 bem-sucedida. apiUrl:', apiUrl);
-        console.log('DEBUG: Token de autorização B2 obtido (parcial):', authorizationToken ? authorizationToken.substring(0, 10) + '...' : 'N/A');
-
-        // PASSO 2: Listar buckets (ADICIONANDO accountId AO CORPO DA REQUISIÇÃO)
-        const listBucketsUrl = `${apiUrl}/b2api/v2/b2_list_buckets`;
-        console.log('DEBUG: Tentando listar buckets com URL:', listBucketsUrl);
-        const listBucketsResponse = await axios.post(listBucketsUrl, { accountId: process.env.B2_ACCOUNT_ID }, { // <<-- MUDANÇA: ADICIONADO accountId NO BODY
-            headers: {
-                'Authorization': authorizationToken, // Usando o token obtido
-                'Content-Type': 'application/json'
-            }
-        });
-        console.log('DEBUG: b2_list_buckets bem-sucedido. Buckets:', JSON.stringify(listBucketsResponse.data.buckets, null, 2));
-
-
-        // PASSO 3: Baixar o arquivo (se os passos anteriores funcionarem)
-        const downloadFileUrl = `${apiUrl}/b2api/v2/b2_download_file_by_name`;
-        console.log(`DEBUG: Tentando baixar arquivo: ${fileName} do bucket: ${bucketName}`);
-        const downloadFileResponse = await axios.post(downloadFileUrl, {
-            bucketName: bucketName,
-            fileName: fileName
+};*/
