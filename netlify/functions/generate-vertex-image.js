@@ -5,7 +5,8 @@ const fs = require('fs');
 const { VertexAI } = require('@google-cloud/aiplatform');
 
 // --- Importe o SDK "backblaze" que você está usando ---
-const Bucket = require('backblaze'); // Importar como CommonJS
+// CORREÇÃO AQUI: Tentar acessar o export 'default' ou o próprio módulo
+const Bucket = require('backblaze').default || require('backblaze');
 
 // --- Configurações do Backblaze B2 ---
 const B2_ACCOUNT_ID = process.env.B2_ACCOUNT_ID;
@@ -32,7 +33,7 @@ async function downloadVertexAIKeyFromB2() {
     console.log(`Baixando chave do Vertex AI do B2: ${B2_BUCKET_NAME}/${B2_FILE_NAME}`);
 
     try {
-        const bucket = Bucket(B2_BUCKET_NAME, {
+        const bucket = Bucket(B2_BUCKET_NAME, { // Este 'Bucket' agora deve ser uma função
             id: B2_ACCOUNT_ID,
             key: B2_APPLICATION_KEY
         });
