@@ -82,7 +82,7 @@ async function downloadVertexAIKeyFromB2() {
 // --- Handler da Função Netlify ---
 exports.handler = async (event, context) => {
     const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID;
-    const GCP_LOCATION = process.env.GCP_LOCATION; // Ex: us-central1
+    const GCP_LOCATION = process.env.GCP_LOCATION; // 
     const MODEL_ID = 'gemini-pro-vision'; // Ou 'gemini-pro' se for só texto
 
     if (!GCP_PROJECT_ID || !GCP_LOCATION) {
