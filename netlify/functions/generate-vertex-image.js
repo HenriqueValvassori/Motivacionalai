@@ -67,6 +67,8 @@ async function downloadVertexAIKeyFromB2(bucketName, fileName) {
         return downloadFileResponse.data;
 
     } catch (error) {
+        // Dentro do catch(error) da sua função downloadVertexAIKeyFromB2
+    console.error('ERROR: Dados ENVIADOS na requisição que falhou (error.config.data):', error.config && error.config.data ? error.config.data : 'N/A'); // <--- ESSA LINHA
         console.error('ERROR: Erro ao baixar chave do Vertex AI do Backblaze B2:', error.message);
         if (error.response) {
             console.error('ERROR: Detalhes da resposta de erro:', error.response.status, error.response.data);
