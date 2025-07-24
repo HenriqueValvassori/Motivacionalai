@@ -33,6 +33,8 @@ async function downloadVertexAIKeyFromB2() {
     console.log(`Baixando chave do Vertex AI do B2: ${B2_BUCKET_NAME}/${B2_FILE_NAME}`);
 
     try {
+        console.log('Valor de B2_ACCOUNT_ID (lido na função):', process.env.B2_ACCOUNT_ID);
+console.log('Valor de B2_APPLICATION_KEY (lido na função):', process.env.B2_APPLICATION_KEY);
         const bucket = Bucket(B2_BUCKET_NAME, { // Este 'Bucket' agora deve ser uma função
             id: B2_ACCOUNT_ID,
             key: B2_APPLICATION_KEY
