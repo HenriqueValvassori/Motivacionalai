@@ -1,13 +1,13 @@
 # netlify.toml
 [build]
-  publish = "public"      
-  functions = "netlify/functions" 
+  publish = "public"
+  functions = "netlify/functions"
   command = "npm install" # Garante que as dependências sejam instaladas
 
 [functions]
-  node_bundler = "esbuild" 
-  # external_node_modules = ["@google-cloud/aiplatform"] # <-- REMOVA ESTA LINHA
-  
+  node_bundler = "esbuild"
+  # external_node_modules = ["@google-cloud/aiplatform"] # <-- REMOVA ESTA LINHA (como você já indicou)
+
 # Redirecionamentos opcionais
 [[redirects]]
   from = "/api/get-motivation"
@@ -17,4 +17,10 @@
 [[redirects]]
   from = "/api/get-training-tips"
   to = "/.netlify/functions/get-training-tips"
+  status = 200
+
+# Se você mudar o nome do arquivo da função de imagem, você pode precisar de um novo redirect:
+[[redirects]]
+  from = "/api/generate-image" # Exemplo de novo endpoint
+  to = "/.netlify/functions/generate-image-hf" # Nome do seu novo arquivo de função (ex: generate-image-hf.js)
   status = 200
