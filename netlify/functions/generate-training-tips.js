@@ -29,7 +29,7 @@ exports.handler = async (event, context) => {
         const resLastTip = await pgClient.query(queryLastTip);
 
         let canGenerate = true;
-        /*if (resLastTip.rows.length > 0) {
+        if (resLastTip.rows.length > 0) {
             const lastGenerationTime = new Date(resLastTip.rows[0].data_geracao);
             const now = new Date();
             const hoursSinceLastGeneration = (now.getTime() - lastGenerationTime.getTime()) / (1000 * 60 * 60);
@@ -42,7 +42,7 @@ exports.handler = async (event, context) => {
                     body: JSON.stringify({ message: 'Dica de treino não gerada. Intervalo de 24h não atingido.', lastGenerated: lastGenerationTime.toISOString() })
                 };
             }
-        }*/
+        }
 
         if (canGenerate) {
             // 2. Gerar a dica de treino com Gemini Flash
