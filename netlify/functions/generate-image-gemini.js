@@ -1,6 +1,6 @@
 // netlify/functions/generate-image-gemini-flash.js
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+/*const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 exports.handler = async function(event, context) {
     if (event.httpMethod !== 'POST') {
@@ -104,4 +104,4 @@ exports.handler = async function(event, context) {
             body: JSON.stringify({ error: errorMessage, details: error.message })
         };
     }
-};
+};*/
