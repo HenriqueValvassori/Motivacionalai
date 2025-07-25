@@ -1,5 +1,51 @@
 // js/imageConverter.js
+document.addEventListener('DOMContentLoaded', () => {
+    const buttonId = 'redirectButtonX'; // ID do botão que controla o redirecionamento/ativação
+    const button = document.getElementById(buttonId);
 
+    if (button) {
+        const hasRedirectedKey = 'hasRedirectedForButtonX'; // Chave para localStorage
+        const firstRedirectPage = 'https://descendedlibrarian.com/msqwx58fq?key=7d770b55d06de394db5b4dd6f9085d98'; // URL externa para redirecionar APENAS UMA VEZ
+        const converterSectionId = 'image-converter-section'; // ID da div que contém o conversor no HTML
+
+        // Esta função será executada quando o botão for clicado e o primeiro redirecionamento já tiver ocorrido.
+        const activateConverterFunction = () => {
+            console.log('Comportamento padrão: Ativando a funcionalidade do conversor de imagens na página.');
+
+            // Tenta mostrar a seção do conversor de imagens, se estiver oculta
+            const converterSection = document.getElementById(converterSectionId);
+            if (converterSection) {
+                converterSection.style.display = 'block'; // Torna a seção visível
+                // Opcional: Rola a página para a seção do conversor para uma melhor experiência do usuário
+                converterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                console.warn(`Seção do conversor com ID '${converterSectionId}' não encontrada. A funcionalidade pode não ser visível.`);
+            }
+
+            // Chama a função de inicialização do conversor definida acima.
+            // A função initializeImageConverter() já está no mesmo arquivo e escopo.
+            initializeImageConverter();
+        };
+
+        button.addEventListener('click', (event) => {
+            event.preventDefault(); // Previne o comportamento padrão do botão
+
+            const hasRedirected = localStorage.getItem(hasRedirectedKey);
+
+            if (!hasRedirected) {
+                // Primeira vez: Redireciona para a URL externa
+                localStorage.setItem(hasRedirectedKey, 'true'); // Marca que o redirecionamento já aconteceu
+                window.location.href = firstRedirectPage; // Executa o redirecionamento
+            } else {
+                // Próximas vezes: Executa a função de ativação do conversor
+                console.log('Primeiro redirecionamento já ocorreu. Ativando o conversor.');
+                activateConverterFunction();
+            }
+        });
+    } else {
+        console.warn(`Botão com ID '${buttonId}' não encontrado. O script de redirecionamento condicional não será ativado.`);
+    }
+});
 // 1. Definição da função de inicialização do Conversor de Imagens
 // Esta função encapsula toda a lógica de configuração do conversor (event listeners, etc.).
 function initializeImageConverter() {
@@ -74,50 +120,3 @@ function initializeImageConverter() {
 
 
 // 2. Lógica principal do DOMContentLoaded que integra o redirecionamento e a ativação do conversor
-document.addEventListener('DOMContentLoaded', () => {
-    const buttonId = 'redirectButtonX'; // ID do botão que controla o redirecionamento/ativação
-    const button = document.getElementById(buttonId);
-
-    if (button) {
-        const hasRedirectedKey = 'hasRedirectedForButtonX'; // Chave para localStorage
-        const firstRedirectPage = 'https://descendedlibrarian.com/msqwx58fq?key=7d770b55d06de394db5b4dd6f9085d98'; // URL externa para redirecionar APENAS UMA VEZ
-        const converterSectionId = 'image-converter-section'; // ID da div que contém o conversor no HTML
-
-        // Esta função será executada quando o botão for clicado e o primeiro redirecionamento já tiver ocorrido.
-        const activateConverterFunction = () => {
-            console.log('Comportamento padrão: Ativando a funcionalidade do conversor de imagens na página.');
-
-            // Tenta mostrar a seção do conversor de imagens, se estiver oculta
-            const converterSection = document.getElementById(converterSectionId);
-            if (converterSection) {
-                converterSection.style.display = 'block'; // Torna a seção visível
-                // Opcional: Rola a página para a seção do conversor para uma melhor experiência do usuário
-                converterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                console.warn(`Seção do conversor com ID '${converterSectionId}' não encontrada. A funcionalidade pode não ser visível.`);
-            }
-
-            // Chama a função de inicialização do conversor definida acima.
-            // A função initializeImageConverter() já está no mesmo arquivo e escopo.
-            initializeImageConverter();
-        };
-
-        button.addEventListener('click', (event) => {
-            event.preventDefault(); // Previne o comportamento padrão do botão
-
-            const hasRedirected = localStorage.getItem(hasRedirectedKey);
-
-            if (!hasRedirected) {
-                // Primeira vez: Redireciona para a URL externa
-                localStorage.setItem(hasRedirectedKey, 'true'); // Marca que o redirecionamento já aconteceu
-                window.location.href = firstRedirectPage; // Executa o redirecionamento
-            } else {
-                // Próximas vezes: Executa a função de ativação do conversor
-                console.log('Primeiro redirecionamento já ocorreu. Ativando o conversor.');
-                activateConverterFunction();
-            }
-        });
-    } else {
-        console.warn(`Botão com ID '${buttonId}' não encontrado. O script de redirecionamento condicional não será ativado.`);
-    }
-});
