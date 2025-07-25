@@ -3,7 +3,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f2f5; /* Light gray background */
+    background-color: #460096; /* Light gray background */
     color: #333;
     line-height: 1.6;
     display: flex;
@@ -25,7 +25,7 @@ a:hover {
 header {
     background-color: #450292;
     padding: 15px 20px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #3a007c;
     display: flex;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
