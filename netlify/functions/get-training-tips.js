@@ -4,7 +4,7 @@ const { getContent } = require('../../utils/db'); // Importa a lógica do DB
 
 exports.handler = async (event, context) => {
     try {
-        const prompt = "Crie um parágrafo de aproximadamente 10 linhas com dicas de treino para iniciantes. Não inclua introduções, títulos ou saudações, apenas o texto com as dicas diretamente.";
+        const prompt = "Crie dicas de  treinos para inciantes em topi topicos.";
         const data = await getContent('dicas de treino', prompt, 'tips', 'tips');
 
         return {
