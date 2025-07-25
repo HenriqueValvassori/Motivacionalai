@@ -1,4 +1,4 @@
-// netlify/functions/generate-image-hf.js
+// netlify/functions/generate-image-flux.js (sugiro renomear para refletir o modelo/Space)
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
@@ -8,89 +8,116 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        // 2. Parsear o Corpo da Requisição
-        // Espera um JSON com { "prompt": "sua descrição aqui" }
-        const { prompt } = JSON.parse(event.body);
+        // 2. Parsear o Corpo da Requisição do seu frontend
+        // Espera um JSON com { "prompt": "sua descrição aqui", "negative_prompt": "...", "width": 512, ... }
+        const {
+            prompt,
+            negative_prompt = "", // Default para string vazia
+            seed = 0,
+            randomize_seed = true,
+            width = 1024, // Usando os defaults da documentação do FLUX
+            height = 1024, // Usando os defaults da documentação do FLUX
+            guidance_scale = 0,
+            num_inference_steps = 2
+        } = JSON.parse(event.body);
 
-        // 3. Obter o Token da API Hugging Face das Variáveis de Ambiente
-        const HF_API_TOKEN = process.env.HF_API_TOKEN;
+        // 3. Obter o Token da API Hugging Face (Se o Space for privado ou exigir autenticação)
+        // O README do Space não indica que é privado, mas é boa prática ter isso.
+        // Se a chamada falhar sem o token, descomente e adicione no Netlify.
+        // const HF_API_TOKEN = process.env.HF_API_TOKEN;
 
-        // 4. Definir a URL da API do Modelo Hugging Face
-        // Esta é a URL do modelo base que o Space "Ahmer22/Lora_Flux_Image_Free" utiliza.
-        // Copiada da página do modelo/API no Hugging Face.
-        const MODEL_API_URL = "https://api-inference.huggingface.co/models/Ahmer22/FLUX-LoRA-DLC-NEW";
+        // 4. Definir a URL do Endpoint do Gradio Space
+        // Para um Gradio Space, a API de inferência geralmente é /run/<api_name>
+        const GRADIO_SPACE_URL = "https://Ahmer22-Lora-Flux-Image-Free.hf.space/run/infer"; // URL específica do Space
 
         // 5. Validar Parâmetros Essenciais
-        if (!HF_API_TOKEN) {
-            console.error('Erro: Token da API Hugging Face (HF_API_TOKEN) não configurado nas variáveis de ambiente do Netlify.');
-            return { statusCode: 500, body: 'Erro do servidor: Token de API não configurado.' };
-        }
         if (!prompt) {
-            return { statusCode: 400, body: 'Erro na requisição: Prompt de imagem não fornecido.' };
+            return { statusCode: 400, body: 'Erro na requisição: Prompt de imagem é obrigatório.' };
         }
+        // if (!HF_API_TOKEN) {
+        //     console.error('Erro: Token da API Hugging Face (HF_API_TOKEN) não configurado.');
+        //     return { statusCode: 500, body: 'Erro do servidor: Token de API não configurado.' };
+        // }
 
-        // 6. Fazer a Requisição para a API do Hugging Face
+
+        // 6. Preparar o Corpo da Requisição para o Gradio API /infer
+        // Os dados precisam estar em um array, conforme o Gradio API.
+        const requestBody = {
+            data: [
+                prompt,
+                negative_prompt,
+                seed,
+                randomize_seed,
+                width,
+                height,
+                guidance_scale,
+                num_inference_steps
+            ]
+        };
+
+        // 7. Fazer a Requisição POST para o Gradio Space
         const response = await fetch(
-            MODEL_API_URL,
+            GRADIO_SPACE_URL,
             {
                 method: "POST",
                 headers: {
-                    // Autenticação com o token Bearer
-                    "Authorization": `Bearer ${HF_API_TOKEN}`,
-                    // Definir o Content-Type como application/json, conforme a API espera para o prompt
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    // 'Authorization': `Bearer ${HF_API_TOKEN}` // Descomente se for necessário autenticar
                 },
-                // O corpo da requisição deve ser um JSON com o campo 'inputs' contendo o prompt
-                body: JSON.stringify({ inputs: prompt }),
+                body: JSON.stringify(requestBody),
             }
         );
 
-        // 7. Tratar Respostas de Erro da API do Hugging Face
+        // 8. Tratar Respostas de Erro do Gradio API
         if (!response.ok) {
             let errorBody;
             const contentType = response.headers.get('content-type');
 
-            // Tenta ler o corpo como JSON se for o tipo esperado, senão lê como texto
             if (contentType && contentType.includes('application/json')) {
                 errorBody = await response.json();
             } else {
                 errorBody = await response.text();
             }
 
-            console.error('Erro na API Hugging Face:', response.status, errorBody);
+            console.error('Erro na API do Gradio Space:', response.status, errorBody);
 
-            // Retorna um erro com detalhes para o cliente
             return {
                 statusCode: response.status,
                 body: JSON.stringify({
-                    error: (typeof errorBody === 'object' && errorBody.error) ? errorBody.error : String(errorBody),
+                    error: (typeof errorBody === 'object' && errorBody.detail) ? errorBody.detail : String(errorBody),
                     details: errorBody // Inclui os detalhes completos do erro para depuração
                 })
             };
         }
 
-        // 8. Processar Resposta de Sucesso (Imagem)
-        // A API de inferência do Hugging Face para text-to-image retorna a imagem como um Blob binário.
-        const imageBuffer = await response.buffer(); // Lê o corpo da resposta como um buffer
-        const base64Image = imageBuffer.toString('base64'); // Converte o buffer para Base64
-        const contentType = response.headers.get('content-type') || 'image/jpeg'; // Pega o tipo de conteúdo da imagem, com fallback
+        // 9. Processar Resposta de Sucesso (Imagem)
+        const data = await response.json();
 
-        // Retorna a imagem em Base64 para o cliente
+        // O resultado esperado é uma lista com 2 elementos: [0] string (Data URL da imagem), [1] number (seed)
+        const imageUrl = data.data && data.data[0]; // Isso já deve ser um Data URL (data:image/png;base64,...)
+
+        if (!imageUrl) {
+            console.error('Erro: Resposta inesperada da API do Gradio Space:', data);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Erro: Não foi possível obter a imagem da resposta da API.', details: data })
+            };
+        }
+
         return {
             statusCode: 200,
             headers: {
-                // Indica que o corpo da resposta é JSON
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // A imagem é retornada como um Data URL para ser facilmente exibida em HTML
-                image: `data:${contentType};base64,${base64Image}`,
-                message: 'Imagem gerada com sucesso!'
+                image: imageUrl, // Já é um Data URL
+                message: 'Imagem gerada com sucesso!',
+                seed: data.data[1] // Retorna o seed usado
             })
         };
 
     } catch (error) {
-        // 9. Tratar Erros Internos da Função Netlify
+        // 10. Tratar Erros Internos da Função Netlify
         console.error('Erro na função Netlify:', error);
         return {
             statusCode: 500,

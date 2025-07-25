@@ -1,14 +1,20 @@
 # netlify.toml
+
 [build]
   publish = "public"
   functions = "netlify/functions"
-  command = "npm install" # Garante que as dependências sejam instaladas
+  command = "npm install" # Garante que as dependências sejam instaladas durante o deploy
 
 [functions]
   node_bundler = "esbuild"
-  # external_node_modules = ["@google-cloud/aiplatform"] # <-- REMOVA ESTA LINHA (como você já indicou)
+  # A linha abaixo foi removida pois não usamos mais @google-cloud/aiplatform
+  # external_node_modules = ["@google-cloud/aiplatform"]
+  # Se você tiver outras dependências que precisam ser "externalizadas", adicione-as aqui.
+  # Por exemplo, se você notar problemas com 'node-fetch' ou 'axios'
+  # external_node_modules = ["node-fetch", "axios"] # Adicione apenas se houver problemas específicos
 
-# Redirecionamentos opcionais
+
+# Redirecionamentos para suas funções Netlify
 [[redirects]]
   from = "/api/get-motivation"
   to = "/.netlify/functions/get-motivation"
@@ -19,8 +25,8 @@
   to = "/.netlify/functions/get-training-tips"
   status = 200
 
-# Se você mudar o nome do arquivo da função de imagem, você pode precisar de um novo redirect:
+# Redirecionamento para a nova função de geração de imagens com Hugging Face
 [[redirects]]
-  from = "/api/generate-image" # Exemplo de novo endpoint
-  to = "/.netlify/functions/generate-image-hf" # Nome do seu novo arquivo de função (ex: generate-image-hf.js)
+  from = "/api/generate-image-flux" # Este será o endpoint que seu frontend chamará
+  to = "/.netlify/functions/generate-image-flux" # Corresponde ao nome do arquivo da sua função (generate-image-flux.js)
   status = 200
