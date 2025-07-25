@@ -1,6 +1,6 @@
-// netlify/functions/generate-image-flux.js (sugiro renomear para refletir o modelo/Space)
-/*const fetch = require('node-fetch');
+// netlify/functions/generate-image-gemini.js
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 exports.handler = async function(event, context) {
     // 1. Validar Método HTTP
@@ -9,120 +9,119 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        // 2. Parsear o Corpo da Requisição do seu frontend
-        // Espera um JSON com { "prompt": "sua descrição aqui", "negative_prompt": "...", "width": 512, ... }
-        const {
-            prompt,
-            negative_prompt = "", // Default para string vazia
-            seed = 0,
-            randomize_seed = true,
-            width = 1024, // Usando os defaults da documentação do FLUX
-            height = 1024, // Usando os defaults da documentação do FLUX
-            guidance_scale = 0,
-            num_inference_steps = 2
-        } = JSON.parse(event.body);
+        // 2. Parsear o Corpo da Requisição
+        // Espera um JSON com { "prompt": "sua descrição aqui" }
+        const { prompt } = JSON.parse(event.body);
 
-        // 3. Obter o Token da API Hugging Face (Se o Space for privado ou exigir autenticação)
-        // O README do Space não indica que é privado, mas é boa prática ter isso.
-        // Se a chamada falhar sem o token, descomente e adicione no Netlify.
-        // const HF_API_TOKEN = process.env.HF_API_TOKEN;
+        // 3. Obter a Chave da API Gemini das Variáveis de Ambiente
+        // IMPORTANTE: Configure GEMINI_API_KEY no Netlify
+        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-        // 4. Definir a URL do Endpoint do Gradio Space
-        // Para um Gradio Space, a API de inferência geralmente é /run/<api_name>
-        const GRADIO_SPACE_URL = "https://Ahmer22-Lora-Flux-Image-Free.hf.space/run/infer"; // URL específica do Space
-
-        // 5. Validar Parâmetros Essenciais
-        if (!prompt) {
-            return { statusCode: 400, body: 'Erro na requisição: Prompt de imagem é obrigatório.' };
+        if (!GEMINI_API_KEY) {
+            console.error('Erro: Chave da API Gemini (GEMINI_API_KEY) não configurada nas variáveis de ambiente do Netlify.');
+            return { statusCode: 500, body: 'Erro do servidor: Chave de API Gemini não configurada.' };
         }
-        // if (!HF_API_TOKEN) {
-        //     console.error('Erro: Token da API Hugging Face (HF_API_TOKEN) não configurado.');
-        //     return { statusCode: 500, body: 'Erro do servidor: Token de API não configurado.' };
-        // }
+        if (!prompt) {
+            return { statusCode: 400, body: 'Erro na requisição: Prompt de imagem não fornecido.' };
+        }
 
+        // 4. Inicializar o cliente Gemini
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-        // 6. Preparar o Corpo da Requisição para o Gradio API /infer
-        // Os dados precisam estar em um array, conforme o Gradio API.
-        const requestBody = {
-            data: [
-                prompt,
-                negative_prompt,
-                seed,
-                randomize_seed,
-                width,
-                height,
-                guidance_scale,
-                num_inference_steps
-            ]
-        };
+        // 5. Obter o modelo para geração de imagens (Imagem 2.0 Flash Preview)
+        // O nome do modelo pode variar. 'gemini-1.5-flash-latest' é uma opção que pode suportar imagem.
+        // O nome específico para geração de imagem pode ser 'image-generation-005' ou similar,
+        // mas o SDK geralmente permite "multimodal models" para isso.
+        // O modelo 'gemini-1.5-flash-latest' é o mais comum para uso econômico e multimodal.
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" }); // Ou "models/gemini-1.5-flash-latest"
 
-        // 7. Fazer a Requisição POST para o Gradio Space
-        const response = await fetch(
-            GRADIO_SPACE_URL,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    // 'Authorization': `Bearer ${HF_API_TOKEN}` // Descomente se for necessário autenticar
+        // 6. Criar o conteúdo da requisição para geração de imagem
+        const result = await model.generateContent({
+            // A API Gemini usa 'parts' para conteúdo multimodal
+            contents: [{
+                role: "user",
+                parts: [
+                    { text: prompt },
+                    // Para geração de imagem, você não fornece uma imagem de entrada, apenas o texto
+                ]
+            }],
+            // Opções de segurança (ajuste conforme necessário)
+            safetySettings: [
+                {
+                    category: "HARM_CATEGORY_HARASSMENT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE",
                 },
-                body: JSON.stringify(requestBody),
-            }
-        );
+                {
+                    category: "HARM_CATEGORY_HATE_SPEECH",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE",
+                },
+                {
+                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE",
+                },
+                {
+                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE",
+                },
+            ],
+            // As configurações de geração para imagem são específicas do modelo.
+            // Para o Gemini 2.0 Flash (ou Imagen), você esperaria um formato de imagem nas opções,
+            // mas o SDK do Gemini para 'generateContent' é mais focado em texto/multimodal.
+            // A geração de imagem *pura* com Gemini é mais direta através da API do Imagen.
+            // Se o 'gemini-1.5-flash' não funcionar para gerar imagens *diretamente como saída*,
+            // você pode precisar usar o endpoint específico do Imagen via REST API, que é mais complexo.
+            // No entanto, para fins de teste, vamos tentar com o generateContent primeiro.
+        });
 
-        // 8. Tratar Respostas de Erro do Gradio API
-        if (!response.ok) {
-            let errorBody;
-            const contentType = response.headers.get('content-type');
+        // O resultado da geração de imagem pode vir de várias formas.
+        // Se a API retornar uma imagem Base64 dentro do texto ou de outra estrutura:
+        const responseData = result.response.text(); // Tentamos pegar o texto, que pode ser Base64 ou um URL
 
-            if (contentType && contentType.includes('application/json')) {
-                errorBody = await response.json();
-            } else {
-                errorBody = await response.text();
-            }
+        // Esta parte é experimental e pode precisar de ajuste dependendo do formato exato da resposta.
+        // A API Gemini 1.5 Flash é para multimodal (texto+imagem), mas a geração *de imagem* como saída
+        // para um prompt de *texto* pode ter uma estrutura de resposta diferente de texto puro ou HTML.
+        // Você pode precisar inspecionar `result.response.candidates[0].content.parts` para ver o formato.
 
-            console.error('Erro na API do Gradio Space:', response.status, errorBody);
-
+        // Exemplo hipotético se retornar um Data URL:
+        if (responseData.startsWith("data:image/")) {
             return {
-                statusCode: response.status,
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    error: (typeof errorBody === 'object' && errorBody.detail) ? errorBody.detail : String(errorBody),
-                    details: errorBody // Inclui os detalhes completos do erro para depuração
+                    image: responseData, // Já é um Data URL
+                    message: 'Imagem gerada com sucesso com Gemini!',
+                })
+            };
+        } else {
+             // Se não for um Data URL, pode ser um erro ou outro formato
+            console.error('Resposta da API Gemini não é uma Data URL de imagem esperada:', responseData);
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    error: 'Erro: A API Gemini não retornou uma imagem no formato esperado. Talvez o modelo não suporte geração direta de imagem para este endpoint.',
+                    details: responseData // Retorna a resposta bruta para depuração
                 })
             };
         }
 
-        // 9. Processar Resposta de Sucesso (Imagem)
-        const data = await response.json();
-
-        // O resultado esperado é uma lista com 2 elementos: [0] string (Data URL da imagem), [1] number (seed)
-        const imageUrl = data.data && data.data[0]; // Isso já deve ser um Data URL (data:image/png;base64,...)
-
-        if (!imageUrl) {
-            console.error('Erro: Resposta inesperada da API do Gradio Space:', data);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ error: 'Erro: Não foi possível obter a imagem da resposta da API.', details: data })
-            };
-        }
-
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                image: imageUrl, // Já é um Data URL
-                message: 'Imagem gerada com sucesso!',
-                seed: data.data[1] // Retorna o seed usado
-            })
-        };
 
     } catch (error) {
-        // 10. Tratar Erros Internos da Função Netlify
-        console.error('Erro na função Netlify:', error);
+        console.error('Erro na função Netlify (Gemini):', error);
+
+        // Tratamento de erros específicos da API Gemini (por exemplo, cotas excedidas)
+        let errorMessage = 'Erro interno do servidor.';
+        if (error.message.includes('Quota exceeded')) {
+            errorMessage = 'Cota da API Gemini excedida. Tente novamente mais tarde ou verifique seu plano.';
+        } else if (error.message.includes('BLOCKED_FOR_SAFETY')) {
+            errorMessage = 'O conteúdo do prompt ou a imagem gerada foram bloqueados por motivos de segurança.';
+        } else {
+             errorMessage += ` Detalhes: ${error.message}`;
+        }
+
+
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Erro interno do servidor.', details: error.message })
+            body: JSON.stringify({ error: errorMessage, details: error.message })
         };
     }
-};*/
+};

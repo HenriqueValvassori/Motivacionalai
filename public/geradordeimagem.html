@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Imagens FLUX (Gradio Client)</title>
+    <title>Gerador de Imagens Gemini (via Netlify Function)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -73,102 +73,67 @@
             font-weight: bold;
             display: none; /* Escondido por padrão */
         }
+        /* No caso da API Gemini, não temos os mesmos sliders de Width/Height/Seed etc.
+           diretamente no prompt. Vou deixar os campos, mas eles não serão enviados
+           para a Netlify Function a menos que você os adicione no JSON.
+           Para manter a simplicidade com a API Gemini inicial, foco apenas no prompt. */
         .params-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .params-grid label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .params-grid input {
-            width: calc(100% - 20px);
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            display: none; /* Oculta os parâmetros que não são diretamente suportados pelo Gemini Flash text-to-image de forma simples */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Gerador de Imagens FLUX (Gradio)</h1>
+        <h1>Gerador de Imagens Gemini (Beta)</h1>
 
         <label for="prompt">Prompt (Descrição da Imagem):</label>
-        <textarea id="prompt" placeholder="Ex: A majestic cat wearing a crown, highly detailed, fantasy art" rows="4"></textarea>
-
-        <label for="negative_prompt">Negative Prompt (O que NÃO deve aparecer):</label>
-        <textarea id="negative_prompt" placeholder="Ex: blurry, bad anatomy, deformed, ugly, extra limbs" rows="2"></textarea>
+        <textarea id="prompt" placeholder="Ex: A futuristic city at sunset, highly detailed, cyberpunk art" rows="4"></textarea>
 
         <div class="params-grid">
             <div>
                 <label for="width">Largura (px):</label>
-                <input type="number" id="width" value="1024" min="256" max="2048" step="64">
+                <input type="number" id="width" value="512" min="256" max="2048" step="64" disabled>
             </div>
             <div>
                 <label for="height">Altura (px):</label>
-                <input type="number" id="height" value="1024" min="256" max="2048" step="64">
+                <input type="number" id="height" value="512" min="256" max="2048" step="64" disabled>
             </div>
             <div>
                 <label for="seed">Seed (0 para aleatório):</label>
-                <input type="number" id="seed" value="0" min="0">
+                <input type="number" id="seed" value="0" min="0" disabled>
             </div>
             <div>
                 <label for="num_inference_steps">Passos de Inferência:</label>
-                <input type="number" id="num_inference_steps" value="2" min="1" max="10">
+                <input type="number" id="num_inference_steps" value="2" min="1" max="10" disabled>
             </div>
             <div>
                 <label for="guidance_scale">Escala de Orientação:</label>
-                <input type="number" id="guidance_scale" value="0" min="0" max="20" step="0.1">
+                <input type="number" id="guidance_scale" value="0" min="0" max="20" step="0.1" disabled>
             </div>
             <div>
                 <label for="randomize_seed">Aleatorizar Seed:</label>
-                <input type="checkbox" id="randomize_seed" checked>
+                <input type="checkbox" id="randomize_seed" checked disabled>
             </div>
         </div>
 
         <button id="generateBtn">Gerar Imagem</button>
 
         <div id="result-container">
-            <p id="loading-message">Gerando imagem, por favor aguarde... (Pode demorar devido a filas no serviço gratuito)</p>
+            <p id="loading-message">Gerando imagem, por favor aguarde...</p>
             <p id="error-message"></p>
             <img id="result-image" alt="Imagem Gerada">
-            <p id="generated-seed"></p>
-        </div>
+            </div>
     </div>
 
-    <script type="module">
-    import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@1.15.6/dist/index.min.js";
-
-        // Mapeia os elementos do HTML
+    <script>
         const promptInput = document.getElementById('prompt');
-        const negativePromptInput = document.getElementById('negative_prompt');
-        const seedInput = document.getElementById('seed');
-        const randomizeSeedCheckbox = document.getElementById('randomize_seed');
-        const widthInput = document.getElementById('width');
-        const heightInput = document.getElementById('height');
-        const guidanceScaleInput = document.getElementById('guidance_scale');
-        const numInferenceStepsInput = document.getElementById('num_inference_steps');
-
         const generateBtn = document.getElementById('generateBtn');
         const loadingMessage = document.getElementById('loading-message');
         const errorMessage = document.getElementById('error-message');
         const resultImage = document.getElementById('result-image');
-        const generatedSeed = document.getElementById('generated-seed');
 
-        // Função para gerar a imagem
         generateBtn.addEventListener('click', async () => {
             const prompt = promptInput.value;
-            const negative_prompt = negativePromptInput.value;
-            const seed = parseInt(seedInput.value);
-            const randomize_seed = randomizeSeedCheckbox.checked;
-            const width = parseInt(widthInput.value);
-            const height = parseInt(heightInput.value);
-            const guidance_scale = parseFloat(guidanceScaleInput.value);
-            const num_inference_steps = parseInt(numInferenceStepsInput.value);
 
             // Validação simples
             if (!prompt) {
@@ -182,41 +147,41 @@
             errorMessage.style.display = 'none';
             resultImage.style.display = 'none';
             resultImage.src = ''; // Limpa a imagem anterior
-            generatedSeed.textContent = '';
-            generateBtn.disabled = true; // Desabilita o botão para evitar múltiplas chamadas
+            generateBtn.disabled = true; // Desabilita o botão
 
             try {
-                // Conecta ao cliente Gradio para o Space específico
-                // É recomendado que esta conexão seja feita uma única vez e reutilizada
-                const client = await Client.connect("Ahmer22/Lora_Flux_Image_Free");
-
-                // Faz a predição usando o endpoint /infer e os parâmetros coletados
-                const result = await client.predict("/infer", {
-                    prompt: prompt,
-                    negative_prompt: negative_prompt,
-                    seed: seed,
-                    randomize_seed: randomize_seed,
-                    width: width,
-                    height: height,
-                    guidance_scale: guidance_scale,
-                    num_inference_steps: numInferenceStepsInput // Use o elemento DOM aqui
+                // Chama a sua Netlify Function
+                const response = await fetch('/api/generate-image-gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt }),
                 });
 
-                // O resultado.data é uma array: [0] é a URL da imagem (Data URL), [1] é o seed gerado
-                if (result.data && result.data[0]) {
-                    resultImage.src = result.data[0];
-                    resultImage.style.display = 'block';
-                    generatedSeed.textContent = `Seed utilizado: ${result.data[1]}`;
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.image) {
+                        resultImage.src = data.image;
+                        resultImage.style.display = 'block';
+                    } else {
+                        errorMessage.textContent = 'Erro inesperado: Nenhuma imagem retornada pela função Netlify.';
+                        errorMessage.style.display = 'block';
+                        console.error('Resposta da função Netlify:', data);
+                    }
                 } else {
-                    errorMessage.textContent = 'Erro inesperado: Nenhuma imagem ou dado retornado.';
+                    // Erro vindo da Netlify Function (que por sua vez repassa o erro da API Gemini)
+                    errorMessage.textContent = data.error || 'Erro desconhecido ao gerar imagem.';
                     errorMessage.style.display = 'block';
-                    console.error('Dados da API inesperados:', result.data);
+                    console.error('Erro da Netlify Function:', data);
                 }
 
             } catch (error) {
-                errorMessage.textContent = 'Erro ao gerar imagem. Tente novamente mais tarde. Detalhes: ' + error.message;
+                // Erros de rede ou outros erros inesperados no frontend
+                errorMessage.textContent = 'Erro de rede ou conexão. Verifique sua internet ou tente novamente.';
                 errorMessage.style.display = 'block';
-                console.error('Erro de API Gradio Client:', error);
+                console.error('Erro de Fetch no Frontend:', error);
             } finally {
                 loadingMessage.style.display = 'none';
                 generateBtn.disabled = false; // Habilita o botão novamente

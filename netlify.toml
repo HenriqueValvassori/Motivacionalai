@@ -3,18 +3,14 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
-  command = "npm install" # Garante que as dependências sejam instaladas durante o deploy
+  command = "npm install"
 
 [functions]
   node_bundler = "esbuild"
-  # A linha abaixo foi removida pois não usamos mais @google-cloud/aiplatform
-  # external_node_modules = ["@google-cloud/aiplatform"]
-  # Se você tiver outras dependências que precisam ser "externalizadas", adicione-as aqui.
-  # Por exemplo, se você notar problemas com 'node-fetch' ou 'axios'
-  # external_node_modules = ["node-fetch", "axios"] # Adicione apenas se houver problemas específicos
+  # As linhas external_node_modules não são necessárias para @google/generative-ai com esbuild
 
 
-# Redirecionamentos para suas funções Netlify
+# Redirecionamentos existentes (mantenha os que você usa)
 [[redirects]]
   from = "/api/get-motivation"
   to = "/.netlify/functions/get-motivation"
@@ -25,8 +21,14 @@
   to = "/.netlify/functions/get-training-tips"
   status = 200
 
-# Redirecionamento para a nova função de geração de imagens com Hugging Face
+# --- Novo Redirecionamento para a função de geração de imagem com Gemini ---
 [[redirects]]
-  from = "/api/generate-image-flux" # Este será o endpoint que seu frontend chamará
-  to = "/.netlify/functions/generate-image-flux" # Corresponde ao nome do arquivo da sua função (generate-image-flux.js)
+  from = "/api/generate-image-gemini" # Novo endpoint para a API Gemini
+  to = "/.netlify/functions/generate-image-gemini" # Nome do novo arquivo da função
   status = 200
+
+# Se você não precisar mais da função FLUX/Gradio, pode remover o redirecionamento:
+# [[redirects]]
+#   from = "/api/generate-image-flux"
+#   to = "/.netlify/functions/generate-image-flux"
+#   status = 200
