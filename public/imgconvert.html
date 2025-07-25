@@ -39,7 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (button) {
         const hasRedirectedKey = 'convertImageBtn'; // Chave para localStorage
         const firstRedirectPage = 'https://descendedlibrarian.com/msqwx58fq?key=7d770b55d06de394db5b4dd6f9085d98'; // A página para redirecionar APENAS UMA VEZ
-        const defaultRedirectPage = 'js/imageConverter.js'; // A página para redirecionar NAS PRÓXIMAS VEZES
+       const defaultActionFunction = () => {
+            console.log('Executando a lógica do imageConverter.js...');
+            // Exemplo: se imageConverter.js tem uma função para inicializar o conversor
+            if (typeof convertImageBtn === 'function') {
+                initImageConverter(); // Chame a função de inicialização
+            } else {
+                console.warn('Função initImageConverter não encontrada. Verifique se imageConverter.js a expõe globalmente.');
+            }
+            // Você pode adicionar qualquer outra lógica aqui que seria o comportamento "normal"
+            // Por exemplo, mostrar/esconder elementos na página.
+        }; // A página para redirecionar NAS PRÓXIMAS VEZES
 
         button.addEventListener('click', (event) => {
             // Previne o comportamento padrão do link ou botão se for um formulário
