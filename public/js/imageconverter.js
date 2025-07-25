@@ -12,37 +12,15 @@ function initializeImageConverter() {
     const downloadLink = document.getElementById('downloadLink');
 
     // **IMPORTANTE:** Verificar se os elementos existem antes de adicionar listeners.
-    // Isso é crucial se a seção do conversor estiver inicialmente oculta (display: none)
-    // e for mostrada apenas após um clique.
+    // Isso é crucial para evitar erros se algum elemento não for encontrado.
     if (!imageInput || !imageFormatSelect || !convertImageBtn || !outputImage || !downloadLink) {
         console.warn('Image Converter: Nem todos os elementos HTML necessários foram encontrados no DOM. ' +
                      'A funcionalidade do conversor pode não ser ativada corretamente. ' +
-                     'Certifique-se de que a seção do conversor existe no HTML.');
+                     'Certifique-se de que todos os IDs no HTML correspondem aos usados no JavaScript.');
         return; // Sai da função se os elementos não forem encontrados
     }
 
     // Adiciona o listener de clique ao botão de conversão
-    // Este listener só é anexado UMA VEZ quando initializeImageConverter é chamado.
-    // Para evitar múltiplos listeners se a função for chamada várias vezes,
-    // você pode adicionar uma verificação ou remover o listener antes de adicionar.
-    // Para este caso, vamos assumir que só será chamado uma vez ou que os listeners
-    // múltiplos são aceitáveis (se o botão 'convertImageBtn' for clicado repetidamente).
-    // Uma abordagem mais robusta para evitar duplicação é verificar se o listener já existe
-    // ou usar 'removeEventListener' antes de 'addEventListener', mas é mais complexo.
-    // Para simplicidade e eficácia aqui:
-    // Evita anexar o mesmo listener várias vezes se a função for chamada por múltiplos cliques.
-    // removeEventListener precisa da mesma referência de função, então é melhor envolver.
-    
-    // Solução mais simples para evitar múltiplos listeners em 'convertImageBtn':
-    // Se você garantir que initializeImageConverter() só é chamada UMA VEZ
-    // na vida da página, não haverá problema.
-    // Se ela for chamada múltiplos vezes pelo "botão principal", e você quiser
-    // evitar que o listener de 'convertImageBtn' seja adicionado várias vezes,
-    // considere o seguinte:
-    // convertImageBtn.onclick = null; // Remove qualquer listener anterior
-    // convertImageBtn.onclick = () => { /* ... sua lógica ... */ }; // Adiciona o novo
-
-
     convertImageBtn.addEventListener('click', () => {
         const file = imageInput.files[0];
         if (!file) {
@@ -77,6 +55,13 @@ function initializeImageConverter() {
                         mimeType = 'image/png'; // Padrão
                 }
 
+                // Verifica se o browser suporta o formato WebP antes de tentar converter para ele
+                // Isso é importante para navegadores mais antigos
+                if (format === 'webp' && !canvas.toDataURL('image/webp').startsWith('data:image/webp')) {
+                    alert('Seu navegador não suporta o formato WebP para conversão.');
+                    return;
+                }
+
                 const imageDataUrl = canvas.toDataURL(mimeType);
                 outputImage.src = imageDataUrl;
                 outputImage.style.display = 'block'; // Mostra a imagem de saída
@@ -93,34 +78,15 @@ function initializeImageConverter() {
 }
 
 
-// 2. Lógica principal do DOMContentLoaded para ativar o conversor diretamente no clique do botão principal
+// 2. Chamar a função de inicialização do conversor assim que o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
-    const buttonId = 'redirectButtonX'; // ID do botão que controlará a ativação do conversor
-    const button = document.getElementById(buttonId);
-    const converterSectionId = 'image-converter-section'; // ID da div que contém o conversor no HTML
+    // Apenas chame a função principal de inicialização do conversor.
+    // A seção do conversor no HTML deve estar visível por padrão (sem 'display: none').
+    initializeImageConverter();
 
-    if (button) {
-        button.addEventListener('click', (event) => {
-            event.preventDefault(); // Previne o comportamento padrão do botão
-
-            console.log('Botão clicado! Ativando a funcionalidade do conversor de imagens.');
-
-            // Tenta mostrar a seção do conversor de imagens, se estiver oculta
-            const converterSection = document.getElementById(converterSectionId);
-            if (converterSection) {
-                converterSection.style.display = 'block'; // Torna a seção visível
-                // Opcional: Rola a página para a seção do conversor para uma melhor experiência do usuário
-                converterSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                console.warn(`Seção do conversor com ID '${converterSectionId}' não encontrada. A funcionalidade pode não ser visível.`);
-            }
-
-            // Chama a função de inicialização do conversor.
-            // Esta função só será chamada UMA VEZ por clique no botão 'redirectButtonX'.
-            // A lógica de anexar os event listeners internos do conversor está em initializeImageConverter().
-            initializeImageConverter();
-        });
-    } else {
-        console.warn(`Botão com ID '${buttonId}' não encontrado. O script de ativação do conversor não será ativado.`);
+    // Opcional: Para o rodapé, se você quiser atualizar o ano dinamicamente.
+    const currentYearSpan = document.getElementById('current-year');
+    if (currentYearSpan) {
+        currentYearSpan.textContent = new Date().getFullYear();
     }
 });
