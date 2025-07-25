@@ -23,7 +23,7 @@ a:hover {
 
 /* Header */
 header {
-    background-color: #ffffff;
+    background-color: #450292;
     padding: 15px 20px;
     border-bottom: 1px solid #ddd;
     display: flex;
@@ -208,7 +208,7 @@ button:disabled {
 /* Footer */
 footer {
     background-color: #333;
-    color: white;
+    color: rgb(66, 2, 139);
     text-align: center;
     padding: 15px 0;
     margin-top: auto; /* Empurra o rodapé para baixo */
