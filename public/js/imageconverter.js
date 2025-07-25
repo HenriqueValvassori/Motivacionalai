@@ -70,7 +70,7 @@ function initializeImageConverter() {
         reader.readAsDataURL(file);
     });
 }
-
+ initializeImageConverter();
 // Opcional: Chame a função automaticamente se você quiser que o conversor
 // seja inicializado no carregamento normal da página (sem o botão de redirecionamento).
 // Mas para o seu caso de uso com redirectOnce.js, você NÃO deve chamar aqui.
