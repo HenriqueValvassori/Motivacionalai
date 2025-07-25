@@ -1,5 +1,6 @@
 // netlify/functions/generate-image-flux.js (sugiro renomear para refletir o modelo/Space)
-const fetch = require('node-fetch');
+/*const fetch = require('node-fetch');
+
 
 exports.handler = async function(event, context) {
     // 1. Validar Método HTTP
@@ -124,4 +125,4 @@ exports.handler = async function(event, context) {
             body: JSON.stringify({ error: 'Erro interno do servidor.', details: error.message })
         };
     }
-};
+};*/

@@ -1,7 +1,7 @@
 // public/js/imagegenerator.js
 
 // URL da sua Netlify Function. Certifique-se de que o nome do arquivo corresponde ao da função.
-const FUNCTION_URL = '/.netlify/functions/generate-vertex-image'; 
+/*const FUNCTION_URL = '/.netlify/functions/generate-vertex-image'; 
 
 const promptInput = document.getElementById('promptInput');
 const aspectRatioSelect = document.getElementById('aspectRatioSelect');
@@ -62,4 +62,4 @@ generateBtn.addEventListener('click', async () => {
         generateBtn.disabled = false;
         loadingSpinner.style.display = 'none';
     }
-});
+});*/

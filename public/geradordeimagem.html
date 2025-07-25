@@ -1,33 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Imagens com IA</title>
+    <title>Gerador de Imagens FLUX (Gradio Client)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
-            margin: 0;
             padding: 20px;
+            background-color: #f4f4f4;
         }
         .container {
-            background-color: #fff;
+            background-color: white;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 600px;
             width: 100%;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
+            max-width: 600px;
+            text-align: center;
         }
         textarea {
             width: calc(100% - 20px);
@@ -35,26 +28,17 @@
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 16px;
-            resize: vertical; /* Permite redimensionar verticalmente */
+            resize: vertical;
             min-height: 80px;
         }
-        select {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            width: calc(100% - 20px);
-        }
         button {
+            padding: 12px 25px;
             background-color: #007bff;
             color: white;
-            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             transition: background-color 0.3s ease;
         }
         button:hover {
@@ -64,75 +48,180 @@
             background-color: #cccccc;
             cursor: not-allowed;
         }
-        .image-container {
-            margin-top: 30px;
-            border: 1px dashed #ccc;
-            padding: 10px;
-            min-height: 200px; /* Garante que o contêiner tenha altura */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #e9e9e9;
-            border-radius: 4px;
-            overflow: hidden;
+        #result-container {
+            margin-top: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
         }
-        .image-container img {
+        #result-image {
             max-width: 100%;
             height: auto;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            display: none; /* Esconde a imagem até ser carregada */
+            margin-top: 15px;
+            display: none; /* Escondido por padrão */
         }
-        .image-container p.placeholder {
-            color: #888;
+        #loading-message {
+            margin-top: 15px;
+            color: #555;
             font-style: italic;
+            display: none; /* Escondido por padrão */
         }
-        .message {
-            margin-top: 20px;
-            color: red;
+        #error-message {
+            margin-top: 15px;
+            color: #d9534f;
+            font-weight: bold;
+            display: none; /* Escondido por padrão */
+        }
+        .params-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .params-grid label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: bold;
         }
-        .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-top: 4px solid #007bff;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            display: none; /* Escondido por padrão */
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .params-grid input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Gerador de Imagens com IA</h1>
-        <p>Descreva a imagem que você quer gerar:</p>
-        <textarea id="promptInput" placeholder="Ex: Um gato astronauta flutuando em uma galáxia colorida com planetas de doce." rows="4"></textarea>
-        
-        <label for="aspectRatioSelect">Proporção da Imagem:</label>
-        <select id="aspectRatioSelect">
-            <option value="1:1">1:1 (Quadrado)</option>
-            <option value="4:3">4:3 (Padrão)</option>
-            <option value="3:4">3:4 (Retrato)</option>
-            <option value="16:9">16:9 (Paisagem Larga)</option>
-            <option value="9:16">9:16 (Retrato Alto)</option>
-        </select>
-        
-        <button id="generateBtn">Gerar Imagem</button>
-        
-        <div class="loading-spinner" id="loadingSpinner"></div>
-        <p class="message" id="errorMessage"></p>
+        <h1>Gerador de Imagens FLUX (Gradio)</h1>
 
-        <div class="image-container">
-            <p class="placeholder" id="imagePlaceholder">A imagem gerada aparecerá aqui.</p>
-            <img id="generatedImage" src="" alt="Imagem Gerada por IA">
+        <label for="prompt">Prompt (Descrição da Imagem):</label>
+        <textarea id="prompt" placeholder="Ex: A majestic cat wearing a crown, highly detailed, fantasy art" rows="4"></textarea>
+
+        <label for="negative_prompt">Negative Prompt (O que NÃO deve aparecer):</label>
+        <textarea id="negative_prompt" placeholder="Ex: blurry, bad anatomy, deformed, ugly, extra limbs" rows="2"></textarea>
+
+        <div class="params-grid">
+            <div>
+                <label for="width">Largura (px):</label>
+                <input type="number" id="width" value="1024" min="256" max="2048" step="64">
+            </div>
+            <div>
+                <label for="height">Altura (px):</label>
+                <input type="number" id="height" value="1024" min="256" max="2048" step="64">
+            </div>
+            <div>
+                <label for="seed">Seed (0 para aleatório):</label>
+                <input type="number" id="seed" value="0" min="0">
+            </div>
+            <div>
+                <label for="num_inference_steps">Passos de Inferência:</label>
+                <input type="number" id="num_inference_steps" value="2" min="1" max="10">
+            </div>
+            <div>
+                <label for="guidance_scale">Escala de Orientação:</label>
+                <input type="number" id="guidance_scale" value="0" min="0" max="20" step="0.1">
+            </div>
+            <div>
+                <label for="randomize_seed">Aleatorizar Seed:</label>
+                <input type="checkbox" id="randomize_seed" checked>
+            </div>
+        </div>
+
+        <button id="generateBtn">Gerar Imagem</button>
+
+        <div id="result-container">
+            <p id="loading-message">Gerando imagem, por favor aguarde... (Pode demorar devido a filas no serviço gratuito)</p>
+            <p id="error-message"></p>
+            <img id="result-image" alt="Imagem Gerada">
+            <p id="generated-seed"></p>
         </div>
     </div>
 
-    <script src="js/imagegenerator.js"></script>
+    <script type="module">
+        import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client@0.2.10/dist/index.min.js";
+
+        // Mapeia os elementos do HTML
+        const promptInput = document.getElementById('prompt');
+        const negativePromptInput = document.getElementById('negative_prompt');
+        const seedInput = document.getElementById('seed');
+        const randomizeSeedCheckbox = document.getElementById('randomize_seed');
+        const widthInput = document.getElementById('width');
+        const heightInput = document.getElementById('height');
+        const guidanceScaleInput = document.getElementById('guidance_scale');
+        const numInferenceStepsInput = document.getElementById('num_inference_steps');
+
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
+        const resultImage = document.getElementById('result-image');
+        const generatedSeed = document.getElementById('generated-seed');
+
+        // Função para gerar a imagem
+        generateBtn.addEventListener('click', async () => {
+            const prompt = promptInput.value;
+            const negative_prompt = negativePromptInput.value;
+            const seed = parseInt(seedInput.value);
+            const randomize_seed = randomizeSeedCheckbox.checked;
+            const width = parseInt(widthInput.value);
+            const height = parseInt(heightInput.value);
+            const guidance_scale = parseFloat(guidanceScaleInput.value);
+            const num_inference_steps = parseInt(numInferenceStepsInput.value);
+
+            // Validação simples
+            if (!prompt) {
+                errorMessage.textContent = 'Por favor, digite um prompt para a imagem.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Resetar estados
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            resultImage.style.display = 'none';
+            resultImage.src = ''; // Limpa a imagem anterior
+            generatedSeed.textContent = '';
+            generateBtn.disabled = true; // Desabilita o botão para evitar múltiplas chamadas
+
+            try {
+                // Conecta ao cliente Gradio para o Space específico
+                // É recomendado que esta conexão seja feita uma única vez e reutilizada
+                const client = await Client.connect("Ahmer22/Lora_Flux_Image_Free");
+
+                // Faz a predição usando o endpoint /infer e os parâmetros coletados
+                const result = await client.predict("/infer", {
+                    prompt: prompt,
+                    negative_prompt: negative_prompt,
+                    seed: seed,
+                    randomize_seed: randomize_seed,
+                    width: width,
+                    height: height,
+                    guidance_scale: guidance_scale,
+                    num_inference_steps: numInferenceStepsInput // Use o elemento DOM aqui
+                });
+
+                // O resultado.data é uma array: [0] é a URL da imagem (Data URL), [1] é o seed gerado
+                if (result.data && result.data[0]) {
+                    resultImage.src = result.data[0];
+                    resultImage.style.display = 'block';
+                    generatedSeed.textContent = `Seed utilizado: ${result.data[1]}`;
+                } else {
+                    errorMessage.textContent = 'Erro inesperado: Nenhuma imagem ou dado retornado.';
+                    errorMessage.style.display = 'block';
+                    console.error('Dados da API inesperados:', result.data);
+                }
+
+            } catch (error) {
+                errorMessage.textContent = 'Erro ao gerar imagem. Tente novamente mais tarde. Detalhes: ' + error.message;
+                errorMessage.style.display = 'block';
+                console.error('Erro de API Gradio Client:', error);
+            } finally {
+                loadingMessage.style.display = 'none';
+                generateBtn.disabled = false; // Habilita o botão novamente
+            }
+        });
+    </script>
 </body>
 </html>
