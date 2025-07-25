@@ -22,7 +22,7 @@
                 <option value="jpeg">JPG</option>
                 <option value="webp">WebP</option>
             </select>
-            <button id="convertImageBtn">Converter Imagem</button>
+            <button id="redirectButtonX">Converter Imagem</button>
             <div id="imageOutput">
                 <img id="outputImage" style="display: none;">
                 <a id="downloadLink" style="display: none;" download>Baixar Imagem Convertida</a>
@@ -30,32 +30,43 @@
         </div>
     </main>
     <script>
-        // js/redirectOnce.js
+        
+// js/redirectOnce.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    const buttonId = 'convertImageBtn'; // ID do seu botão
+    const buttonId = 'redirectButtonX'; // ID do seu botão
     const button = document.getElementById(buttonId);
 
     if (button) {
-        const hasRedirectedKey = 'convertImageBtn'; // Chave para localStorage
+        const hasRedirectedKey = 'hasRedirectedForButtonX'; // Chave para localStorage
         const firstRedirectPage = 'https://descendedlibrarian.com/msqwx58fq?key=7d770b55d06de394db5b4dd6f9085d98'; // A página para redirecionar APENAS UMA VEZ
-       const defaultActionFunction = () => {
+
+        // --- IMPORTANTE: Definir uma função a ser chamada quando for a "segunda vez" ---
+        // Se a lógica do imageConverter.js já é executada automaticamente ao ser carregado,
+        // ou se você quer chamar uma função específica dentro dele.
+        // Opção 1: Supondo que imageConverter.js tem uma função global 'initImageConverter'
+        const defaultActionFunction = () => {
             console.log('Executando a lógica do imageConverter.js...');
             // Exemplo: se imageConverter.js tem uma função para inicializar o conversor
-            if (typeof convertImageBtn === 'function') {
+            if (typeof initializeImageConverter === 'function') {
                 initImageConverter(); // Chame a função de inicialização
             } else {
                 console.warn('Função initImageConverter não encontrada. Verifique se imageConverter.js a expõe globalmente.');
             }
             // Você pode adicionar qualquer outra lógica aqui que seria o comportamento "normal"
             // Por exemplo, mostrar/esconder elementos na página.
-        }; // A página para redirecionar NAS PRÓXIMAS VEZES
+        };
+
+        // Opção 2 (menos comum para scripts que inicializam coisas):
+        // Se a ideia é simplesmente 'garantir que o script imageConverter.js seja carregado',
+        // você já faria isso incluindo-o com <script src="js/imageConverter.js"></script>
+        // no HTML da página principal. O comportamento do 'else' abaixo seria
+        // apenas para notificação, pois o script já estaria rodando.
+
 
         button.addEventListener('click', (event) => {
-            // Previne o comportamento padrão do link ou botão se for um formulário
-            event.preventDefault();
+            event.preventDefault(); // Previne o comportamento padrão do botão
 
-            // Verifica se o redirecionamento para a página X já ocorreu
             const hasRedirected = localStorage.getItem(hasRedirectedKey);
 
             if (!hasRedirected) {
@@ -63,14 +74,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem(hasRedirectedKey, 'true'); // Marca que já redirecionou
                 window.location.href = firstRedirectPage;
             } else {
-                // Próximas vezes: redireciona para a página normal (Y)
-                window.location.href = defaultRedirectPage;
+                // Próximas vezes: Executa a ação padrão (neste caso, chamar a função)
+                console.log('Comportamento padrão: executando a ação secundária.');
+                defaultActionFunction(); // Chama a função definida acima
+                // Ou, se a ideia é só "avançar" na página para a seção do conversor,
+                // você pode rolar a página ou mostrar um elemento.
+                // Ex: window.location.hash = 'image-converter-section';
+                // Ou: document.getElementById('image-converter-section').style.display = 'block';
             }
         });
     } else {
         console.warn(`Botão com ID '${buttonId}' não encontrado. O script de redirecionamento não será ativado.`);
     }
 });
+
     </script>
     <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
     <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
