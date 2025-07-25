@@ -10,9 +10,7 @@ exports.handler = async function(event, context) {
         const { prompt } = JSON.parse(event.body);
 
         const HF_API_TOKEN = process.env.HF_API_TOKEN;
-        // SUBSTITUA 'sua-organizacao/seu-modelo' pela URL REAL do modelo no Hugging Face.
-        // Verifique a página do modelo no Hugging Face para o endpoint correto.
-        const MODEL_API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5"; // Exemplo
+        const MODEL_API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5";
 
         if (!HF_API_TOKEN) {
             return { statusCode: 500, body: 'Token da API Hugging Face não configurado.' };
@@ -27,33 +25,38 @@ exports.handler = async function(event, context) {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${HF_API_TOKEN}`,
-                    "Content-Type": "application/json" // <<< ADICIONE/CORRIJA ESTA LINHA
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ inputs: prompt }),
             }
         );
 
         if (!response.ok) {
-            let errorData;
-            // Tente ler como JSON, mas caia para texto se falhar
-            try {
-                errorData = await response.json();
-            } catch (e) {
-                errorData = { error: await response.text() }; // Em caso de erro não JSON
+            // Leia o corpo da resposta UMA ÚNICA VEZ
+            let responseBody;
+            const contentType = response.headers.get('content-type');
+
+            if (contentType && contentType.includes('application/json')) {
+                responseBody = await response.json();
+            } else {
+                responseBody = await response.text();
             }
-            console.error('Erro na API Hugging Face:', response.status, errorData);
+
+            console.error('Erro na API Hugging Face:', response.status, responseBody);
+
             return {
                 statusCode: response.status,
                 body: JSON.stringify({
-                    error: errorData.error?.message || errorData.error || 'Erro ao chamar a API Hugging Face',
-                    details: errorData
+                    error: (typeof responseBody === 'object' && responseBody.error) ? responseBody.error : String(responseBody),
+                    details: responseBody
                 })
             };
         }
 
+        // Se a resposta for OK, ela é a imagem
         const imageBuffer = await response.buffer();
         const base64Image = imageBuffer.toString('base64');
-        const contentType = response.headers.get('content-type') || 'image/jpeg'; // Fallback para image/jpeg
+        const contentType = response.headers.get('content-type') || 'image/jpeg'; // Fallback
 
         return {
             statusCode: 200,
