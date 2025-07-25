@@ -4,21 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notícias Geradas por IA</title>
-    <link rel="stylesheet" href="css/newstyle.css">
-    <link rel="icon" href="img/favicon.png" type="image/png"> </head>
-    <style>
-        .qw{
-            border-radius: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="css/newstylee.css"> <link rel="icon" href="img/favicon.png" type="image/png">
+</head>
 <body>
     <header>
-        <a href="./index.html"> <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt=""></a>
-
+        <a href="./index.html">
+            <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt="Logo">
+        </a>
         <h1>Notícias Legais</h1>
     </header>
+    
     <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
-    <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>    <main>
+    <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
+    
+    <main>
         <section id="news-section">
             <h2 id="news-title">Carregando notícia...</h2>
             <div id="news-content">
@@ -28,12 +27,18 @@
             <p id="error-message" class="error" style="display:none;"></p>
         </section>
     </main>
+    
     <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
-    <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>   <footer>
+    <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
+    
+    <footer>
         <p>&copy; <span id="current-year"></span> MotivacionalAI. Todos os direitos reservados.</p>
     </footer>
 
     <script src="js/main-news.js"></script>
-   
+    <script>
+        // JS para atualizar o ano no footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>

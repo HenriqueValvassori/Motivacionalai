@@ -1,18 +1,42 @@
-<a href="./index.html"> <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt=""></a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador/Extrator de PDF para Imagem</title>
+    <link rel="stylesheet" href="css/newstylee.css"> </head>
+<body>
+    <header>
+        <a href="./index.html">
+            <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt="Logo">
+        </a>
+        <h1>Ferramentas de PDF</h1>
+    </header>
 
-<div class="converter-section">
-    <h2>Visualizador / Extrator de PDF para Imagem (Experimental)</h2>
-    <input type="file" id="pdfInput" accept="application/pdf">
-    <button id="viewPdfBtn">Visualizar PDF / Extrair 1ª Página</button>
-    <div id="pdfViewer" style="margin-top: 15px; border: 1px solid #ddd; max-height: 500px; overflow-y: auto;">
+    <main>
+        <div class="converter-section">
+            <h2>Visualizador / Extrator de PDF para Imagem (Experimental)</h2>
+            <input type="file" id="pdfInput" accept="application/pdf">
+            <button id="viewPdfBtn">Visualizar PDF / Extrair 1ª Página</button>
+            <div id="pdfViewer" style="margin-top: 15px; border: 1px solid #ddd; max-height: 500px; overflow-y: auto;">
+            </div>
+            <img id="extractedImage" style="display: none; max-width: 100%; margin-top: 15px; border: 1px solid #ddd;">
+            <a id="downloadPdfImageLink" style="display: none; margin-top: 10px;" download>Baixar 1ª Página como PNG</a>
         </div>
-    <img id="extractedImage" style="display: none; max-width: 100%; margin-top: 15px; border: 1px solid #ddd;">
-    <a id="downloadPdfImageLink" style="display: none; margin-top: 10px;" download>Baixar 1ª Página como PNG</a>
-</div>
+    </main>
 
-<script src="../js/lib/pdfjs/build/pdf.mjs" type="module"></script>     
-    <script src="js/pdfConverter.js" type="module"></script> 
     <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
-<div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
+    <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
+
+    <footer>
+        <p>&copy; <span id="current-year"></span> Seu Site. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../js/lib/pdfjs/build/pdf.mjs" type="module"></script>
+    <script src="js/pdfConverter.js" type="module"></script>
+    <script>
+        // JS para atualizar o ano no footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>

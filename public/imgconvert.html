@@ -3,41 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                   
-
     <title>Conversor de Imagens</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .converter-section { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; }
-        input[type="file"] { margin-bottom: 10px; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        #outputImage { max-width: 100%; margin-top: 15px; border: 1px solid #ddd; display: block; }
-        #downloadLink { margin-top: 10px; display: inline-block; }
-    </style>
-</head>
+    <link rel="stylesheet" href="css/newstylee.css"> </head>
 <body>
-  <a href="./index.html"> <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt=""></a>
-    <h1>Conversor de Imagens</h1>
+    <header>
+        <a href="./index.html">
+            <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt="Logo">
+        </a>
+        <h1>Conversor de Imagens</h1>
+    </header>
 
-    <div class="converter-section">
-        <h2>Conversor de Imagens (PNG/JPG/WebP)</h2>
-        <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp">
-        <select id="imageFormat">
-            <option value="png">PNG</option>
-            <option value="jpeg">JPG</option>
-            <option value="webp">WebP</option>
-        </select>
-        <button id="convertImageBtn">Converter Imagem</button>
-        <div id="imageOutput">
-            <img id="outputImage" style="display: none;">
-            <a id="downloadLink" style="display: none;" download>Baixar Imagem Convertida</a>
+    <main>
+        <div class="converter-section">
+            <h2>Conversor de Imagens (PNG/JPG/WebP)</h2>
+            <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp">
+            <select id="imageFormat">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPG</option>
+                <option value="webp">WebP</option>
+            </select>
+            <button id="convertImageBtn">Converter Imagem</button>
+            <div id="imageOutput">
+                <img id="outputImage" style="display: none;">
+                <a id="downloadLink" style="display: none;" download>Baixar Imagem Convertida</a>
+            </div>
         </div>
-    </div>
-<script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
-<div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
+    </main>
+
+    <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
+    <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
+    
+    <footer>
+        <p>&copy; <span id="current-year"></span> Seu Site. Todos os direitos reservados.</p>
+    </footer>
+
     <script src="js/imageConverter.js"></script>
-    <script src="js/pdfConverter.js"></script>
-    <script src="js/advancedConverter.js"></script>
+    <script>
+        // JS para atualizar o ano no footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
