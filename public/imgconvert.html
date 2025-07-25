@@ -29,7 +29,39 @@
             </div>
         </div>
     </main>
+    <script>
+        // js/redirectOnce.js
 
+document.addEventListener('DOMContentLoaded', () => {
+    const buttonId = 'convertImageBtn'; // ID do seu botão
+    const button = document.getElementById(buttonId);
+
+    if (button) {
+        const hasRedirectedKey = 'convertImageBtn'; // Chave para localStorage
+        const firstRedirectPage = 'https://descendedlibrarian.com/msqwx58fq?key=7d770b55d06de394db5b4dd6f9085d98'; // A página para redirecionar APENAS UMA VEZ
+        const defaultRedirectPage = 'js/imageConverter.js'; // A página para redirecionar NAS PRÓXIMAS VEZES
+
+        button.addEventListener('click', (event) => {
+            // Previne o comportamento padrão do link ou botão se for um formulário
+            event.preventDefault();
+
+            // Verifica se o redirecionamento para a página X já ocorreu
+            const hasRedirected = localStorage.getItem(hasRedirectedKey);
+
+            if (!hasRedirected) {
+                // Primeira vez: redireciona para a página X
+                localStorage.setItem(hasRedirectedKey, 'true'); // Marca que já redirecionou
+                window.location.href = firstRedirectPage;
+            } else {
+                // Próximas vezes: redireciona para a página normal (Y)
+                window.location.href = defaultRedirectPage;
+            }
+        });
+    } else {
+        console.warn(`Botão com ID '${buttonId}' não encontrado. O script de redirecionamento não será ativado.`);
+    }
+});
+    </script>
     <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
     <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
     
@@ -37,7 +69,7 @@
         <p>&copy; <span id="current-year"></span> Seu Site. Todos os direitos reservados.</p>
     </footer>
 
-    <script src="js/imageConverter.js"></script>
+    
     <script>
         // JS para atualizar o ano no footer
         document.getElementById('current-year').textContent = new Date().getFullYear();
