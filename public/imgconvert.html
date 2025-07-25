@@ -3,18 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Imagens</title>
-    <link rel="stylesheet" href="css/newstylee.css"> </head>
+    <title>Sua Página Unificada</title>
+    <link rel="stylesheet" href="css/newstylee.css">
+    <style>
+        /* Seus estilos adicionais para esta página, incluindo o ocultamento da seção do conversor */
+        #image-converter-section {
+            display: none; /* ESSENCIAL: Oculta a seção do conversor por padrão */
+            /* Outros estilos para a seção */
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 700px;
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
 <body>
     <header>
-        <a href="./index.html">
-            <img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt="Logo">
-        </a>
-        <h1>Conversor de Imagens</h1>
-    </header>
+        </header>
 
     <main>
-        <div class="converter-section">
+        <div class="content-box">
+            <h1>Seu Conteúdo Principal</h1>
+            <p>Clique no botão abaixo para prosseguir.</p>
+            <button id="redirectButtonX">Iniciar</button>
+        </div>
+
+        <div id="image-converter-section">
             <h2>Conversor de Imagens (PNG/JPG/WebP)</h2>
             <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp">
             <select id="imageFormat">
@@ -22,26 +40,23 @@
                 <option value="jpeg">JPG</option>
                 <option value="webp">WebP</option>
             </select>
-            <button id="redirectButtonX">Converter Imagem</button>
+            <button id="convertImageBtn">Converter Imagem</button>
             <div id="imageOutput">
                 <img id="outputImage" style="display: none;">
                 <a id="downloadLink" style="display: none;" download>Baixar Imagem Convertida</a>
             </div>
         </div>
     </main>
-    
-    <script src="js/imageconverter.js"></script>
-    <script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
+<script async="async" data-cfasync="false" src="//pl27203787.profitableratecpm.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js"></script>
     <div id="container-d5df14394d5fcbc059dd9ddeb056b408"></div>
-    
     <footer>
-        <p>&copy; <span id="current-year"></span> Seu Site. Todos os direitos reservados.</p>
-    </footer>
+                <p>&copy; <span id="current-year"></span> Seu Site. Todos os direitos reservados.</p>
 
-    
-    <script>
-        // JS para atualizar o ano no footer
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-    </script>
+        </footer>
+
+    <script src="js/imageConverter.js"></script>
 </body>
 </html>
+
+
+    
