@@ -36,7 +36,7 @@ body {
 	height: 100%;
 	font-family: "Mulish", sans-serif;
 	-webkit-font-smoothing: antialiased;
-	background: #000000;
+	background: #2e2e2e;
 }
 
 h1,
@@ -327,7 +327,7 @@ ol {
 -----------------------*/
 
 .header {
-	background: #000000;
+	background: #4e4e4e;
 }
 
 .header__logo {
@@ -1936,7 +1936,7 @@ ol {
 -----------------------*/
 
 .footer {
-	background: #070720;
+	background: #313131;
 	padding-top: 60px;
 	padding-bottom: 40px;
 	position: relative;
