@@ -327,7 +327,7 @@ ol {
 -----------------------*/
 
 .header {
-	background: #252525;
+	background: #000000;
 }
 
 .header__logo {
@@ -1936,7 +1936,7 @@ ol {
 -----------------------*/
 
 .footer {
-	background: #252525;
+	background: #0e0e0e;
 	padding-top: 60px;
 	padding-bottom: 40px;
 	position: relative;
