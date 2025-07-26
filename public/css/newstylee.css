@@ -3,7 +3,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #460096; /* Light gray background */
+    background-color: #7700ff; /* Light gray background */
     color: #333;
     line-height: 1.6;
     display: flex;
@@ -72,7 +72,7 @@ main {
 .converter-section h2,
 .tips-section h1.colorh2,
 .news-section h2#news-title {
-    color: #007bff;
+    color: #0011ff;
     font-size: 1.8em;
     margin-bottom: 20px;
     text-align: center;
