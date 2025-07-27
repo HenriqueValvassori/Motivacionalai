@@ -19,6 +19,6 @@ Disallow: /*?
 
 Disallow: /*?*
 
-Sitemap:
+
 
 Sitemap: https://blogmotivacionalai.netlify.app/sitemap.xml
