@@ -1,22 +1,52 @@
-# Seu build settings (já deve existir)
+# netlify.toml
+
+# Seu build settings (apenas uma vez)
 [build]
   publish = "public"
   functions = "netlify/functions"
+  command = "npm install"
 
-# Seus cabeçalhos de segurança
+[functions]
+  node_bundler = "esbuild"
+
+# Redirecionamentos (mantenha os que você usa)
+[[redirects]]
+  from = "/api/get-motivation"
+  to = "/.netlify/functions/get-motivation"
+  status = 200
+
+[[redirects]]
+  from = "/api/get-training-tips"
+  to = "/.netlify/functions/get-training-tips"
+  status = 200
+
+[[redirects]]
+  from = "/api/generate-image-gemini"
+  to = "/.netlify/functions/generate-image-gemini"
+  status = 200
+
+# Seus cabeçalhos de segurança corrigidos
 [[headers]]
   for = "/*" # Aplica-se a todas as rotas
   [headers.values]
-    # Content Security Policy (ajuste conforme necessário para o seu site)
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://frasesmotivacionaisapi.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+    # Content Security Policy - Mais restritivo e seguro
+    Content-Security-Policy = "default-src 'self'; \
+                               script-src 'self' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; \
+                               style-src 'self' https://fonts.googleapis.com; \
+                               img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app; \
+                               font-src 'self' https://fonts.gstatic.com; \
+                               connect-src 'self' https://frasesmotivacionaisapi.com www.google-analytics.com; \
+                               object-src 'none'; \
+                               base-uri 'self'; \
+                               form-action 'self';"
     
     # Referrer Policy (escolha a opção que melhor se adapta à sua privacidade/analytics)
-    Referrer-Policy = "no-referrer-when-downgrade"
+    Referrer-Policy = "no-referrer-when-downgrade" # Ou "strict-origin-when-cross-origin" para mais privacidade
     
     # X-Content-Type-Options
     X-Content-Type-Options = "nosniff"
 
-    # Outros cabeçalhos de segurança úteis (opcional, mas recomendado)
-    X-Frame-Options = "DENY" # Previne clickjacking (se não usa iframes para incorporar seu conteúdo)
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload" # Força HTTPS (se já usa HTTPS)
+    # Outros cabeçalhos de segurança úteis e recomendados
+    X-Frame-Options = "DENY" # Previne clickjacking (se seu site não for incorporado em iframes de outros sites)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload" # Força HTTPS
     Permissions-Policy = "geolocation=(), microphone=(), camera=()" # Controla acesso a APIs do navegador
