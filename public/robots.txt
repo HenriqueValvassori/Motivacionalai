@@ -1,0 +1,25 @@
+
+User-agent: *
+
+
+
+Allow: /
+Disallow: /admin/
+
+Disallow: /wp-admin/
+Disallow: /login/
+Disallow: /private/
+
+Disallow: /temp/
+# Bloqueia pastas com arquivos temporários ou em desenvolvimento que não devem aparecer nos resultados de busca.
+# Exemplo:
+Disallow: /assets/
+Disallow: /dev/
+
+Disallow: /*?
+
+Disallow: /*?*
+
+Sitemap:
+
+Sitemap: https://blogmotivacionalai.netlify.app/sitemap.xml
