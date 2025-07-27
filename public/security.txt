@@ -1,0 +1,7 @@
+# Contato para relatar vulnerabilidades de segurança.
+Contact: mailto:henriquevalvassori42@gmail.com
+
+
+
+Expires: 2026-07-26T23:59:59.000Z
+
