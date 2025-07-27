@@ -29,16 +29,8 @@
 [[headers]]
   for = "/*" # Aplica-se a todas as rotas
   [headers.values]
-    # Content Security Policy - Mais restritivo e seguro
-    Content-Security-Policy = "default-src 'self'; \
-                               script-src 'self' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; \
-                               style-src 'self' https://fonts.googleapis.com; \
-                               img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app; \
-                               font-src 'self' https://fonts.gstatic.com; \
-                               connect-src 'self' https://frasesmotivacionaisapi.com www.google-analytics.com; \
-                               object-src 'none'; \
-                               base-uri 'self'; \
-                               form-action 'self';"
+    # Content Security Policy - TUDO EM UMA ÚNICA LINHA AGORA
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://frasesmotivacionaisapi.com www.google-analytics.com; object-src 'none'; base-uri 'self'; form-action 'self';"
     
     # Referrer Policy (escolha a opção que melhor se adapta à sua privacidade/analytics)
     Referrer-Policy = "no-referrer-when-downgrade" # Ou "strict-origin-when-cross-origin" para mais privacidade
