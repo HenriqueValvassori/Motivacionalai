@@ -1,38 +1,3 @@
-# netlify.toml
-
-[build]
-  publish = "public"
-  functions = "netlify/functions"
-  command = "npm install"
-
-[functions]
-  node_bundler = "esbuild"
-  # As linhas external_node_modules não são necessárias para @google/generative-ai com esbuild
-
-
-# Redirecionamentos existentes (mantenha os que você usa)
-[[redirects]]
-  from = "/api/get-motivation"
-  to = "/.netlify/functions/get-motivation"
-  status = 200
-
-[[redirects]]
-  from = "/api/get-training-tips"
-  to = "/.netlify/functions/get-training-tips"
-  status = 200
-
-# --- Novo Redirecionamento para a função de geração de imagem com Gemini ---
-[[redirects]]
-  from = "/api/generate-image-gemini" # Novo endpoint para a API Gemini
-  to = "/.netlify/functions/generate-image-gemini" # Nome do novo arquivo da função
-  status = 200
-
-# Se você não precisar mais da função FLUX/Gradio, pode remover o redirecionamento:
-# [[redirects]]
-#   from = "/api/generate-image-flux"
-#   to = "/.netlify/functions/generate-image-flux"
-#   status = 200
-
 # Seu build settings (já deve existir)
 [build]
   publish = "public"
