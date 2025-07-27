@@ -78,7 +78,7 @@ h6 {
 p {
 	font-size: 15px;
 	font-family: "Mulish", sans-serif;
-	color: #3d3d3d;
+	color: #2bff00;
 	font-weight: 400;
 	line-height: 25px;
 	margin: 0 0 15px 0;
@@ -150,7 +150,6 @@ ol {
 }
 
 .text-white h1,
-.text-white h2,
 .text-white h3,
 .text-white h4,
 .text-white h5,
