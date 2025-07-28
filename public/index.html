@@ -36,21 +36,19 @@
     <link rel="stylesheet" href="css/plyr.css" type="text/css">
     <link rel="stylesheet" href="css/nice-select.css" type="text/css">
     <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-    <link rel="stylesheet" href="cssss/open-iconic-bootstrap.min.css">
-    <link rel="stylesheet" href="cssss/animate.css">
-    <link rel="stylesheet" href="cssss/owl.carousel.min.css">
-    <link rel="stylesheet" href="cssss/owl.theme.default.min.css">
-    <link rel="stylesheet" href="cssss/magnific-popup.css">
-    <link rel="stylesheet" href="cssss/aos.css">
-    <link rel="stylesheet" href="cssss/ionicons.min.css">
-    <link rel="stylesheet" href="cssss/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="cssss/jquery.timepicker.css">
-    <link rel="stylesheet" href="cssss/flaticon.css">
-    <link rel="stylesheet" href="cssss/icomoon.css">
-    <link rel="stylesheet" href="cssss/style.css">
+    <link rel="stylesheet" href="cssss/open-iconic-bootstrap.min.css" type="text/css"> 
+    <link rel="stylesheet" href="cssss/animate.css"  type="text/css">
+    <link rel="stylesheet" href="cssss/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="cssss/owl.theme.default.min.css" type="text/css">
+    <link rel="stylesheet" href="cssss/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="cssss/aos.css" type="text/css">
+    <link rel="stylesheet" href="cssss/ionicons.min.css" type="text/css">
+    <link rel="stylesheet" href="cssss/bootstrap-datepicker.css" type="text/css">
+    <link rel="stylesheet" href="cssss/jquery.timepicker.css" type="text/css">
+    <link rel="stylesheet" href="cssss/flaticon.css" type="text/css">
+    <link rel="stylesheet" href="cssss/icomoon.css" type="text/css">
+    <link rel="stylesheet" href="cssss/style.css" type="text/css"> 
     <link rel="stylesheet" href="css/style.css" type="text/css"> 
-
-
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BYB733RXE8"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -60,8 +58,7 @@
     </script>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3806856941791661" crossorigin="anonymous"></script>
-    <!-- Clarity tracking code for https://blogmotivacionalai.netlify.app -->
-<script>
+    <script>
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";
@@ -93,6 +90,7 @@
         h1, h3 {
             color: #00ff6a;
             margin-bottom: 30px;
+            font-size: larger;
         }
         .s {
             border: dotted greenyellow 5px;
@@ -132,9 +130,37 @@
             color: #00ff6a;
             word-break: break-all;
         }
+
+        /* ESTILO PARA AJUSTAR OS ÍCONES NO MENU DE NAVEGAÇÃO */
+        .header__menu ul li a img {
+            vertical-align: middle; /* Alinha o ícone com o texto */
+            margin-right: 5px; /* Espaço entre o ícone e o texto */
+            height: 25px; /* Ajuste o tamanho conforme necessário */
+            width: auto;
+        }
+
+        /* Estilo para ajustar a logo no header para tamanhos menores */
+        .header__logo img {
+            max-height: 50px; /* Altura máxima para a logo em telas menores */
+            width: auto;
+        }
+
+        /* Oculta os textos dos links em telas menores, mantendo apenas os ícones */
+        @media (max-width: 991px) { /* Ponto de quebra padrão do Bootstrap para col-lg */
+            .header__menu ul li a {
+                display: flex; /* Para alinhar o ícone e o texto */
+                align-items: center; /* Centraliza verticalmente */
+                justify-content: center; /* Centraliza horizontalmente se não houver texto */
+            }
+            .header__menu ul li a span { /* Span para envolver o texto do link */
+                display: none; /* Oculta o texto */
+            }
+        }
     </style>
 </head>
 <body>
+
+   
 
     <section id="news-section">
         <header class="header">
@@ -142,24 +168,27 @@
                 <div class="row">
                     <div class="col-lg-2">
                         <div class="header__logo">
-                            </div>
+                            <a href="./index.html">
+                                <img class="qw" src="img/channels4_profile.jpg" alt="Logo MotivacionalAI">
+                            </a>
+                        </div>
                     </div>
                     <div class="col-lg-8">
                         <div class="header__nav">
                             <nav class="header__menu mobile-menu">
-                                <ul>
-                                    <li><a href="./index.html"><img class="qw" src="img/channels4_profile.jpg" height="100" width="100" alt="Logo MotivacionalAI - Página Inicial"></a></li>
-                                    <li><a href="./dicas-de-saude.html"><img class="qw" src="img/tips.png" height="60" width="60" alt="Ícone de Dicas de Saúde e Bem-estar"></a></li>
-                                    <li><a href="./news.html"><img class="qw" src="img/news.jpg" height="60" width="60" alt="Ícone de Notícias sobre IA"></a></li>
-                                    <li><a href="./docconvert.html"><img class="qw" src="img/docconvert.png" height="60" width="60" alt="Ícone de Conversor de Documentos online"></a></li>
-                                    <li><a href="./imgconvert.html"><img class="qw" src="img/convert.png" height="60" width="60" alt="Ícone de Conversor de Imagens online"></a></li>
-                                    <li><a href="./convertadvanced.html"><img class="qw" src="img/pdftodocx.png" height="60" width="60" alt="Ícone de Conversores Avançados de PDF"></a></li>
+                                <ul id="menu"> 
+                                    <li><a href="./dicas-de-saude.html"><img class="qw" src="img/tips.png" height="40" width="40" alt="Ícone de Dicas de Saúde e Bem-estar"><span>Saúde e Treino</span></a></li>
+                                    <li><a href="./news.html"><img class="qw" src="img/news.jpg" height="40" width="40" alt="Ícone de Notícias sobre IA"><span>Notícias IA</span></a></li>
+                                    <li><a href="./docconvert.html"><img class="qw" src="img/docconvert.png" height="40" width="40" alt="Ícone de Conversor de Documentos online"><span>Doc Convert</span></a></li>
+                                    <li><a href="./imgconvert.html"><img class="qw" src="img/convert.png" height="40" width="40" alt="Ícone de Conversor de Imagens online"><span>Img Convert</span></a></li>
+                                    <li><a href="./convertadvanced.html"><img class="qw" src="img/pdftodocx.png" height="40" width="40" alt="Ícone de Conversores Avançados de PDF"><span>PDF Avançado</span></a></li>
                                 </ul>
                             </nav>
                         </div>
                     </div>
+                   
                 </div>
-                <div id="mobile-menu-wrap"></div>
+                <div id="mobile-menu-wrap"></div> 
             </div>
         </header>
 
@@ -257,7 +286,7 @@
                         </ul>
                     </div>
                 </div>
-                 <div class="col-lg-3">
+                   <div class="col-lg-3">
                     <p>Copyright ©<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://www.linkedin.com/in/henrique-valvassori-940822192" target="_blank">Henrique Valvassori</a>
                         </p>
                 </div>
@@ -265,15 +294,15 @@
         </div>
     </footer>
 
-   <script src="js/jquery-3.7.1.min.js"></script>
+    <script src="js/jquery-3.7.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/player.js"></script>
     <script src="js/jquery.nice-select.min.js"></script>
     <script src="js/mixitup.min.js"></script>
     <script src="js/jquery.slicknav.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/main.js"></script> 
-    <script src="js/motivation-app.js"></script>
+     <script src="js/owl.carousel.min.js"></script>
+    <script src="js/main.js"></script>
+     <script src="js/motivation-app.js"></script>
 
 </body>
 </html>
