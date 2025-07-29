@@ -4,21 +4,7 @@ User-agent: *
 
 
 Allow: /
-Disallow: /admin/
-
-Disallow: /wp-admin/
-Disallow: /login/
-Disallow: /private/
-
-Disallow: /temp/
-
-Disallow: /assets/
-Disallow: /dev/
-
-Disallow: /*?
-
-Disallow: /*?*
-
-
-
 Sitemap: https://blogmotivacionalai.netlify.app/sitemap.xml
+
+
+
