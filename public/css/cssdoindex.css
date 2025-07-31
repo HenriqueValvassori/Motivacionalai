@@ -22,8 +22,9 @@
         h1, h3 {
             color: #00ff6a;
             margin-bottom: 30px;
-            font-size: 500%;
+            font-size: 200%;
             word-break: break-all;
+            font-weight: bolder;
         }
         .s {
             border: dotted greenyellow 5px;
@@ -63,7 +64,7 @@
         .colorh2 {
             color: #00ff6a;
             word-break: break-all;
-            font-size: 500%;
+            font-size: 200%;
         }
 
         /* ESTILO PARA AJUSTAR OS ÍCONES NO MENU DE NAVEGAÇÃO */
