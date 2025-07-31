@@ -23,6 +23,7 @@
             color: #00ff6a;
             margin-bottom: 30px;
             font-size: 500%;
+            word-break: break-all;
         }
         .s {
             border: dotted greenyellow 5px;
