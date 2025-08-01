@@ -4,15 +4,16 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
-  # Comando de build mais robusto: instala as dependências e depois executa o script de build
-  command = "npm install && npm run build"
+  # O comando de build foi ajustado para apenas instalar as dependências.
+  # Seu projeto não tem um script 'build', então removemos essa parte para evitar a falha.
+  command = "npm install"
 
 # =======================
 # Seção de Plugins
 # =======================
 
 # Plugin para gerar o sitemap automaticamente
-# Primeiro, ele gera o sitemap com base nos arquivos do seu site
+# Este deve ser o primeiro plugin para gerar o sitemap.xml
 [[plugins]]
   package = "@netlify/plugin-sitemap"
   [plugins.inputs]
