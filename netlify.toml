@@ -4,7 +4,8 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
-  command = "npm run build" # Use 'npm run build' se você tiver um script de build no package.json
+  # Comando de build mais robusto: instala as dependências e depois executa o script de build
+  command = "npm install && npm run build"
 
 # =======================
 # Seção de Plugins
