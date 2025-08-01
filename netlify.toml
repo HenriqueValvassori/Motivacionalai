@@ -1,36 +1,48 @@
 # netlify.toml
 
-# Seu build settings (apenas uma vez)
+# Configurações de build
 [build]
   publish = "public"
   functions = "netlify/functions"
-  command = "npm install"
+  command = "npm run build" # Use 'npm run build' se você tiver um script de build no package.json
 
+# =======================
+# Seção de Plugins
+# =======================
 
+# Plugin para gerar o sitemap automaticamente
+# Primeiro, ele gera o sitemap com base nos arquivos do seu site
+[[plugins]]
+  package = "@netlify/plugin-sitemap"
+  [plugins.inputs]
+    # O diretório onde os arquivos de build são publicados
+    buildDir = "public"
+
+# Plugin para submeter o sitemap gerado aos motores de busca
+# Este plugin deve vir depois do @netlify/plugin-sitemap
 [[plugins]]
   package = "netlify-plugin-submit-sitemap"
+  [plugins.inputs]
+    # URL base do seu site (substitua por sua URL real)
+    baseUrl = "https://blogmotivacionalai.netlify.app"
+    sitemapPath = "/sitemap.xml"
+    providers = ["google", "yandex"]
 
-	[plugins.inputs]
+# Plugin para gerar relatórios de Lighthouse
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
 
-	# The base url of your site (optional, default = main URL set in Netlify)
-	baseUrl = "https://example.com"
-
-	# Path to the sitemap URL (optional, default = /sitemap.xml)
-	sitemapPath = "/sitemap.xml"
-
-	# Time in seconds to not submit the sitemap after successful submission
-	ignorePeriod = 0
-
-	# Enabled providers to submit sitemap to (optional, default = 'google', 'yandex'). Possible providers are currently only 'google', 'yandex'.
-	providers = [
-		"google",
-		"yandex"
-	]
+# =======================
+# Configurações de Funções
+# =======================
 
 [functions]
   node_bundler = "esbuild"
 
-# Redirecionamentos (mantenha os que você usa)
+# =======================
+# Redirecionamentos de rotas
+# =======================
+
 [[redirects]]
   from = "/api/get-motivation"
   to = "/.netlify/functions/get-motivation"
@@ -46,20 +58,16 @@
   to = "/.netlify/functions/generate-image-gemini"
   status = 200
 
-# Seus cabeçalhos de segurança corrigidos
-[[headers]]
-  for = "/*" # Aplica-se a todas as rotas
-  [headers.values]
-    # Content Security Policy - TUDO EM UMA ÚNICA LINHA AGORA
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://frasesmotivacionaisapi.com www.google-analytics.com; object-src 'none'; base-uri 'self'; form-action 'self';"
-    
-    # Referrer Policy (escolha a opção que melhor se adapta à sua privacidade/analytics)
-    Referrer-Policy = "no-referrer-when-downgrade" # Ou "strict-origin-when-cross-origin" para mais privacidade
-    
-    # X-Content-Type-Options
-    X-Content-Type-Options = "nosniff"
+# =======================
+# Cabeçalhos de Segurança
+# =======================
 
-    # Outros cabeçalhos de segurança úteis e recomendados
-    X-Frame-Options = "DENY" # Previne clickjacking (se seu site não for incorporado em iframes de outros sites)
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload" # Força HTTPS
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()" # Controla acesso a APIs do navegador
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://frasesmotivacionaisapi.com www.google-analytics.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
