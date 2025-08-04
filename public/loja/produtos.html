@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitrine de Produtos Afiliados</title>
+    <!-- Inclui o CDN do Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para o iframe para torná-lo responsivo e com boa aparência */
+        iframe {
+            width: 100%;
+            height: 400px; /* Altura padrão para os iframes */
+            border-radius: 0.5rem; /* Bordas arredondadas */
+        }
+
+        /* Oculta os iframes que estão sem conteúdo para não mostrar a borda vazia */
+        .product-item.hidden {
+            display: none;
+        }
+
+        /* Estilo para um placeholder quando não há links na categoria */
+        .placeholder {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            font-style: italic;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans p-4">
+
+    <!-- Container principal com CSS Grid para o layout -->
+    <div class="container mx-auto p-4 md:p-8 bg-white rounded-lg shadow-xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6">Vitrine de Produtos</h1>
+        <p class="text-center text-gray-600 mb-8">Selecione um marketplace e uma categoria para ver os produtos.</p>
+
+        <!-- Controles de seleção em um layout flexível e responsivo -->
+        <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8">
+            <div class="w-full md:w-1/2">
+                <label for="mercadoSelect" class="block text-gray-700 font-semibold mb-2">Marketplace</label>
+                <select id="mercadoSelect" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                    <option value="mercadolivre">Mercado Livre</option>
+                    <option value="shopee">Shopee</option>
+                    <option value="aliexpress">AliExpress</option>
+                </select>
+            </div>
+            <div class="w-full md:w-1/2">
+                <label for="categoriaSelect" class="block text-gray-700 font-semibold mb-2">Categoria</label>
+                <select id="categoriaSelect" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                    <option value="smartwatch">Smartwatch</option>
+                    <option value="celulares">Celulares</option>
+                    <option value="notebooks">Notebooks</option>
+                    <option value="acessorios">Acessórios</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Container para os iframes dos produtos -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Os iframes serão injetados aqui via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Dados dos produtos, organizados por marketplace e categoria
+        const productData = {
+            'mercadolivre': {
+                'smartwatch': [
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BB3n5TF7H8OvErlX%2BQU71CS%2BsxeAp22TDP7fRw1nKQX7RGquTeKJ7kOXqUwQtVEdYDNkO4vpQCAvQynmlrOkzNvgPTWIzh5LV2WGlSY0F1AVm%2FPfH5a%2BIDspBIZgFBiOxHb9je20DUjJidtYpEgqc%2FE8xSW41abJ7njeXhcn5FnvNlX25ZItRqtiwozoaKpqZO8%2B7Q%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BPfOKkW4PeXEvz03Nu8Qmo1N78NSfxhGx2HmCB7GjNIDZ0f3Ck7bt06WbvIg%2B27fuhUYewSEcu3xj6GzXRgKoDtPNA4UBHtTn%2BnqWRdCt3%2BuKtdruFnYl1UXda0sZxHgz5DL9e5kmPqcpF2oi%2B%2BQG%2BHKYhhnqzbcwCyqAQymNGHWUxYz2gJ%2FLkEK2GzV1AE3RvqNtKc%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BJ8mh5sa6Xu4ozQwm8lbWyIBw6PxTKsS5hsI0ABN%2B99lKFqQcfhnyZloV2A8WyUWBbDy5WyE4hWNLmsnaPoLQcVTI9G5YzTwQl0Z6%2FkbDMQAC13LK1a6F6AWqh3xn54tJeOH7jV0j98nayGIrRAoYMWbRPd0E8RkMjMBnuZhOPWC7f%2B0ogaV5BHx7qtn4qxKSibqgA%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BKnEfeiDBOtovyTlQRKLghdkvwUrFdrkjv7AuX6k%2FlMH%2FK8Npn0gkBgYW7yODwMgHAiAF%2Bu4O9r32%2FA%2BG2kTssRPo1TO%2FgKoK%2Bhu08Td3%2BR%2Bl5X%2Fl%2FzkW8L2elJ%2FH67Nyt8WtFuFXOlTyfeXkauT32CXpZLkk5DfzMKJAUsVijhExIRnWuqYN86l1S3ufQf1tWuBJzk%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BCZZpPc6IGNLjk0MJx%2BDw14N3fbeQyhAREAeR5BpeedThQzx%2BhEkOMiusGpmozPTA6lTizl%2Fr685YDTJUHieo01TyJioNrjKETG7Rltlf0EXJBBEBdr051hzSq5nRF8bhxd0vAvgRezFpv6b28TBRUAOC0YDa0NlQKW7M1fWLoWcKal%2B%2B6i2dgX6qSYVwoHni3o%2FFw%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BBgip9kaX5lSkj8wKfG0ku8noWTSA%2BLVUSsWJ5kX154cUbnfQ3scKfzPDC1SJWmFciGfrRG6Sh5yZjV3R1dllkoN7xgd0A9QNNKykSrehMgxlMom5whok7GGajijTWaLAwiDmEPFI7tPL%2BW7HaUJ8VCEPElFlYU%2FhYlXlE6b4oyNygt2jV%2BPj49HDdKELuW6yi81oqc%3D'
+                ],
+                'celulares': [
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BMuEMJRxbHX0njcJWZo918FHrrF33JLLZO3oaA0kjSAOfyVnE6%2BiPpo599etEIP8UFZQTPPh8iDfFuA%2FxZvbYAsTUyvaA9VpeDPn2589fuVvutQQRswp54rDerpz3Zb1Hk4tIw1vzz3oVF9voNCbQzkXBnEtfkYs6YNSB8iayAqeHI3Tcr6%2F5%2FAAnXOItoNFUXJevZ8%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BEPfGZIFlO9A0Esw%2FBp3Ze%2BldMs5Cd6utB0B1GgOTg1rTJOdpeZUBBNXRD5kihPLJDtnux9nk9xbs5lsSGBylYEER7H4wPTUUEAjq8qwP%2BCQxKxt8NoNUArtT4PVk3Zamvl96t9nCUrqgjMHA1vPQjFwes0A72jvfn7DrfhNHACQjIbRKe0k7eqTVcfLFGZwfjwLPgI%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BKyk2H1I3URXOJHTuWfnxvGq1yl4iGApQ5ZVg8Z8jzf05bsBzShMVezP1kHDRDVm6%2BiHJL%2B9cwKmQ7jnVojoEU0crDQtflaoviqw4KdSWvPIdNU2vIl8bxYJzUhJwVzAWzezq4kzpGjAahD7VrNPkecwhw2pV0cOE1f0scd63aGfkdj%2FMAMPUPluYK2UtMu2Uf3OIIA%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BBf8348xuY6Bmhml47MVAtI4PONM%2B1uUnSfU0Q9Lb20N2nXPF%2FTvgBZ4ZyAtuurBt8c4n9JghqJzS%2BBSJQ84ugR7SPPkkFoVG2uEUbz%2FNd5l12O6VODyfMi1mR5S47wT5TEy3RnV7oKu8kV6xJT0nBPrBVTFExWb7UZNzZjyKRAEsDLqKfSFmnl76t5waF%2BPIHazw54%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BPhNwtUEJaq7yKAisSJmee87SqIskV7Zfr3s2Tiv6DPfE1GMDLk6LT69MmRNJ2wfT%2BHNA6y4lUjKEIZe%2FGdYzZVnWF6opUdGCWz7bV%2FmhKpWwF8mpH8WQB8jk4Cq3x20gnYQmoV9w%2BxcLykuN7RQsAtiPuIz9kt1o%2BKYuCHoVB%2Bi%2FZXydwg2iaXYXRu19xul2%2B4qs1k%3D',
+                    'https://www.mercadolivre.com.br/smartphone-realme-note-60s-256gb-8gb-ram-preto-4g/p/MLB50614753?pdp_filters=price%3A*-1000#polycard_client=search-nordic&searchVariation=MLB50614753&wid=MLB5371611546&position=22&search_layout=stack&type=product&tracking_id=b3b4365b-e80b-404e-9638-15de8876f5e4&sid=search'
+                ],
+                'notebooks': [
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BOvEsGZ5VD9O54ma4Vf%2BPA4L%2F0r5KTe2992l5a09NFq2ysLzEkt7Fqw%2BIndqw6xI1sgktN1v3fYA6XXkHUqzsgHU256F3UxAN5khO0FJ0ArNt97nnZHHFJ0otHH4z%2Bs3NrtkMgBx%2FW8UDoiQa5Pk9Hho7Zr3KvpZDN4XMEZWw%2FN0GrJADnDamnkkrIW5PhKCjBTbBPs%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BDtEiSgE4ljHWybLIzaS4bWAukUulJgJhsoRc%2BBqtuieLUQb2naeRXSdWIX4uKj3a1IzppUP5gx35xhd34uB87cF%2FRFMrhfJtWv2%2BAtiJMrWiXf1qVENMuqgJXb3sCMx6gbTDNDRdqdumwRPVn6smwNw00bXU1zJXkM6JWrq5kH2DXo9y1f37m1%2F7yo3YLOLddV3U1g%3D',
+                    'https://www.mercadolivre.com.br/notebook-hp-250r-g9-intel-i51335u-8gb-ssd-256gb-w11-pro/up/MLBU3207235735?pdp_filters=price%3A*-3500#polycard_client=search-nordic&searchVariation=MLBU3207235735&wid=MLB4080340053&position=42&search_layout=grid&type=product&tracking_id=bd2af649-b2bc-4ac7-990d-a00aae94e3db&sid=search',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BN%2B53Kbf7yJjfi4T1TitbyklUuFIbrkrdh9YNb5mkNl6rkD7r5S4VVqiWnhLDxD9TJwwJDisFHsRLudUNPzcRDbkTtEOG0%2BAtG0w0GwwQ3TAoh5Rz6acAUS7CTLHilL6Vuz24NYfXlYQ5K%2BmE9P60QtXKgQQirpFhsP8owccHEWOcuGjTB04hduyEt5BjDxNY9b%2B2WU%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BBWVhCbOruYdFAx90WInFfF8tVGQkeO7XddsqHuT2oHrqxnGsCCSpV4Rt4%2FVWyweg8hezijwhSD7sFXNDOVHe4fBu75GmvOI3yOi0qvMRRF6z994vSmp1mx97DfXVPOwNl5fmBN1vMiX%2FO3GVBBSKIDovEnfeflx32fx9ayUIy8LR9bWCZyYpdXgCPLeYfR4z9urBYU%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BDrnfyIJ5x%2FtrUcpoHlLlnPXpFpfQKekTlkZ2gFcSNL862CR1T%2F2eHWTtRCpqRrDqRx9vjCxTuOrpDloIAyyi8SH4GMx0%2FAxrzNzBKzIUqyfjp05CQS4D6HkAXZa5K4WCTi0fsIdU9spXIk7RjCTQMiMjo3KJVxF9jWrmuLi%2BFYrbBFPVE7uopzpR6hYxr13J7Vgoc0%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BGYy%2Bc3pRVWPi0ZET0PMmIXhTa5P7g%2B0%2BxYYuXDv%2BRTnQtlQbfrN6Mum9cOUelfiBTbcv6FCmJlNWcUolj%2BQVdTJ7Q8MjFZJrS7KqbXTFdZgqjl37fGAmiYPR%2Fk5whwd1p4BXR85gkYSBpSIhUGgOXjRbirG%2BSaPMRDmzu6Z6Mv0lkvqEl25Tc6j9QZQ7eSy7Sv7q%2BY%3D'
+                ],
+                'acessorios': [
+                    // Acessórios Notebooks
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BLrHxg53yz4N%2F4uB54qYlwR8%2B1WFx86IwfOyMEs4TyqNv1brxfFAYCn55ym5DU3CTnHsZbZb1h3Jyf2f0fHvy1dXMA3c%2F8GVJYfLmpxilJO1gJj114S50GSIh5fzL%2F3WdIFP0wqSaXDr5ni2Fq03CUQU3cYiHW5t7qe2lQQCJCsBIX3T%2Fl6WdsL6b%2FxJCikF%2BCZRKw%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BEHVJaorqs3GxDAEK944patZ%2Fg1SfeAYYErcEFUEujVglXPYN5PW1YOE1BsYupXFza36K%2B8Ia45zbrQwHJcWQVmo32XTbls2tmpypTKSwI66pqFuHk2Kdg1Fzl6NgcOkqZczDzNaaveqFWH9vZDFG65%2BkDlR88iJG1nL0IPQUxKCaty2moUigUQhR1b%2F7TGQowi1Fw%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BMixEKT9bwXi%2B%2BdqWu7HV0ezuEnwOKwcKYDKUh2qn0p%2FS9AJkqLTixL2jVPqqKjgk2sva2H%2BN55%2FGTTv44rQ5yXciyjvxl5fsvupwfgFFX4yqvnq%2BgONwhAsGcSMf6eBbPRg0sRsAaEyiGmcpCm9HttXcNCYsgKvbi%2FihcVsTEb%2FsUCnQGM3eBpSp3ER7XNcfyqxJA%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BHA6ckuIXWrOlU35GtRtvqO11xeV2%2FQz6BeZWiGnA8M%2BblWxgmT0v%2BkwILzfNzA4YE7DcALTKF9W7ULkgJ%2FpufZIf73WSFmbuqkHQK1oCECy1APsAH2pU6%2FvxqWy7f8X%2FyKYAAvh%2Bn1zTR9CJdTrUKAqgWbdst68uCS0St%2BRNy%2F6olTbLzbIPm2iblI712RjHJoDXg%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BFOiq2%2Fz2tWtsTTNJCWv8Za8W0%2FApmYZzwzJl%2B09BaRXGKYFCqUUNd1JcuG6Ya5OyWTmQeKom%2BRP22iMYfpfN3BhI%2BZj3Bh5yT8EXoElCNNnYIcdiEA2iUAhh8PBrX2kIWUKMkXxuEh2g1hOq641wq4szEipJy7HbqjLZcAlZL2niVn%2B9PM5TgXhErA%2FQ8Vo3IFTvA%3D%3D',
+                    // Alto-falantes Notebooks
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BL4cuKu9HX4o57qXFdVrbR9eyOmETpx%2Bymr%2FNTp31gZnpDj85dFyNXAv7zgUg%2FES%2FGS%2BN9KttnaisEatXPTmsmP4CD44Na3YI%2FdulVYV9e3YHqKitnAtLke3wkGDu0BK0zlJXHRd7k3KISdIxztdcix%2Fzj6Ei6QAj3eQHY7wEqJgt88JekxgtqGWbJuhIrdFu5NXT%2B0%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BGCmk3pj3sL0dQAHRXRX8HqYYtjfXLoHAcHbetP5Onryf8Cdlfhnwfc7JLjzhGEQ14J459uiy%2B1FIjmj3E%2BWmF%2BJFX0GiTnok0OQFnXOUU0odnunNJIuhBR6VVsCDz%2Ffz4CjuXo%2B0D14ssC3%2FGxEV6rIffzh%2BeqebQ6sdz2izarovGSOc1p1IRD5UohOCa9CmtTyDg%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BPxkakZPHKjz8YGLk3BXbNEtkJgs%2F2iep0BV7jcSqBSFIUJ%2BiN%2B0lOZW9NW8ZhYqm9%2FWNhuqC7MIzjxA9RFnB9TK%2BCCes4TI38RenspvP2q0NxluSW56w5Gr0XyLjEinU6l8LFZWrCwiWLssiGsrM2n4I51zUdjBY2rG0cNLcfZi7j0dbszoxSSKT%2BPQe41g9v22UQ%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BLNmncosLu0L%2FbsOZVtxKMIHF0QPBSMAmRAjW7KRsdxeB8LEAvnD1dZRGMTZ%2FF73LuqPmtBxJwofZK15QafmRA6y2DKpTUeze5rppi0DhifZhozuwugUxsAzGOOPvw5KI53Kyk3Fy7pbvtXJn2DS%2BtOqOxiz0a23xMjyrmZRLJ4tQkrRaVdSIuQJZg%2Bc4f2%2BQbFeQD4%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BG9Zv3K1jo4n4%2Fx3%2FjnAmrxQ58ZlzMCpALV%2B27veS4yc5X23RwBdeMA%2FbMFduSAWfND1EnyJZt47mFQR4ny5wJjKuvFLQn0wbnQG%2FXXeaovtnkCC7wOaEPt3I2r2ppY1Q7DG%2FtRnzifZ4nnOMhsdPZRhwERNoJ2cv5SmX5dpeLSycPz%2BJgPFd%2B2CCFsPEQXeuGs7np8%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BLjunDfRyG3vKqu55IXcuhtm4HTTl3hPmbCH7kT66iCrg4VewowGQycg%2BFVhdtNqDvFV38iNqMs7asE7KVUvSk3frBHsDxa%2FGMMoaJBt2QbiOAPc2%2FKXfGyjZEV0xzd9Ghn9R2m9h2zUj70SmAbnx%2FHTMosKhFCiHUKjbZifecKX6n2lSC6xofpYM1QxFHPRS3AAexU%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BApD9xIYMleFFNpIbndbtDhBNsBAWxipn7G0UPhh0Ozn4rhhdgbe%2BxlxvgrXFY%2BR%2BnJr%2B7c%2FSKwcNI25fLVj%2BY%2Bwj68HuQ9HEuPr36pB9TpHI3PG7FDFWZesKQIKV7MZqHAQO6rCsintViXFUY4wU4ve95dcAonaNzcW6rHp%2Bg1jOFiuGvphhyCLJRLU%2FdlQ5CMih7Q%3D',
+                    // Acessórios Celulares
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BK3FE6e%2B4z60FOvdffRs%2FiGTVNZZI3RHkzc5CpmKCMwWnpJiN4jCorSOAyM27N93FkrvopJ7GyRlwoTCKyNYWbgBzkJhJbmg6WEwf7YUgr8D9EdOUscDdckOYsku55WfzpEA2SAAUHDkM%2BqOSbYBl6AdTC7Cb6zJ2jkFC7dS8TiZtHHYNc3g9rOMYy%2FpmUKXz2lcUw%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BMU%2FF3hrCWMhARqP2lwPInRjs00eVhAiqjYE05z3XRlc6ekM0rAg6IhwaY7TQKtjxjX1ksRQHYX%2F17NPhkJUQTyIXQ1Upm2r9hJPuvrD2JXrOgIo%2FSOLhRa9WlZOKNmDhWQpaqmucAxlqWYL0sUMK1s1lBLQKgslTYJePFyd9yxXVKHv8Mb79c4tKIDXj88BgoTm3tw%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BI5gUyPGwK2UYCgHtbyXopqudf%2FbC%2Baf80h%2FqceuycnwwPBsOLm1S%2BXesR1RXfoShCsdspR1GdzhPFXWft1WT11qov9XsEr1WKHPb6%2FLuNrU2bGtoCN2B8QOudOYbmE1FwWj87bfOppmEE64ZB9cMEyVxY3ViBa4bk%2Bc6MC5UmHTvE2gVxrw%2Fv8A0hyUMrophTwDvjE%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BF0QnOH749hT3yEfVLOIqVpwwnYaEA85VoDBz3pyAKUFD65LHYrzChwS%2B12T91yFRSif%2BCWhB6UbiR%2FTeWWWe3yOG36hb2InJDouwT1o0%2Bt8WsCJhJIhxZHeaPHvy9h2pfwUoJ7qn3Kr5DWpPymu0GdS2OpWD%2BOs6vxU2Xe8CGyf6RFHhve6RYLVs2lqwiyoxTxa9A%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BOPeCuUYg7CvyJNXH5kORohRlwnu8Yv6hXJzEi6%2B2EvwRD6sbm4X4y3dpZN6xIzrey2dNIa4DXlPRoURmFWmkA1ufhBzrn8PCr%2BzFauigL00NTU48QQvWMZXu3ytntmhLQtc8jTdjjtA0e14M7SLlcFb3TSKL6GJIARgqFi7XWtD7iISH31HqQzT0IGOYYDsOCrX8g%3D%3D',
+                    'https://www.mercadolivre.com.br/cooler-para-celular-gamer-resfriador-gela-evita-aquecimento/p/MLB39144356#polycard_client=search-nordic&searchVariation=MLB39144356&wid=MLB3878194499&position=18&search_layout=stack&type=product&tracking_id=b01829db-faa4-4b22-b743-1300008a763d&sid=search',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BNkjs2St9my3GPXWGsDV2Uksbk0XkUiHHZDOTcpZZs6VPwZkxDQSdVo54Mtuz1xCZrgqv%2BzD0RVyM1zNKC59sY%2BYN89AwB6y9EaoVEVa9TeTdYYtdYhzYkYk%2Fs1u8B7kkeLY4KiEFGBK%2BV%2BGNAWiG7j%2FsYZ00y9SCjJgs8UMCLbTVlbrW63LU%2FIey7Qx%2BYBw3ezKw%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BM4nIx2vXWOupUDczePTsq8WgIksbdMNmb5EWHY91Cdt5cYA81wQpGrAZwxSe9elQDPEi8h0TmBuJBczrzH0WB%2BO2PfI9svn460iVZqyYxk0zqni6w2Emu9qBl5eDsmWNsEL1wJyfsPYrDF722NUgF%2BueM1I45O8KJbUUBM5lxxjuODLRRCaWODYN9nIl4VCdbiL5g%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BFJXiCE87j1QK1UuoCGeOVSHleJ7NcbSx4Bn09NQqyeGtPnAHw06kosPnpBhylaTEHJ8tab3puHdQ0SWWMxOea1oxG27bHca1Joj0JzykOwrE9i5ySPXh6dykMs3LDWFOwyirILhDnXtNoBitj2Chv2YB%2BL1U6NwwiL4HUalyxM7h2QMlAf4pAIxGekTcOuYae0YMg%3D%3D',
+                    'https://www.mercadolivre.com.br/social/valvassorihenrique202204212211?matt_word=motivacionalai&matt_tool=92862181&forceInApp=true&ref=BA2QeSNkUUk%2F6TEJfZyzyJSygDX3G5z4mhrtXCieIv%2B6SMQRzpkd08Rj8TP%2FvY5FdKOl7KP1M1vmyXAflyHarZ2KqU%2BK%2BpHw81XRRe5IU1gcivz3d43oZXgS%2FDHHEyyCOezYE%2Bepx3HY1lCmrhSk6WzOm6m6lzDFoOJrsXKQNZEZTHElCpTSoVYUz72V6NU%2Frh917A%3D%3D'
+                ]
+            },
+            'shopee': {
+                'smartwatch': [], // Nenhum link de smartwatch da Shopee foi fornecido
+                'celulares': [], // Nenhum link de celulares da Shopee foi fornecido
+                'notebooks': [], // Nenhum link de notebooks da Shopee foi fornecido
+                'acessorios': [
+                    // Acessórios Notebooks (Base Cooler e Case)
+                    'https://s.shopee.com.br/3ftCIbaXjf',
+                    'https://s.shopee.com.br/10sR7k0f2W',
+                    'https://s.shopee.com.br/20kyJabHCS',
+                    'https://s.shopee.com.br/AA6g2beYk4',
+                    'https://s.shopee.com.br/8zuieTADx4',
+                    'https://s.shopee.com.br/6AaXHHBo5g',
+                    'https://s.shopee.com.br/40W2hJJeSM',
+                    'https://s.shopee.com.br/10sR7oHT8f',
+                    'https://s.shopee.com.br/2VhEudiW1p',
+                    'https://s.shopee.com.br/30dVVZBPVQ',
+                    'https://s.shopee.com.br/3LGLuBs8dl',
+                    'https://s.shopee.com.br/ztw501Zo',
+                    'https://s.shopee.com.br/1LVHWXMAiH',
+                    'https://s.shopee.com.br/9pTpeAOBZz',
+                    'https://s.shopee.com.br/10sR7wedUK',
+                    'https://s.shopee.com.br/2g0f71OGKw',
+                    // Acessórios Celulares (Alto-falantes)
+                    'https://s.shopee.com.br/2LNoi1RFfU',
+                    'https://s.shopee.com.br/30dVVHju9n',
+                    'https://s.shopee.com.br/1BBrJvm526',
+                    'https://s.shopee.com.br/802BSUuRHM',
+                    'https://s.shopee.com.br/2B4OVmv4J1',
+                    'https://s.shopee.com.br/8Kf1r99xdw'
+                ]
+            },
+            'aliexpress': {
+                'smartwatch': [], // Nenhum link de smartwatch da AliExpress foi fornecido
+                'celulares': [], // Nenhum link de celulares da AliExpress foi fornecido
+                'notebooks': [], // Nenhum link de notebooks da AliExpress foi fornecido
+                'acessorios': [
+                    // Produtos variados da AliExpress, categorizados como Acessórios
+                    'https://s.click.aliexpress.com/e/_onvVoEv', // Microfone
+                    'https://s.click.aliexpress.com/e/_oDEIijL', // Fones de ouvido
+                    'https://s.click.aliexpress.com/e/_oonE22D', // Fone de ouvido para jogos
+                    'https://s.click.aliexpress.com/e/_opC01M1', // Fone de ouvido para jogos
+                    'https://s.click.aliexpress.com/e/_opSTx1x'  // Pochete
+                ]
+            }
+        };
+
+        // Obtenção dos elementos do DOM
+        const mercadoSelect = document.getElementById('mercadoSelect');
+        const categoriaSelect = document.getElementById('categoriaSelect');
+        const productsGrid = document.getElementById('products-grid');
+
+        /**
+         * Atualiza a exibição dos produtos com base nas seleções dos dropdowns.
+         */
+        function updateProducts() {
+            const selectedMarketplace = mercadoSelect.value;
+            const selectedCategory = categoriaSelect.value;
+            const links = productData[selectedMarketplace][selectedCategory] || [];
+
+            // Limpa o grid de produtos
+            productsGrid.innerHTML = '';
+
+            if (links.length > 0) {
+                // Para cada link, cria um iframe e o insere no grid
+                links.forEach(link => {
+                    const productItem = document.createElement('div');
+                    productItem.className = 'product-item bg-white rounded-lg shadow-md p-2';
+
+                    const iframe = document.createElement('iframe');
+                    iframe.src = link;
+                    iframe.title = 'Produto Afiliado';
+                    iframe.frameborder = '0';
+                    iframe.loading = 'lazy'; // Carregamento preguiçoso para melhorar a performance
+
+                    productItem.appendChild(iframe);
+                    productsGrid.appendChild(productItem);
+                });
+            } else {
+                // Se não houver links, exibe uma mensagem de placeholder
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder col-span-full p-4 border border-gray-300 rounded-lg';
+                placeholder.textContent = 'Nenhum produto encontrado para a categoria e marketplace selecionados.';
+                productsGrid.appendChild(placeholder);
+            }
+        }
+
+        // Adiciona event listeners para os dropdowns
+        // Sempre que o valor de um select mudar, a função updateProducts será chamada
+        mercadoSelect.addEventListener('change', updateProducts);
+        categoriaSelect.addEventListener('change', updateProducts);
+
+        // Chama a função de atualização na primeira carga da página para exibir os produtos padrão
+        updateProducts();
+    </script>
+</body>
+</html>
