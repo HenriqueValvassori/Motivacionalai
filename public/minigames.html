@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Metatags e Título para SEO -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games - Cotivacional AI</title>
+    <meta name="description" content="Descubra a coleção de jogos do Cotivacional AI. Jogue jogos de arcade, plataforma e muito mais para se divertir e relaxar.">
+    <meta name="keywords" content="jogos, games, Cotivacional AI, entretenimento, arcade, plataforma, diversão, jogos online, jogos grátis">
+
+    <!-- Incluindo Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos genéricos para o tema, mantendo a consistência do header e footer */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Estilos do Header (Mantidos do Original) */
+        .header-bg {
+            background-color: #161b22;
+        }
+        
+        /* Estilos do Footer (Mantidos do Original) */
+        .footer-bg {
+            background-color: #161b22;
+        }
+
+        /* Estilos personalizados para os cards de jogos */
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Início do Header (Mantendo o estilo original) -->
+    <header class="header-bg text-white p-4 shadow-lg">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-blue-400">Cotivacional AI</a>
+            <div class="space-x-4">
+                <a href="#" class="text-white hover:text-blue-400 transition-colors">Início</a>
+                <a href="#" class="text-white hover:text-blue-400 transition-colors">Ferramentas</a>
+                <a href="#" class="text-white hover:text-blue-400 transition-colors">Blog</a>
+                <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors font-semibold">Games</a>
+            </div>
+        </nav>
+    </header>
+    <!-- Fim do Header -->
+
+    <!-- Seção Principal com o menu de jogos -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-12 text-blue-400">Nossos Jogos</h1>
+        
+        <!-- Grid de jogos responsivo -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Exemplo de Card de Jogo: Frogger -->
+            <a href="#" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
+                <img src="./pistadeobstaculos.html" alt="Imagem do jogo Frogger" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-2 text-blue-300">Pista de obstaculos</h2>
+                    <p class="text-gray-400 leading-relaxed">
+                       Desvie dos obstacilos pelo caminho.
+                    </p>
+                </div>
+            </a>
+
+            <!-- Exemplo de Card de Jogo: Pong -->
+            <a href="#" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
+                <img src="./crossingstreet.html" alt="Imagem do jogo Pong" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-2 text-blue-300">Crossingstreet</h2>
+                    <p class="text-gray-400 leading-relaxed">
+                            Desvie dos obstaculos  da pista pulando de pista em pista.
+                    </p>
+                </div>
+            </a>
+
+            <!-- Exemplo de Card de Jogo: Flappy Bird -->
+            <a href="#" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
+                <img src="./fcyberbird.html" alt="Imagem do jogo Flappy Bird" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-2 text-blue-300">Cyber Flappy Bird </h2>
+                    <p class="text-gray-400 leading-relaxed">
+                        Tente guiar o pássaro entre os canos o máximo de tempo que puder neste desafio viciante.
+                    </p>
+                </div>
+            </a>
+            
+            <!-- Adicione mais cards de jogos aqui -->
+
+        </div>
+         <!-- Exemplo de Card de Jogo: Pong -->
+            <a href="#" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
+                <img src="./linestreet.html" alt="Imagem do jogo Pong" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-2 text-blue-300">line street</h2>
+                    <p class="text-gray-400 leading-relaxed">
+                       Guie o carro desviando dos obstaculos
+                    </p>
+                </div>
+            </a>
+
+    </main>
+
+    <!-- Início do Footer (Mantendo o estilo original) -->
+    <footer class="footer-bg text-center p-4 text-gray-400 mt-8 shadow-inner">
+        <p>© 2025 Motivacional AI. Todos os direitos reservados.</p>
+    </footer>
+    <!-- Fim do Footer -->
+
+</body>
+</html>
