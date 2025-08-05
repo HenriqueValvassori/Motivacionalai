@@ -10,7 +10,7 @@
 
     <!-- Incluindo Tailwind CSS para estilização moderna e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
-   <link rel="stylesheet" href="css/migames.css"/>
+    <link rel="stylesheet" href="css/migames.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700" rel="stylesheet">
@@ -36,53 +36,63 @@
     <link rel="stylesheet" href="css/cssdoindex.css">
 </head>
 <body class="antialiased">
-<center>
-         
+
     <!-- Início do Header (Mantendo o estilo original) -->
     <header class="header-bg text-white p-4 shadow-lg">
-       <a href="./index.html">
-                                <img class="qw" src="img/channels4_profile.jpg" height="40" width="40" alt="Logo MotivacionalAI">
-                            </a>
+        <a href="./index.html">
+            <img class="qw" src="img/channels4_profile.jpg" height="40" width="40" alt="Logo MotivacionalAI">
+        </a>
     </header>
     <!-- Fim do Header -->
 
     <!-- Seção Principal com o menu de jogos -->
     <main class="flex-grow container mx-auto px-4 py-8">
-        <center>
+        <!-- Título centralizado -->
         <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-12 text-blue-400">Nossos Jogos</h1>
         
-        <!-- Grid de jogos responsivo -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Grid de jogos responsivo e centralizado -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
 
-            <!-- Exemplo de Card de Jogo: Frogger -->
-            <a href="pistadeobstaculos.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
-                <img src="img/polivcecar.png" alt="Imagem do jogo Frogger" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-2 text-blue-300">Pista de obstaculos</h2>
-                    <p class="text-gray-400 leading-relaxed">
-                       Desvie dos obstacilos pelo caminho.
+            <!-- Exemplo de Card de Jogo: Pista de Obstáculos -->
+            <a href="pistadeobstaculos.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent max-w-xs mx-auto">
+                <img src="img/polivcecar.png" alt="Imagem do jogo Pista de Obstáculos" class="w-full h-40 object-cover">
+                <div class="p-4 text-center"> <!-- Diminuído o padding e centralizado o texto -->
+                    <h2 class="text-xl font-bold mb-1 text-blue-300">Pista de Obstáculos</h2> <!-- Diminuído o tamanho do título -->
+                    <p class="text-gray-400 text-sm leading-relaxed"> <!-- Diminuído o tamanho do texto -->
+                        Desvie dos obstáculos pelo caminho.
                     </p>
                 </div>
             </a>
 
-            <!-- Exemplo de Card de Jogo: Pong -->
-            <a href="crossingstreet.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
-                <img src="img/frog.png" alt="Imagem do jogo Pong" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-2 text-blue-300">Crossingstreet</h2>
-                    <p class="text-gray-400 leading-relaxed">
-                            Desvie dos obstaculos  da pista pulando de pista em pista.
+            <!-- Exemplo de Card de Jogo: Crossing Street -->
+            <a href="crossingstreet.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent max-w-xs mx-auto">
+                <img src="img/frog.png" alt="Imagem do jogo Crossing Street" class="w-full h-40 object-cover">
+                <div class="p-4 text-center">
+                    <h2 class="text-xl font-bold mb-1 text-blue-300">Crossing Street</h2>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Desvie dos obstáculos da pista pulando de pista em pista.
                     </p>
                 </div>
             </a>
 
-            <!-- Exemplo de Card de Jogo: Flappy Bird -->
-            <a href="fcyberbird.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
-                <img src="img/chick.png" alt="Imagem do jogo Flappy Bird" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-2 text-blue-300">Cyber Flappy Bird </h2>
-                    <p class="text-gray-400 leading-relaxed">
+            <!-- Exemplo de Card de Jogo: Cyber Flappy Bird -->
+            <a href="fcyberbird.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent max-w-xs mx-auto">
+                <img src="img/chick.png" alt="Imagem do jogo Cyber Flappy Bird" class="w-full h-40 object-cover">
+                <div class="p-4 text-center">
+                    <h2 class="text-xl font-bold mb-1 text-blue-300">Cyber Flappy Bird</h2>
+                    <p class="text-gray-400 text-sm leading-relaxed">
                         Tente guiar o pássaro entre os canos o máximo de tempo que puder neste desafio viciante.
+                    </p>
+                </div>
+            </a>
+            
+            <!-- Exemplo de Card de Jogo: Line Street -->
+            <a href="linestreet.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent max-w-xs mx-auto">
+                <img src="img/polivcecar.png" alt="Imagem do jogo Line Street" class="w-full h-40 object-cover">
+                <div class="p-4 text-center">
+                    <h2 class="text-xl font-bold mb-1 text-blue-300">Line Street</h2>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Guie o carro desviando dos obstáculos.
                     </p>
                 </div>
             </a>
@@ -90,17 +100,6 @@
             <!-- Adicione mais cards de jogos aqui -->
 
         </div>
-         <!-- Exemplo de Card de Jogo: Pong -->
-            <a href="linestreet.html" class="game-card bg-[#1e2a38] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-blue-400 border border-transparent">
-                <img src="img/polivcecar.png" alt="Imagem do jogo Pong" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-2 text-blue-300">line street</h2>
-                    <p class="text-gray-400 leading-relaxed">
-                       Guie o carro desviando dos obstaculos
-                    </p>
-                </div>
-            </a>
-</center>
     </main>
 
     <!-- Início do Footer (Mantendo o estilo original) -->
@@ -130,9 +129,8 @@
             </div>
         </div>
     </footer>
-    </center>
     <!-- Fim do Footer -->
-  <script type='text/javascript' src='//descendedlibrarian.com/a6/40/40/a64040b347622f24836efa3c7f39f512.js'></script>
+    <script type='text/javascript' src='//descendedlibrarian.com/a6/40/40/a64040b347622f24836efa3c7f39f512.js'></script>
     <script type='text/javascript' src='//descendedlibrarian.com/a6/40/40/a64040b347622f24836efa3c7f39f512.js'></script>
     <script type="text/javascript" src="//www.highperformanceformat.com/b4254fccc69bd9b02f0b076892f4bb59/invoke.js"></script>
     <script>(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('groleegni.net',9643574,document.createElement('script'))</script>
