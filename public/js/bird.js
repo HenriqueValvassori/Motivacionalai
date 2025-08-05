@@ -52,7 +52,13 @@
                     spacePressed = false;
                 }
             });
-            
+            canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Previne o scroll da página em dispositivos móveis
+        if (!gameRunning) {
+            startGame();
+        }
+        bird.velocity = bird.jumpForce; // Faz o pássaro pular
+    });
             canvas.addEventListener('click', () => {
                 if (!gameRunning) {
                     startGame();
