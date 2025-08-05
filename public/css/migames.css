@@ -1,0 +1,27 @@
+ body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Estilos do Header (Mantidos do Original) */
+        .header-bg {
+            background-color: #161b22;
+        }
+        
+        /* Estilos do Footer (Mantidos do Original) */
+        .footer-bg {
+            background-color: #161b22;
+        }
+
+        /* Estilos personalizados para os cards de jogos */
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
