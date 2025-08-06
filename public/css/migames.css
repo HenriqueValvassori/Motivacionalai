@@ -21,4 +21,6 @@
         .game-card {
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+        .dd{
+            border: green solid 5px;
+        }
