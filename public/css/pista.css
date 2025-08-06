@@ -19,6 +19,7 @@ body {
             box-shadow: 0 0 20px #ff00ff, inset 0 0 20px #ff00ff;
             overflow: hidden;
             background: linear-gradient(to bottom, #000033, #000011);
+            margin-left: 10%;
         }
 
         #game-canvas {
