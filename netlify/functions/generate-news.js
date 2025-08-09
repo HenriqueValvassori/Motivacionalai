@@ -1,5 +1,5 @@
 // netlify/functions/generate-news.js
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default; // <<<--- MUDANÇA CRUCIAL AQUI
 const { Client } = require('pg');
 
 exports.handler = async (event, context) => {
@@ -48,7 +48,8 @@ exports.handler = async (event, context) => {
         if (canGenerate) {
             // 2. Gerar a notícia com Gemini Flash
             const prompt = `Crie uma notícia aleatoria sobre tecnologia.Minimo 10 paragrafos`;
-console.log('DEBUG: Chamando fetch. Tipo de fetch:', typeof fetch);
+            console.log('DEBUG: Chamando fetch. Tipo de fetch:', typeof fetch); // Este log agora deve mostrar 'function'
+
             // MUDANÇAS AQUI: Endpoint, Headers e Body da requisição para Gemini
             const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GOOGLE_API_KEY}`, {
                 method: 'POST',
