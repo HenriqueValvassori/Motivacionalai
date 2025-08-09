@@ -1,17 +1,12 @@
 {
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@netlify/eslint-config-node": "^7.0.1",
     "@supabase/supabase-js": "^2.43.5",
-    "ava": "^6.4.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^4.18.2",
-    "husky": "^4.3.5",
     "jquery": "^3.7.1",
-    "node-fetch": "^x.x.x",
     "pg": "^8.16.3",
-    "tempy": "^0.3.0",
-    "xml2js": "^0.6.2"
+    "node-fetch": "^3.2.3"
   }
 }
