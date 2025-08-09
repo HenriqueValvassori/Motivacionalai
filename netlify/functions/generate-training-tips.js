@@ -1,5 +1,5 @@
 // netlify/functions/generate-training-tips.js
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
 const { Client } = require('pg');
 exports.schedule = '@daily'; 
 exports.handler = async (event, context) => {
