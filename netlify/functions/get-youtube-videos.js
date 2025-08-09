@@ -1,6 +1,6 @@
 // netlify/functions/get-youtube-videos.js
 require('dotenv').config(); // Carrega variáveis de ambiente (para testar localmente com netlify-cli)
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
 
 // --- SUBSTITUA AS LINHAS DO FAUNADB PELAS DO SUPABASE ---
 const { createClient } = require('@supabase/supabase-js');
