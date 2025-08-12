@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const fetch = require('node-fetch'); // Importa o 'node-fetch' para usar a função fetch
 
 exports.handler = async (event, context) => {
   const client = new Client({
@@ -7,33 +8,41 @@ exports.handler = async (event, context) => {
 
   try {
     await client.connect();
-    const { httpMethod, path, body } = event;
+    const { httpMethod, path, body, queryStringParameters } = event;
     const segments = path.split('/').filter(Boolean);
-    const id = segments[segments.length - 1]; // Captura o ID do produto da URL
+    const id = segments[segments.length - 1];
 
     let response;
 
     switch (httpMethod) {
       case 'GET':
-        // Lógica para buscar todos os produtos ou um produto específico por ID
-        if (id && !isNaN(id)) {
-          const res = await client.query('SELECT * FROM produtos WHERE id = $1', [id]);
-          response = { statusCode: 200, body: JSON.stringify(res.rows[0]) };
-        } else {
-          const res = await client.query('SELECT * FROM produtos');
-          response = { statusCode: 200, body: JSON.stringify(res.rows) };
+        // Lógica para buscar todos os produtos ou filtrar por classificação
+        const classificacao = queryStringParameters.classificacao;
+        let query = 'SELECT * FROM produtos';
+        let values = [];
+        if (classificacao && classificacao !== 'todos') {
+          query += ' WHERE classificacao = $1';
+          values.push(classificacao);
         }
+        const res = await client.query(query, values);
+        response = {
+          statusCode: 200,
+          body: JSON.stringify(res.rows),
+        };
         break;
 
       case 'POST':
         // Lógica para cadastrar um novo produto
         const data = JSON.parse(body);
-        const { nome, classificacao, link, preco, imagemUrl } = data; // Assumindo que a URL da imagem já foi processada
+        const { nome, classificacao: postClassificacao, link, preco, imagemUrl } = data;
         const resPost = await client.query(
-          'INSERT INTO produtos (nome, classificacao, link, preco, imagemUrl) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-          [nome, classificacao, link, preco, imagemUrl]
+          'INSERT INTO produtos (nome, classificacao, link, preco, imagem_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+          [nome, postClassificacao, link, preco, imagemUrl]
         );
-        response = { statusCode: 201, body: JSON.stringify(resPost.rows[0]) };
+        response = {
+          statusCode: 201,
+          body: JSON.stringify(resPost.rows[0]),
+        };
         break;
 
       case 'PUT':
@@ -45,9 +54,15 @@ exports.handler = async (event, context) => {
             'UPDATE produtos SET nome = $1, classificacao = $2, link = $3, preco = $4 WHERE id = $5 RETURNING *',
             [nomePut, classificacaoPut, linkPut, precoPut, id]
           );
-          response = { statusCode: 200, body: JSON.stringify(resPut.rows[0]) };
+          response = {
+            statusCode: 200,
+            body: JSON.stringify(resPut.rows[0]),
+          };
         } else {
-          response = { statusCode: 400, body: 'ID do produto não fornecido.' };
+          response = {
+            statusCode: 400,
+            body: 'ID do produto não fornecido.',
+          };
         }
         break;
 
@@ -55,18 +70,26 @@ exports.handler = async (event, context) => {
         // Lógica para excluir um produto
         if (id && !isNaN(id)) {
           await client.query('DELETE FROM produtos WHERE id = $1', [id]);
-          response = { statusCode: 204, body: '' }; // No Content
+          response = {
+            statusCode: 204,
+            body: '',
+          };
         } else {
-          response = { statusCode: 400, body: 'ID do produto não fornecido.' };
+          response = {
+            statusCode: 400,
+            body: 'ID do produto não fornecido.',
+          };
         }
         break;
 
       default:
-        response = { statusCode: 405, body: 'Método não permitido.' };
+        response = {
+          statusCode: 405,
+          body: 'Método não permitido.',
+        };
     }
 
     return response;
-
   } catch (error) {
     console.error('Erro no banco de dados:', error);
     return {
