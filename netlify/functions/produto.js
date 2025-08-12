@@ -1,7 +1,7 @@
 // Arquivo: netlify/functions/produto.js
 
 const { Client } = require('pg');
-const { getBlob } = require('@netlify/blobs');
+const { getStore } = require('@netlify/blobs');
 
 exports.handler = async (event, context) => {
     // Adicionando um log para indicar o início da função
@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
         const segments = path.split('/').filter(Boolean);
         const id = segments[segments.length - 1];
 
-        const blobs = getBlob({ name: 'produtos' });
+        const blobs = getStore({ name: 'produtos' });
         console.log('Netlify Blobs store "produtos" acessada.');
 
         let response;
