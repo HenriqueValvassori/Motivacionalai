@@ -1,7 +1,5 @@
-// Arquivo: netlify/functions/produto.js
-
 const { Client } = require('pg');
-const { getBlob, setBlob } = require('@netlify/blobs'); // Importa as funções para interagir com os Blobs
+const { getBlob } = require('@netlify/blobs');
 
 exports.handler = async (event, context) => {
     const client = new Client({
@@ -13,13 +11,13 @@ exports.handler = async (event, context) => {
         const { httpMethod, path, body, queryStringParameters } = event;
         const segments = path.split('/').filter(Boolean);
         const id = segments[segments.length - 1];
-        const blobs = getBlob({ name: 'produtos' }); // 'produtos' é o nome do seu bucket de Blobs
+
+        const blobs = getBlob({ name: 'produtos' }); // Define o bucket de blobs
 
         let response;
 
         switch (httpMethod) {
             case 'GET':
-                // Lógica para buscar todos os produtos ou filtrar por classificação
                 const classificacao = queryStringParameters.classificacao;
                 let query = 'SELECT * FROM produtos';
                 let values = [];
@@ -32,16 +30,15 @@ exports.handler = async (event, context) => {
                 break;
 
             case 'POST':
-                // Lógica para cadastrar um novo produto com imagem em Base64
                 const dataPost = JSON.parse(body);
                 const { nome, classificacao: postClassificacao, link, preco, base64Image } = dataPost;
 
                 let blobPath = null;
                 if (base64Image) {
                     const imageData = Buffer.from(base64Image, 'base64');
-                    const filename = `${Date.now()}-${nome}.png`;
-                    const blobUrl = await blobs.set(filename, imageData);
-                    blobPath = blobUrl.path;
+                    const filename = `${Date.now()}-${nome.replace(/\s/g, '-')}.png`;
+                    const { path: newBlobPath } = await blobs.set(filename, imageData);
+                    blobPath = newBlobPath;
                 }
 
                 const resPost = await client.query(
@@ -52,23 +49,25 @@ exports.handler = async (event, context) => {
                 break;
 
             case 'PUT':
-                // Lógica para editar um produto com imagem em Base64
                 if (id && !isNaN(id)) {
                     const dataPut = JSON.parse(body);
                     const { nome: nomePut, classificacao: classificacaoPut, link: linkPut, preco: precoPut, base64Image: base64ImagePut } = dataPut;
 
-                    let blobPathPut = dataPut.imagem_url; // Mantém a URL existente se não houver nova imagem
+                    let blobPathPut = null;
+
                     if (base64ImagePut) {
                         const imageDataPut = Buffer.from(base64ImagePut, 'base64');
-                        const filenamePut = `${Date.now()}-${nomePut}.png`;
-                        const blobUrlPut = await blobs.set(filenamePut, imageDataPut);
-                        blobPathPut = blobUrlPut.path;
+                        const filenamePut = `${Date.now()}-${nomePut.replace(/\s/g, '-')}.png`;
+                        const { path: newBlobPathPut } = await blobs.set(filenamePut, imageDataPut);
+                        blobPathPut = newBlobPathPut;
                     }
 
+                    // Se uma nova imagem foi enviada, atualiza a imagem_url. Caso contrário, mantém a URL antiga.
                     const resPut = await client.query(
-                        'UPDATE produtos SET nome = $1, classificacao = $2, link = $3, preco = $4, imagem_url = $5 WHERE id = $6 RETURNING *',
-                        [nomePut, classificacaoPut, linkPut, precoPut, blobPathPut, id]
+                        `UPDATE produtos SET nome = $1, classificacao = $2, link = $3, preco = $4 ${blobPathPut ? ', imagem_url = $5' : ''} WHERE id = $${blobPathPut ? 6 : 5} RETURNING *`,
+                        blobPathPut ? [nomePut, classificacaoPut, linkPut, precoPut, blobPathPut, id] : [nomePut, classificacaoPut, linkPut, precoPut, id]
                     );
+
                     response = { statusCode: 200, body: JSON.stringify(resPut.rows[0]) };
                 } else {
                     response = { statusCode: 400, body: 'ID do produto não fornecido.' };
@@ -76,8 +75,16 @@ exports.handler = async (event, context) => {
                 break;
 
             case 'DELETE':
-                // Lógica para excluir um produto
                 if (id && !isNaN(id)) {
+                    // Lógica para excluir o blob associado à imagem também (opcional, mas recomendado)
+                    const resBlob = await client.query('SELECT imagem_url FROM produtos WHERE id = $1', [id]);
+                    if (resBlob.rows.length > 0) {
+                        const blobToDeletePath = resBlob.rows[0].imagem_url;
+                        if (blobToDeletePath) {
+                            await blobs.delete(blobToDeletePath);
+                        }
+                    }
+
                     await client.query('DELETE FROM produtos WHERE id = $1', [id]);
                     response = { statusCode: 204, body: '' };
                 } else {
@@ -91,7 +98,7 @@ exports.handler = async (event, context) => {
 
         return response;
     } catch (error) {
-        console.error('Erro no banco de dados:', error);
+        console.error('Erro no banco de dados ou no Blob:', error);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Erro interno do servidor' }),
