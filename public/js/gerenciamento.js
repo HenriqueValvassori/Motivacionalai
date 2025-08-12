@@ -63,8 +63,8 @@ editarBtn.addEventListener('click', async () => {
             classificacao: document.getElementById('classificacao').value,
             link: document.getElementById('link').value,
             preco: document.getElementById('preco').value,
-            imagemUrl: document.getElementById('imagemUrl').value
-        };
+           imagemUrl: document.getElementById('imagemUrl').value // Este valor deve ser o link direto do ImgBB
+};
         try {
             const response = await fetch(`/.netlify/functions/produto/${produtoEmEdicaoId}`, {
                 method: 'PUT',
