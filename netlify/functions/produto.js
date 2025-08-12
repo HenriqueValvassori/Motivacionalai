@@ -1,5 +1,5 @@
 // Arquivo: netlify/functions/produto.js
-
+const fetch = require('node-fetch').default;
 const { Client } = require('pg');
 const { getBlob } = require('@netlify/blobs');
 
