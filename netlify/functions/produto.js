@@ -1,7 +1,7 @@
 // Arquivo: netlify/functions/produto.js
 
 const { Client } = require('pg');
-const fetch = require('node-fetch');
+const { getBlob, setBlob } = require('@netlify/blobs'); // Importa as funções para interagir com os Blobs
 
 exports.handler = async (event, context) => {
     const client = new Client({
@@ -13,11 +13,13 @@ exports.handler = async (event, context) => {
         const { httpMethod, path, body, queryStringParameters } = event;
         const segments = path.split('/').filter(Boolean);
         const id = segments[segments.length - 1];
+        const blobs = getBlob({ name: 'produtos' }); // 'produtos' é o nome do seu bucket de Blobs
 
         let response;
 
         switch (httpMethod) {
             case 'GET':
+                // Lógica para buscar todos os produtos ou filtrar por classificação
                 const classificacao = queryStringParameters.classificacao;
                 let query = 'SELECT * FROM produtos';
                 let values = [];
@@ -30,22 +32,42 @@ exports.handler = async (event, context) => {
                 break;
 
             case 'POST':
-                const data = JSON.parse(body);
-                const { nome, classificacao: postClassificacao, link, preco, imagemUrl } = data;
+                // Lógica para cadastrar um novo produto com imagem em Base64
+                const dataPost = JSON.parse(body);
+                const { nome, classificacao: postClassificacao, link, preco, base64Image } = dataPost;
+
+                let blobPath = null;
+                if (base64Image) {
+                    const imageData = Buffer.from(base64Image, 'base64');
+                    const filename = `${Date.now()}-${nome}.png`;
+                    const blobUrl = await blobs.set(filename, imageData);
+                    blobPath = blobUrl.path;
+                }
+
                 const resPost = await client.query(
                     'INSERT INTO produtos (nome, classificacao, link, preco, imagem_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                    [nome, postClassificacao, link, preco, imagemUrl]
+                    [nome, postClassificacao, link, preco, blobPath]
                 );
                 response = { statusCode: 201, body: JSON.stringify(resPost.rows[0]) };
                 break;
 
             case 'PUT':
+                // Lógica para editar um produto com imagem em Base64
                 if (id && !isNaN(id)) {
                     const dataPut = JSON.parse(body);
-                    const { nome: nomePut, classificacao: classificacaoPut, link: linkPut, preco: precoPut, imagemUrl: imagemUrlPut } = dataPut;
+                    const { nome: nomePut, classificacao: classificacaoPut, link: linkPut, preco: precoPut, base64Image: base64ImagePut } = dataPut;
+
+                    let blobPathPut = dataPut.imagem_url; // Mantém a URL existente se não houver nova imagem
+                    if (base64ImagePut) {
+                        const imageDataPut = Buffer.from(base64ImagePut, 'base64');
+                        const filenamePut = `${Date.now()}-${nomePut}.png`;
+                        const blobUrlPut = await blobs.set(filenamePut, imageDataPut);
+                        blobPathPut = blobUrlPut.path;
+                    }
+
                     const resPut = await client.query(
                         'UPDATE produtos SET nome = $1, classificacao = $2, link = $3, preco = $4, imagem_url = $5 WHERE id = $6 RETURNING *',
-                        [nomePut, classificacaoPut, linkPut, precoPut, imagemUrlPut, id]
+                        [nomePut, classificacaoPut, linkPut, precoPut, blobPathPut, id]
                     );
                     response = { statusCode: 200, body: JSON.stringify(resPut.rows[0]) };
                 } else {
@@ -54,6 +76,7 @@ exports.handler = async (event, context) => {
                 break;
 
             case 'DELETE':
+                // Lógica para excluir um produto
                 if (id && !isNaN(id)) {
                     await client.query('DELETE FROM produtos WHERE id = $1', [id]);
                     response = { statusCode: 204, body: '' };

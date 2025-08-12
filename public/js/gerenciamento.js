@@ -8,32 +8,50 @@ const excluirBtn = document.getElementById('excluirBtn');
 let produtoEmEdicaoId = null;
 
 // --- Função para Cadastrar Produto ---
+// Arquivo: js/gerenciamento.js
+
+// ... (código existente) ...
+
 cadastrarBtn.addEventListener('click', async () => {
-    const produto = {
-        nome: document.getElementById('nome').value,
-        classificacao: document.getElementById('classificacao').value,
-        link: document.getElementById('link').value,
-        preco: document.getElementById('preco').value,
-        imagemUrl: document.getElementById('imagemUrl').value // Captura a URL do novo campo
-    };
+    const imagemInput = document.getElementById('imagem'); // Use um input de tipo 'file'
+    const imagemFile = imagemInput.files[0];
 
-    try {
-        const response = await fetch('/.netlify/functions/produto', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(produto),
-        });
-        const data = await response.json();
-        console.log('Produto cadastrado:', data);
-        alert('Produto cadastrado com sucesso!');
-        // Limpar formulário
-        limparFormulario();
-    } catch (error) {
-        console.error('Erro ao cadastrar produto:', error);
-        alert('Erro ao cadastrar produto.');
+    if (!imagemFile) {
+        alert('Por favor, selecione uma imagem.');
+        return;
     }
-});
 
+    const reader = new FileReader();
+    reader.readAsDataURL(imagemFile);
+
+    reader.onload = async () => {
+        const base64Image = reader.result.split(',')[1]; // Pega a parte da string em Base64
+
+        const produto = {
+            nome: document.getElementById('nome').value,
+            classificacao: document.getElementById('classificacao').value,
+            link: document.getElementById('link').value,
+            preco: document.getElementById('preco').value,
+            base64Image: base64Image
+        };
+
+        try {
+            const response = await fetch('/.netlify/functions/produto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(produto),
+            });
+            const data = await response.json();
+            console.log('Produto cadastrado:', data);
+            alert('Produto cadastrado com sucesso!');
+            limparFormulario();
+            recarregarVitrine();
+        } catch (error) {
+            console.error('Erro ao cadastrar produto:', error);
+            alert('Erro ao cadastrar produto.');
+        }
+    };
+});
 // --- Função para Excluir Produto (exemplo) ---
 excluirBtn.addEventListener('click', async () => {
     if (produtoEmEdicaoId) {

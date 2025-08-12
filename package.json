@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@netlify/blobs": "^10.0.8",
     "@netlify/eslint-config-node": "^7.0.1",
     "@supabase/supabase-js": "^2.43.5",
     "ava": "^6.4.1",
