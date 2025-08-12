@@ -1,3 +1,5 @@
+// Arquivo: netlify/functions/produto.js
+
 const { Client } = require('pg');
 const { getBlob } = require('@netlify/blobs');
 
@@ -12,7 +14,7 @@ exports.handler = async (event, context) => {
         const segments = path.split('/').filter(Boolean);
         const id = segments[segments.length - 1];
 
-        const blobs = getBlob({ name: 'produtos' }); // Define o bucket de blobs
+        const blobs = getBlob({ name: 'produtos' });
 
         let response;
 
@@ -54,7 +56,6 @@ exports.handler = async (event, context) => {
                     const { nome: nomePut, classificacao: classificacaoPut, link: linkPut, preco: precoPut, base64Image: base64ImagePut } = dataPut;
 
                     let blobPathPut = null;
-
                     if (base64ImagePut) {
                         const imageDataPut = Buffer.from(base64ImagePut, 'base64');
                         const filenamePut = `${Date.now()}-${nomePut.replace(/\s/g, '-')}.png`;
@@ -62,12 +63,10 @@ exports.handler = async (event, context) => {
                         blobPathPut = newBlobPathPut;
                     }
 
-                    // Se uma nova imagem foi enviada, atualiza a imagem_url. Caso contrário, mantém a URL antiga.
                     const resPut = await client.query(
                         `UPDATE produtos SET nome = $1, classificacao = $2, link = $3, preco = $4 ${blobPathPut ? ', imagem_url = $5' : ''} WHERE id = $${blobPathPut ? 6 : 5} RETURNING *`,
                         blobPathPut ? [nomePut, classificacaoPut, linkPut, precoPut, blobPathPut, id] : [nomePut, classificacaoPut, linkPut, precoPut, id]
                     );
-
                     response = { statusCode: 200, body: JSON.stringify(resPut.rows[0]) };
                 } else {
                     response = { statusCode: 400, body: 'ID do produto não fornecido.' };
@@ -76,7 +75,6 @@ exports.handler = async (event, context) => {
 
             case 'DELETE':
                 if (id && !isNaN(id)) {
-                    // Lógica para excluir o blob associado à imagem também (opcional, mas recomendado)
                     const resBlob = await client.query('SELECT imagem_url FROM produtos WHERE id = $1', [id]);
                     if (resBlob.rows.length > 0) {
                         const blobToDeletePath = resBlob.rows[0].imagem_url;
@@ -84,7 +82,6 @@ exports.handler = async (event, context) => {
                             await blobs.delete(blobToDeletePath);
                         }
                     }
-
                     await client.query('DELETE FROM produtos WHERE id = $1', [id]);
                     response = { statusCode: 204, body: '' };
                 } else {
@@ -95,7 +92,6 @@ exports.handler = async (event, context) => {
             default:
                 response = { statusCode: 405, body: 'Método não permitido.' };
         }
-
         return response;
     } catch (error) {
         console.error('Erro no banco de dados ou no Blob:', error);
