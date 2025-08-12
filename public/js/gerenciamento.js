@@ -9,14 +9,12 @@ let produtoEmEdicaoId = null;
 
 // --- Função para Cadastrar Produto ---
 cadastrarBtn.addEventListener('click', async () => {
-    // Exemplo simplificado: A função Netlify real precisaria lidar com o upload de imagem
-    // e retornar a URL. Aqui, estamos simulando que a URL já está disponível.
     const produto = {
         nome: document.getElementById('nome').value,
         classificacao: document.getElementById('classificacao').value,
         link: document.getElementById('link').value,
         preco: document.getElementById('preco').value,
-        imagemUrl: 'https://via.placeholder.com/250' // URL da imagem, deve vir do seu sistema de upload
+        imagemUrl: document.getElementById('imagemUrl').value // Captura a URL do novo campo
     };
 
     try {
@@ -65,6 +63,7 @@ editarBtn.addEventListener('click', async () => {
             classificacao: document.getElementById('classificacao').value,
             link: document.getElementById('link').value,
             preco: document.getElementById('preco').value,
+            imagemUrl: document.getElementById('imagemUrl').value
         };
         try {
             const response = await fetch(`/.netlify/functions/produto/${produtoEmEdicaoId}`, {
@@ -88,7 +87,7 @@ function limparFormulario() {
     document.getElementById('classificacao').value = 'eletronicos';
     document.getElementById('link').value = '';
     document.getElementById('preco').value = '';
-    document.getElementById('imagem').value = '';
+    document.getElementById('imagemUrl').value = ''; // Limpa o novo campo
     
     cadastrarBtn.style.display = 'block';
     editarBtn.style.display = 'none';
