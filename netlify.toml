@@ -67,7 +67,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-   Content-Security-Policy = "default-src 'self'; script-src 'self' https://descendedlibrarian.com/d5df14394d5fcbc059dd9ddeb056b408/invoke.js https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app https://rqnytipqrrusoukeqowr.supabase.co ; font-src 'self' https://fonts.gstatic.com; connect-src 'self' data: https://frasesmotivacionaisapi.com www.google-analytics.com "
+   Content-Security-Policy = "default-src 'self'; script-src 'self' https://descendedlibrarian.com https://willplug.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.highperformanceformat.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://www.googletagmanager.com https://blogmotivacionalai.netlify.app https://rqnytipqrrusoukeqowr.supabase.co ; font-src 'self' https://fonts.gstatic.com; connect-src 'self' data: https://frasesmotivacionaisapi.com www.google-analytics.com "
     Referrer-Policy = "no-referrer-when-downgrade"
     X-Content-Type-Options = "nosniff"  
     X-Frame-Options = "DENY"
