@@ -42,11 +42,11 @@ exports.handler = async (event, context) => {
                 let imageUrl = null;
                 if (base64Image) {
                     const imageBuffer = Buffer.from(base64Image, 'base64');
-                    const filename = `produtos/${uuidv4()}.png`;
+                    const filename = `produtos/${uuidv4()}.jpg`;
                     const { data: uploadData, error: uploadError } = await supabase.storage
                         .from('produtos') // Substitua 'produtos' pelo nome do seu bucket no Supabase
                         .upload(filename, imageBuffer, {
-                            contentType: 'image/png'
+                            contentType: 'image/jpg'
                         });
 
                     if (uploadError) {
@@ -85,11 +85,11 @@ exports.handler = async (event, context) => {
 
                         // Faz upload da nova imagem
                         const imageBuffer = Buffer.from(base64ImagePut, 'base64');
-                        const newFilename = `produtos/${uuidv4()}.png`;
+                        const newFilename = `produtos/${uuidv4()}.jpg`;
                         const { error: uploadError } = await supabase.storage
                             .from('produtos')
                             .upload(newFilename, imageBuffer, {
-                                contentType: 'image/png'
+                                contentType: 'image/jpg'
                             });
 
                         if (uploadError) {
