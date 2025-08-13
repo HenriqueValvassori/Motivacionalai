@@ -62,7 +62,7 @@ function renderizarProdutos(produtos) {
         const card = document.createElement('div');
         card.classList.add('card-produto');
         card.innerHTML = `
-            <img src="${produto.imagem_url}" alt="${produto.nome}"/>
+            <img type="image/jpg" src="${produto.imagem_url}" alt="${produto.nome}"/>
             <h3>${produto.nome}</h3>
             <p class="preco">R$ ${produto.preco}</p>
             <span class="tag-classificacao">${produto.classificacao}</span>
