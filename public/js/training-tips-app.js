@@ -31,9 +31,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const tipItem = document.createElement('div');
                     tipItem.className = 'tip-item'; // Para estilização CSS
                     tipItem.innerHTML = `
-                        <h2>${tip.titulo}</h2>
-                        <p>${tip.conteudo.replace(/\n/g, '<br>')}</p>
-                        <small>Publicado em: ${new Date(tip.data_geracao).toLocaleDateString('pt-BR')} às ${new Date(tip.data_geracao).toLocaleTimeString('pt-BR')}</small>
+                        <h2>${tip.titulo}</h2><br>
+                        <p>${tip.conteudo.replace(/\n/g, '<br>')}</p><br>
+                        <small>Publicado em: ${new Date(tip.data_geracao).toLocaleDateString('pt-BR')} às ${new Date(tip.data_geracao).toLocaleTimeString('pt-BR')}</small><br>
                         <hr> `;
                     trainingTipsContentElement.appendChild(tipItem);
                 });
