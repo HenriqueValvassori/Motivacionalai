@@ -174,7 +174,7 @@ footer.footer {
 .footer__logo img {
     height: 80px; /* Tamanho da logo no footer */
     width: 80px;
-    border-radius: 50%;
+    border-radius: 100%;
 }
 
 .footer__nav ul {
@@ -189,6 +189,7 @@ footer.footer {
 .footer__nav li a img {
     height: 40px; /* Tamanho dos ícones sociais */
     width: 40px;
+     border-radius: 100%;
 }
 
 .footer p {
