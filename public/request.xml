@@ -1,7 +1,4 @@
-POST /webmaster/api.svc/pox/SubmitUrlBatch?apikey=sampleapikeyEEDECC1EA4AE341CC57365E075EBC8B6 HTTP/1.1
-Content-Type: application/xml; charset=utf-8
-Host: ssl.bing.com
-Content-Length: <o tamanho do corpo da requisição>
+
 
 <SubmitUrlBatch xmlns="http://schemas.datacontract.org/2004/07/Microsoft.Bing.Webmaster.Api">
     <siteUrl>https://blogmotivacionalai.netlify.app/</siteUrl>

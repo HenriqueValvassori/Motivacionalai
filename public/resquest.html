@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Enviar URLs para o Bing</title>
+</head>
+<body>
+
+    <h1>Envio de URLs para Indexação do Bing</h1>
+    <p>Este script fará uma requisição POST para a API do Bing para indexar os URLs especificados.</p>
+
+    <script>
+        // Substitua 'SUA_API_KEY_AQUI' pela sua chave de API real
+        const apiKey = 'SUA_API_KEY_AQUI'; 
+
+        const data = {
+            "siteUrl": "https://blogmotivacionalai.netlify.app/",
+            "urlList": [
+                "https://blogmotivacionalai.netlify.app/dicas-de-saude",
+                "https://blogmotivacionalai.netlify.app/news",
+                "https://blogmotivacionalai.netlify.app/imgconvert",
+                "https://blogmotivacionalai.netlify.app/convertadvanced",
+                "https://blogmotivacionalai.netlify.app/minigames",
+                "https://blogmotivacionalai.netlify.app/pistadeobstaculos",
+                "https://blogmotivacionalai.netlify.app/crossingstreet",
+                "https://blogmotivacionalai.netlify.app/fcyberbird",
+                "https://blogmotivacionalai.netlify.app/linestreet",
+                "https://blogmotivacionalai.netlify.app/vitrine"
+            ]
+        };
+
+        fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Host': 'ssl.bing.com'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('URLs enviados com sucesso!');
+                return response.json();
+            }
+            throw new Error('Erro ao enviar os URLs. Código de status: ' + response.status);
+        })
+        .then(data => {
+            console.log('Resposta do Bing:', data);
+        })
+        .catch(error => {
+            console.error('Erro na requisição:', error);
+        });
+    </script>
+
+</body>
+</html>
