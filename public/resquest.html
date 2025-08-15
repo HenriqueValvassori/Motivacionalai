@@ -27,7 +27,7 @@
             "https://blogmotivacionalai.netlify.app/vitrine"
         ];
 
-        fetch(`${SERVER_URL}/js/request`, {
+        fetch(`${SERVER_URL}/.netlify/functions/indexnow`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
