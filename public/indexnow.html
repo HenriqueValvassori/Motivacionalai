@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar URLs para IndexNow</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f4f8;
+            color: #334155;
+            text-align: center;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        button {
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        #message {
+            margin-top: 1.5rem;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        #message.success {
+            color: #16a34a;
+        }
+        #message.error {
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Envio de URLs para IndexNow</h1>
+        <p>Clique no botão para enviar uma lista de URLs ao IndexNow através da sua função Netlify.</p>
+        <button id="sendButton">Enviar URLs</button>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = 'Enviando...';
+            messageDiv.className = '';
+
+            const urlListToSend = [
+                "https://blogmotivacionalai.netlify.app/dicas-de-saude",
+                "https://blogmotivacionalai.netlify.app/news",
+                "https://blogmotivacionalai.netlify.app/imgconvert",
+                "https://blogmotivacionalai.netlify.app/convertadvanced",
+                "https://blogmotivacionalai.netlify.app/minigames",
+                "https://blogmotivacionalai.netlify.app/pistadeobstaculos",
+                "https://blogmotivacionalai.netlify.app/crossingstreet",
+                "https://blogmotivacionalai.netlify.app/fcyberbird",
+                "https://blogmotivacionalai.netlify.app/linestreet",
+                "https://blogmotivacionalai.netlify.app/vitrine"
+            ];
+
+            try {
+                // A requisição usa o método POST para corresponder à sua função Netlify.
+                // A URL /api/indexnow será redirecionada para a função pelo netlify.toml.
+                const response = await fetch('/api/indexnow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ urlList: urlListToSend })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    messageDiv.textContent = `Sucesso: ${data.message}`;
+                    messageDiv.className = 'success';
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Falha no envio. Verifique o servidor e a resposta.');
+                }
+            } catch (error) {
+                console.error('Erro na requisição para o servidor:', error);
+                messageDiv.textContent = `Erro: ${error.message}`;
+                messageDiv.className = 'error';
+            }
+        });
+    </script>
+
+</body>
+</html>
