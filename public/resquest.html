@@ -2,57 +2,49 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Enviar URLs para o IndexNow</title>
+    <title>Enviar URLs para IndexNow</title>
 </head>
 <body>
 
-    <h1>Envio de URLs para Indexação com IndexNow</h1>
-    <p>Este script fará uma requisição POST para a API do IndexNow.</p>
+    <h1>Envio de URLs (via servidor) para IndexNow</h1>
+    <p>Este script fará uma requisição POST para o seu próprio servidor, que então se comunicará de forma segura com o IndexNow.</p>
 
     <script>
-        // Substitua 'SUA_CHAVE_AQUI' pela chave da sua API IndexNow
-        // e 'SUA_CHAVE_URL_AQUI' pelo local do arquivo .txt da sua chave
-        const apiKey = '0ed9c134d44d462bba5922134f2d2184'; 
-        const keyLocation = 'https://blogmotivacionalai.netlify.app/0ed9c134d44d462bba5922134f2d2184.txt'; 
+        // Substitua 'http://localhost:3000' pelo URL do seu servidor.
+        // Se estiver rodando no Netlify, pode ser algo como 'https://seuservidor.herokuapp.com'
+        const SERVER_URL = 'https://blogmotivacionalai.netlify.app'; 
 
-        const data = {
-            "host": "blogmotivacionalai.netlify.app",
-            "key": apiKey,
-            "keyLocation": keyLocation,
-            "urlList": [
-                "https://blogmotivacionalai.netlify.app/dicas-de-saude",
-                "https://blogmotivacionalai.netlify.app/news",
-                "https://blogmotivacionalai.netlify.app/imgconvert",
-                "https://blogmotivacionalai.netlify.app/convertadvanced",
-                "https://blogmotivacionalai.netlify.app/minigames",
-                "https://blogmotivacionalai.netlify.app/pistadeobstaculos",
-                "https://blogmotivacionalai.netlify.app/crossingstreet",
-                "https://blogmotivacionalai.netlify.app/fcyberbird",
-                "https://blogmotivacionalai.netlify.app/linestreet",
-                "https://blogmotivacionalai.netlify.app/vitrine"
-            ]
-        };
+        const urlListToSend = [
+            "https://blogmotivacionalai.netlify.app/dicas-de-saude",
+            "https://blogmotivacionalai.netlify.app/news",
+            "https://blogmotivacionalai.netlify.app/imgconvert",
+            "https://blogmotivacionalai.netlify.app/convertadvanced",
+            "https://blogmotivacionalai.netlify.app/minigames",
+            "https://blogmotivacionalai.netlify.app/pistadeobstaculos",
+            "https://blogmotivacionalai.netlify.app/crossingstreet",
+            "https://blogmotivacionalai.netlify.app/fcyberbird",
+            "https://blogmotivacionalai.netlify.app/linestreet",
+            "https://blogmotivacionalai.netlify.app/vitrine"
+        ];
 
-        fetch('https://api.indexnow.org/IndexNow', {
+        fetch(`${SERVER_URL}/api/indexnow`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json; charset=utf-8',
-                'Host': 'api.indexnow.org'
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify({ urlList: urlListToSend })
         })
         .then(response => {
             if (response.ok) {
-                console.log('URLs enviados com sucesso via IndexNow!');
-                return response.text(); // A resposta é um status, não um JSON complexo
+                return response.json();
             }
-            throw new Error('Erro ao enviar os URLs. Código de status: ' + response.status);
+            throw new Error('Falha no envio. Verifique o servidor e a resposta.');
         })
         .then(data => {
-            console.log('Resposta do IndexNow:', data);
+            console.log('Sucesso:', data.message);
         })
         .catch(error => {
-            console.error('Erro na requisição:', error);
+            console.error('Erro na requisição para o servidor:', error);
         });
     </script>
 
