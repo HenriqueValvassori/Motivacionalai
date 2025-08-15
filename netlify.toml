@@ -60,6 +60,11 @@
   to = "/.netlify/functions/generate-image-gemini"
   status = 200
 
+[[redirects]]
+  from = "/api/indexnow"
+  to = "/.netlify/functions/indexnow"
+  status = 200
+
 # =======================
 # Cabeçalhos de Segurança
 # =======================
