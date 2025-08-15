@@ -2,19 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Enviar URLs para o Bing</title>
+    <title>Enviar URLs para o IndexNow</title>
 </head>
 <body>
 
-    <h1>Envio de URLs para Indexação do Bing</h1>
-    <p>Este script fará uma requisição POST para a API do Bing para indexar os URLs especificados.</p>
+    <h1>Envio de URLs para Indexação com IndexNow</h1>
+    <p>Este script fará uma requisição POST para a API do IndexNow.</p>
 
     <script>
-        // Substitua 'SUA_API_KEY_AQUI' pela sua chave de API real
+        // Substitua 'SUA_CHAVE_AQUI' pela chave da sua API IndexNow
+        // e 'SUA_CHAVE_URL_AQUI' pelo local do arquivo .txt da sua chave
         const apiKey = '0ed9c134d44d462bba5922134f2d2184'; 
+        const keyLocation = 'https://blogmotivacionalai.netlify.app/0ed9c134d44d462bba5922134f2d2184.txt'; 
 
         const data = {
-            "siteUrl": "https://blogmotivacionalai.netlify.app/",
+            "host": "blogmotivacionalai.netlify.app",
+            "key": apiKey,
+            "keyLocation": keyLocation,
             "urlList": [
                 "https://blogmotivacionalai.netlify.app/dicas-de-saude",
                 "https://blogmotivacionalai.netlify.app/news",
@@ -29,23 +33,23 @@
             ]
         };
 
-        fetch(`https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=${apiKey}`, {
+        fetch('https://api.indexnow.org/IndexNow', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
-                'Host': 'ssl.bing.com'
+                'Host': 'api.indexnow.org'
             },
             body: JSON.stringify(data)
         })
         .then(response => {
             if (response.ok) {
-                console.log('URLs enviados com sucesso!');
-                return response.json();
+                console.log('URLs enviados com sucesso via IndexNow!');
+                return response.text(); // A resposta é um status, não um JSON complexo
             }
             throw new Error('Erro ao enviar os URLs. Código de status: ' + response.status);
         })
         .then(data => {
-            console.log('Resposta do Bing:', data);
+            console.log('Resposta do IndexNow:', data);
         })
         .catch(error => {
             console.error('Erro na requisição:', error);
