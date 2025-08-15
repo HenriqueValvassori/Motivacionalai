@@ -8,7 +8,7 @@ const INDEXNOW_API_KEY = process.env.INDEXNOW_API_KEY;
 const KEY_LOCATION = process.env.INDEXNOW_KEY_LOCATION;
 
 exports.handler = async (event, context) => {
-    // Apenas requisições POST são aceitas
+    // Apenas requisições POST são aceitas. Se não for, retorne um erro 405.
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
@@ -17,7 +17,9 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const { urlList } = JSON.parse(event.body);
+        // Tente analisar o corpo da requisição. Se falhar, retorne um erro 400.
+        const body = JSON.parse(event.body);
+        const urlList = body.urlList;
 
         if (!urlList || !Array.isArray(urlList) || urlList.length === 0) {
             return {
@@ -30,7 +32,7 @@ exports.handler = async (event, context) => {
             console.error('As variáveis de ambiente para a chave da API não foram configuradas.');
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: 'Configuração da chave de API ausente.' })
+                body: JSON.stringify({ error: 'Configuração da chave de API ausente. Verifique o painel do Netlify.' })
             };
         }
 
