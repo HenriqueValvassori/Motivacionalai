@@ -1,9 +1,5 @@
 // Arquivo: netlify/functions/index.js
-import { inject } from "@vercel/analytics";
-inject();
-import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights();
 const express = require('express');
 const app = express();
 const cors = require('cors');
