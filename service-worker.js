@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next
 {
     "name": "MotivacionalAI",
     "short_name": "MotivacionalAI",
