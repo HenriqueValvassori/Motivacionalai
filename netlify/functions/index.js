@@ -4,21 +4,30 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
-// Importa suas outras funções
+// Importa todas as suas funções
+const convertFile = require('./convertFile');
+const generateNews = require('./generate-news');
+const generateTrainingTips = require('./generate-training-tips');
 const getMotivation = require('./get-motivation');
+const getNews = require('./get-news');
 const getTrainingTips = require('./get-training-tips');
-const generateImage = require('./generate-image-gemini');
-const indexNow = require('./indexnow');
+const getTrainingTipss = require('./get-training-tipss'); // Verifique a duplicidade no nome
+const produto = require('./produto');
 
 // Middleware para habilitar CORS
 app.use(cors());
 app.use(express.json());
 
-// Mapeia suas funções para as rotas da API
+// Mapeia cada função para sua respectiva rota da API
+// Certifique-se de que cada uma dessas rotas corresponda a uma requisição no seu front-end
+app.get('/api/convertFile', convertFile);
+app.get('/api/generate-news', generateNews);
+app.get('/api/generate-training-tips', generateTrainingTips);
 app.get('/api/get-motivation', getMotivation);
+app.get('/api/get-news', getNews);
 app.get('/api/get-training-tips', getTrainingTips);
-app.get('/api/generate-image-gemini', generateImage);
-app.get('/api/indexnow', indexNow);
+app.get('/api/get-training-tipss', getTrainingTipss);
+app.get('/api/produto', produto);
 
-// Exporta o app do Express como o handler da função Netlify/Vercel
+// Exporta o aplicativo Express para ser usado pelo Vercel como sua Serverless Function
 module.exports = app;
