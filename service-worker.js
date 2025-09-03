@@ -1,4 +1,8 @@
-import { SpeedInsights } from "@vercel/speed-insights/next
+import { injectSpeedInsights } from '@vercel/speed-insights';
+
+injectSpeedInsights();
+import { inject } from "@vercel/analytics";
+inject();
 {
     "name": "MotivacionalAI",
     "short_name": "MotivacionalAI",

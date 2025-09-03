@@ -1,5 +1,5 @@
 // Arquivo: netlify/functions/index.js
-import { inject } from "@vercel/analytics"
+import { inject } from "@vercel/analytics";
 inject();
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
