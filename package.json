@@ -16,6 +16,6 @@
   },
   "scripts": {
     "build": "echo 'Build step not needed for this project'",
-    "start": "node chatgpt.js"
+    "start": "node netlify/functions/index.js"
   }
 }
