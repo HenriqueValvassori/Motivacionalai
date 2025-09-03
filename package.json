@@ -16,6 +16,6 @@
   },
   "scripts": {
     "build": "echo 'Build step not needed for this project'",
-    "start": "node your-main-server-file.js"
+    "start": "node chatgpt.js"
   }
 }
