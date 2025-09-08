@@ -1,5 +1,3 @@
-// js/motivation-app.js
-
 document.addEventListener('DOMContentLoaded', async () => {
     const fraseMotivadoraElement = document.getElementById('fraseMotivadora');
     const trainingTipsElement = document.getElementById('trainingTipsContent');
@@ -7,10 +5,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const errorMessage = document.getElementById('errorMessage');
     const videosGallery = document.getElementById('videosGallery');
 
-    // Funções de busca com uma função utilitária para centralizar a lógica de fetch
-    async function fetchData(url, elementType, fallbackMessage) {
-        if (!elementType) return; // Garante que o elemento existe
-
+    // Função utilitária para buscar dados de um URL e tratar erros
+    async function fetchData(url, elementType) {
         try {
             const response = await fetch(url);
 
@@ -18,24 +14,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) {
                 // Tenta ler o JSON de erro do corpo da resposta, se houver
                 const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error || `Erro HTTP: ${response.status} ao buscar o recurso.`;
-                throw new Error(errorMessage);
+                const errorMessageText = errorData.error || `Erro HTTP: ${response.status} ao buscar o recurso.`;
+                throw new Error(errorMessageText);
             }
             
             // Retorna os dados como JSON
             const data = await response.json();
             return data;
-
         } catch (error) {
             console.error(`Erro ao buscar dados de ${url}:`, error);
             if (elementType) {
-                elementType.textContent = fallbackMessage;
+                elementType.textContent = `Ops! Erro ao carregar. Recarregue a página.`;
             }
             if (errorMessage) {
                 errorMessage.textContent = `Detalhe do erro: ${error.message}`;
                 errorMessage.style.display = 'block';
             }
-            throw error; // Relança o erro para ser tratado por quem chamou a função
+            throw error; // Relança o erro para que o 'finally' seja executado
         }
     }
 
@@ -48,15 +43,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (errorMessage) errorMessage.style.display = 'none';
 
         try {
-            const data = await fetchData('/api/get-motivation', fraseMotivadoraElement, 'Ops! Não conseguimos carregar a frase. Tente recarregar a página.');
+            // **CORRIGIDO:** Alterado de /.netlify/functions para /api/
+            const data = await fetchData('/api/get-motivation', fraseMotivadoraElement);
             if (data && data.phrase) {
                 fraseMotivadoraElement.textContent = data.phrase;
             } else {
-                throw new Error('Formato de dados inesperado para a frase.');
+                throw new Error('Formato de dados da frase inesperado.');
             }
         } catch (error) {
-            // O erro já foi tratado na função fetchData, mas o catch aqui é para garantir
-            // que a execução continue
+            // O erro já foi tratado em fetchData(), nada mais a fazer aqui
         } finally {
             if (loadingMessage) loadingMessage.style.display = 'none';
         }
@@ -68,14 +63,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         trainingTipsElement.textContent = 'Carregando dicas de treino...';
         try {
-            const data = await fetchData('/api/get-training-tips', trainingTipsElement, 'Não foi possível carregar as dicas de treino no momento. Por favor, tente novamente.');
+            // **CORRIGIDO:** Alterado de /.netlify/functions para /api/
+            const data = await fetchData('/api/get-training-tips', trainingTipsElement);
             if (data && data.tips) {
                 trainingTipsElement.textContent = data.tips;
             } else {
-                throw new Error('Formato de dados inesperado para as dicas.');
+                throw new Error('Formato de dados das dicas inesperado.');
             }
         } catch (error) {
-            // Erro já tratado em fetchData
+            // O erro já foi tratado em fetchData()
         }
     }
 
@@ -85,7 +81,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         videosGallery.innerHTML = '<p class="loading-videos">Carregando Vídeos...</p>';
         try {
-            const data = await fetchData('/api/get-youtube-videos', videosGallery, 'Ops! Erro ao carregar os vídeos.');
+            // **CORRIGIDO:** Alterado de /.netlify/functions para /api/
+            const data = await fetchData('/api/get-youtube-videos', videosGallery);
 
             videosGallery.innerHTML = ''; // Limpa o placeholder de carregamento
 
@@ -95,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 videosGallery.innerHTML = '<p>Nenhum vídeo longo encontrado no momento. Volte mais tarde!</p>';
             }
         } catch (error) {
-            // Erro já tratado em fetchData
+            // O erro já foi tratado em fetchData()
         }
     }
     
