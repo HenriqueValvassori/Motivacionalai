@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (errorMessage) errorMessage.style.display = 'none';
 
         try {
-            // **CORRIGIDO:** Alterado o caminho para o padrão do Vercel
+            // **CORRIGIDO:** O caminho agora é /api/
             const data = await fetchData('/api/get-motivation', fraseMotivadoraElement);
             if (data && data.phrase) {
                 fraseMotivadoraElement.textContent = data.phrase;
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!trainingTipsElement) return;
         trainingTipsElement.textContent = 'Carregando dicas de treino...';
         try {
-            // **CORRIGIDO:** Alterado o caminho para o padrão do Vercel
+            // **CORRIGIDO:** O caminho agora é /api/
             const data = await fetchData('/api/get-training-tips', trainingTipsElement);
             if (data && data.tips) {
                 trainingTipsElement.textContent = data.tips;
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!videosGallery) return;
         videosGallery.innerHTML = '<p class="loading-videos">Carregando Vídeos...</p>';
         try {
-            // **CORRIGIDO:** Alterado o caminho para o padrão do Vercel
+            // **CORRIGIDO:** O caminho agora é /api/
             const data = await fetchData('/api/get-youtube-videos', videosGallery);
             videosGallery.innerHTML = '';
             if (data && data.regularVideos && data.regularVideos.length > 0) {
