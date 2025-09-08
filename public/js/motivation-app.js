@@ -120,3 +120,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchTrainingTips();
     fetchYouTubeVideos();
 });
+//gqqbqbaa
