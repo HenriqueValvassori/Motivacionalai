@@ -1,29 +1,24 @@
-// netlify/functions/get-motivation.js
-require('dotenv').config(); // Carrega variáveis de ambiente (para testar localmente com netlify-cli)
-const { getContent } = require('../../utils/db'); // Importa a lógica do DB
+// api/get-motivation.js
 
-exports.handler = async (event, context) => {
+require('dotenv').config();
+const { getContent } = require('../../utils/db');
+
+export default async function (req, res) {
     try {
-        const prompt = "Crie uma frase motivadora para mim, mostre apenas a frase. Não inicie a fala com 'boa ideia!' ou 'que interessante' ou qualquer outra introdução. Apenas a frase.";
+        console.log('Iniciando a função get-motivation...'); // Log para saber que a função começou
+        
+        const prompt = "Crie uma frase motivadora para mim...";
+        
+        // Verifique se a função getContent está sendo chamada corretamente
         const data = await getContent('frase motivacional', prompt, 'phrases', 'phrase');
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*' // Importante para CORS no frontend
-            }
-        };
+        
+        console.log('Dados recebidos do banco de dados:', data); // Log para ver o retorno
+        
+        res.status(200).json(data);
     } catch (error) {
-        console.error('Erro na função get-motivation:', error);
-        return {
-            statusCode: error.statusCode || 500,
-            body: JSON.stringify({ error: error.message || 'Erro desconhecido ao gerar frase motivacional.' }),
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            }
-        };
+        console.error('Erro detalhado na função get-motivation:', error); // Log o erro completo
+        res.status(500).json({
+            error: 'Erro no servidor. Verifique os logs do Vercel para mais detalhes.'
+        });
     }
-};
+}
