@@ -12,9 +12,5 @@
     "pg": "^8.16.3",
     "tempy": "^0.3.0",
     "xml2js": "^0.6.2"
-  },
-  "scripts": {
-    "build": "echo 'Build step not needed for this project'",
-    "start": "node your-main-server-file.js"
   }
 }
