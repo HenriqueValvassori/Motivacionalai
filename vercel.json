@@ -1,69 +1,13 @@
 {
-  "functions": {
-    "netlify/functions/get-motivation.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "netlify/functions/get-training-tips.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "netlify/functions/generate-image-gemini.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "netlify/functions/indexnow.js": {
-      "memory": 1024,
-      "maxDuration": 10
+  "build": {
+    "env": {
+      "NODE_VERSION": "18"
     }
   },
-  "routes": [
+  "crons": [
     {
-      "src": "/api/get-motivation",
-      "dest": "/netlify/functions/get-motivation.js"
-    },
-    {
-      "src": "/api/get-training-tips",
-      "dest": "/netlify/functions/get-training-tips.js"
-    },
-    {
-      "src": "/api/generate-image-gemini",
-      "dest": "/netlify/functions/generate-image-gemini.js"
-    },
-    {
-      "src": "/api/indexnow",
-      "dest": "/netlify/functions/indexnow.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self' https://*; script-src 'self' 'unsafe-inline' https://*; style-src 'self' 'unsafe-inline' https://*; img-src 'self' data: https://*; font-src 'self' https://*; connect-src 'self' data: https://*; frame-src 'self' https://*"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "no-referrer-when-downgrade"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains; preload"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "geolocation=(), microphone=(), camera=()"
-        }
-      ]
+      "path": "/api/your-cron-endpoint",
+      "schedule": "0 0 * * *"
     }
   ]
 }
