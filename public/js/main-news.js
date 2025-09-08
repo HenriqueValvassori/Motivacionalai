@@ -1,86 +1,79 @@
-// public/js/main-news.js
 document.addEventListener('DOMContentLoaded', async () => {
-    // newsTitleElement será o título da seção de notícias, como "Todas as Notícias"
-    const newsTitleElement = document.getElementById('news-title'); 
-    // newsContentElement será o contêiner onde as notícias individuais serão adicionadas
-    const newsContentElement = document.getElementById('news-content'); 
-    const errorMessageElement = document.getElementById('error-message');
+    const newsContainer = document.getElementById('news-container');
+    const loadingMessage = document.getElementById('loading-message');
 
-    // Inicializa o estado de carregamento
-    newsContentElement.innerHTML = '<p>Carregando notícias...</p>';
-    if (errorMessageElement) {
-        errorMessageElement.style.display = 'none';
+    // Função utilitária para criar e adicionar os cards de notícia
+    function createNewsCard(newsItem) {
+        const card = document.createElement('div');
+        card.classList.add('news-card');
+
+        const title = document.createElement('h3');
+        title.textContent = newsItem.title;
+
+        const description = document.createElement('p');
+        description.textContent = newsItem.description;
+
+        const link = document.createElement('a');
+        link.href = newsItem.url;
+        link.textContent = 'Leia mais';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+
+        const image = document.createElement('img');
+        image.src = newsItem.image || 'placeholder.jpg'; // Adicionar uma imagem padrão se não houver
+        image.alt = newsItem.title;
+        image.classList.add('news-image');
+
+        card.appendChild(image);
+        card.appendChild(title);
+        card.appendChild(description);
+        card.appendChild(link);
+        return card;
     }
-    
-    // Opcional: Você pode querer remover ou redefinir news-date se ele não for mais global
-    const newsDateElement = document.getElementById('news-date');
-    if (newsDateElement) newsDateElement.textContent = ''; 
 
-    try {
-        // Confirma que a URL da função está correta
-        const response = await fetch('/.netlify/functions/get-news'); 
+    // Função principal para buscar e exibir as notícias
+    async function fetchNews() {
+        if (!newsContainer) return;
 
-        if (!response.ok) {
-            // Tenta ler o erro do JSON, se disponível
-            let errorDetails = `Erro HTTP: ${response.status}`;
-            try {
-                const errorData = await response.json();
-                errorDetails = errorData.error || errorDetails;
-            } catch (e) {
-                // Se a resposta não for JSON (ex: HTML de erro do Netlify), usa a mensagem padrão
-                errorDetails = `Resposta do servidor não é JSON (HTTP ${response.status}).`;
+        // Exibe a mensagem de carregamento
+        loadingMessage.style.display = 'block';
+
+        try {
+            // **CORRIGIDO:** Alterado o caminho do fetch para o padrão do Vercel
+            const response = await fetch('/api/get-news');
+
+            if (!response.ok) {
+                // Se a resposta não for OK, tenta ler o JSON de erro
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error || `Erro HTTP: ${response.status} ao buscar notícias.`;
+                throw new Error(errorMessage);
             }
 
-            // A função get-news.js retorna 404 se não houver notícias
-            if (response.status === 404) {
-                throw new Error("Nenhuma notícia encontrada no banco de dados.");
+            const data = await response.json();
+
+            // Limpa o contêiner antes de adicionar as notícias
+            newsContainer.innerHTML = '';
+
+            // Se a busca retornar notícias, as exibe
+            if (data.articles && data.articles.length > 0) {
+                data.articles.forEach(article => {
+                    const newsCard = createNewsCard(article);
+                    newsContainer.appendChild(newsCard);
+                });
+            } else {
+                // Se o array de artigos estiver vazio, exibe uma mensagem
+                newsContainer.innerHTML = '<p class="error-message">Nenhuma notícia encontrada no momento. Tente novamente mais tarde.</p>';
             }
-            throw new Error(errorDetails);
-        }
 
-        // É crucial que a resposta seja parseada como JSON aqui
-        const allNews = await response.json(); 
-
-        // Verifica se é um array e se contém itens
-        if (allNews && Array.isArray(allNews) && allNews.length > 0) {
-            newsContentElement.innerHTML = ''; // Limpa a mensagem "Carregando notícias..."
-
-            // Itera sobre CADA notícia no array para criar seus elementos HTML
-            allNews.forEach(news => {
-                const newsItem = document.createElement('div');
-                newsItem.className = 'news-item'; // Adicione uma classe CSS para estilização
-                newsItem.innerHTML = `
-                    <h3>${news.titulo}</h3>
-                    <p>${news.conteudo.replace(/\n/g, '<br>')}</p>
-                    <small>Publicado em: ${new Date(news.data_geracao).toLocaleDateString('pt-BR')} às ${new Date(news.data_geracao).toLocaleTimeString('pt-BR')}</small>
-                    <hr> `;
-                newsContentElement.appendChild(newsItem);
-            });
-            newsTitleElement.textContent = 'Todas as Notícias'; // Atualiza o título principal da seção
-        } else {
-            // Se o array estiver vazio ou não for um array válido
-            newsContentElement.innerHTML = '<p>Nenhuma notícia disponível no momento.</p><p>Por favor, volte mais tarde.</p>';
-            if (errorMessageElement) {
-                errorMessageElement.textContent = 'Dados da notícia incompletos ou inexistentes.';
-                errorMessageElement.style.display = 'block';
-            }
-            newsTitleElement.textContent = 'Notícias'; // Volta para um título mais genérico
+        } catch (error) {
+            console.error('Erro ao buscar notícias:', error);
+            // Se ocorrer um erro, exibe uma mensagem de erro na tela
+            newsContainer.innerHTML = `<p class="error-message">Ops! Erro ao carregar as notícias: ${error.message}.</p>`;
+        } finally {
+            // Oculta a mensagem de carregamento ao final da operação
+            loadingMessage.style.display = 'none';
         }
-    } catch (error) {
-        console.error('Erro ao buscar notícias:', error);
-        newsContentElement.innerHTML = `<p>Não foi possível carregar as notícias no momento.</p>`;
-        if (errorMessageElement) {
-            errorMessageElement.textContent = `Erro: ${error.message}`;
-            errorMessageElement.style.display = 'block';
-        }
-        newsTitleElement.textContent = 'Notícias';
     }
-});
 
-// Este script também pode inicializar o ano atual no footer, se for o caso.
-document.addEventListener('DOMContentLoaded', () => {
-    const currentYearSpan = document.getElementById('current-year');
-    if (currentYearSpan) {
-        currentYearSpan.textContent = new Date().getFullYear();
-    }
+    fetchNews();
 });
